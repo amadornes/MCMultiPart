@@ -1,12 +1,9 @@
 package mcmultipart.property;
 
-import java.util.Collection;
-
 import mcmultipart.microblock.IMicroMaterial;
-import mcmultipart.microblock.MicroblockRegistry;
-import net.minecraft.block.properties.IProperty;
+import net.minecraftforge.common.property.IUnlistedProperty;
 
-public class PropertyMicroMaterial implements IProperty<IMicroMaterial> {
+public class PropertyMicroMaterial implements IUnlistedProperty<IMicroMaterial> {
 
     private final String name;
 
@@ -22,21 +19,21 @@ public class PropertyMicroMaterial implements IProperty<IMicroMaterial> {
     }
 
     @Override
-    public Collection<IMicroMaterial> getAllowedValues() {
+    public boolean isValid(IMicroMaterial value) {
 
-        return MicroblockRegistry.getRegisteredMaterials();
+        return value != null;
     }
 
     @Override
-    public Class<IMicroMaterial> getValueClass() {
+    public Class<IMicroMaterial> getType() {
 
         return IMicroMaterial.class;
     }
 
     @Override
-    public String getName(IMicroMaterial value) {
+    public String valueToString(IMicroMaterial value) {
 
-        return value.getLocalizedName();
+        return value.getName();
     }
 
 }

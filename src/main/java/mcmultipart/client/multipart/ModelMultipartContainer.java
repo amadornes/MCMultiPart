@@ -3,6 +3,11 @@ package mcmultipart.client.multipart;
 import java.util.ArrayList;
 import java.util.List;
 
+import mcmultipart.block.BlockCoverable;
+import mcmultipart.block.BlockMultipart;
+import mcmultipart.multipart.IMultipart;
+import mcmultipart.multipart.IMultipartContainer;
+import mcmultipart.multipart.MultipartRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -12,17 +17,9 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.util.EnumFacing;
-
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.common.property.IExtendedBlockState;
-
-import mcmultipart.block.BlockCoverable;
-import mcmultipart.block.BlockMultipart;
-import mcmultipart.client.MCMultiPartClientProxy;
-import mcmultipart.multipart.IMultipart;
-import mcmultipart.multipart.IMultipartContainer;
-import mcmultipart.multipart.MultipartRegistry;
 
 @SuppressWarnings("deprecation")
 public class ModelMultipartContainer implements ISmartBlockModel {
@@ -61,7 +58,7 @@ public class ModelMultipartContainer implements ISmartBlockModel {
 
                 IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
                         .getModelManager()
-                        .getModel(new ModelResourceLocation(path, MCMultiPartClientProxy.mapper.getPropertyString(state.getProperties())));
+                        .getModel(new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
                 if (model != null) {
                     model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(state) : model;
                     quads.addAll(model.getFaceQuads(face));
@@ -88,7 +85,7 @@ public class ModelMultipartContainer implements ISmartBlockModel {
 
                 IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
                         .getModelManager()
-                        .getModel(new ModelResourceLocation(path, MCMultiPartClientProxy.mapper.getPropertyString(state.getProperties())));
+                        .getModel(new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
                 if (model != null) {
                     model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(state) : model;
                     quads.addAll(model.getGeneralQuads());

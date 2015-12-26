@@ -6,6 +6,7 @@ import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.raytrace.PartMOP;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -83,8 +84,10 @@ public final class MultipartContainerSpecialRenderer {
             renderer.renderMultipartAt(part, x, y, z, partialTicks, destroyStage);
         } else {
             String path = part.getModelPath();
+            IBlockState state = part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState());
             IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
-                    .getModelManager().getModel(new ModelResourceLocation(path, "multipart"));
+                    .getModelManager()
+                    .getModel(new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
             if (model != null) {
                 model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(part
                         .getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState())) : model;

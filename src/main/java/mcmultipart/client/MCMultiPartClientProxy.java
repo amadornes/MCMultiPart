@@ -22,14 +22,12 @@ import mcmultipart.client.multipart.MultipartStateMapper;
 
 public class MCMultiPartClientProxy extends MCMultiPartCommonProxy {
 
-    public static MultipartStateMapper mapper = new MultipartStateMapper();
-
     @Override
     public void preInit() {
 
         super.preInit();
 
-        ModelLoader.setCustomStateMapper(MCMultiPartMod.multipart, mapper);
+        ModelLoader.setCustomStateMapper(MCMultiPartMod.multipart, MultipartStateMapper.instance);
     }
 
     @Override

@@ -3,10 +3,10 @@ package mcmultipart.block;
 import java.util.List;
 
 import mcmultipart.MCMultiPartMod;
-import mcmultipart.client.MCMultiPartClientProxy;
 import mcmultipart.client.multipart.IHitEffectsPart;
 import mcmultipart.client.multipart.IHitEffectsPart.AdvancedEffectRenderer;
 import mcmultipart.client.multipart.ISmartMultipartModel;
+import mcmultipart.client.multipart.MultipartStateMapper;
 import mcmultipart.microblock.IMicroblockTile;
 import mcmultipart.microblock.MicroblockContainer;
 import mcmultipart.multipart.MultipartContainer;
@@ -306,7 +306,7 @@ public class BlockCoverable extends BlockContainer {
             IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
             IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
                     .getModelManager()
-                    .getModel(new ModelResourceLocation(path, MCMultiPartClientProxy.mapper.getPropertyString(state.getProperties())));
+                    .getModel(new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
             if (model != null) {
                 model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
                         .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
@@ -339,7 +339,7 @@ public class BlockCoverable extends BlockContainer {
             IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
             IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
                     .getModelManager()
-                    .getModel(new ModelResourceLocation(path, MCMultiPartClientProxy.mapper.getPropertyString(state.getProperties())));
+                    .getModel(new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
             if (model != null) {
                 model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
                         .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;

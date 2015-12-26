@@ -1,12 +1,9 @@
 package mcmultipart.property;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 import mcmultipart.multipart.PartSlot;
-import net.minecraft.block.properties.IProperty;
+import net.minecraftforge.common.property.IUnlistedProperty;
 
-public class PropertySlot implements IProperty<PartSlot> {
+public class PropertySlot implements IUnlistedProperty<PartSlot> {
 
     private final String name;
 
@@ -22,19 +19,19 @@ public class PropertySlot implements IProperty<PartSlot> {
     }
 
     @Override
-    public Collection<PartSlot> getAllowedValues() {
+    public boolean isValid(PartSlot value) {
 
-        return Arrays.asList(PartSlot.values());
+        return value != null;
     }
 
     @Override
-    public Class<PartSlot> getValueClass() {
+    public Class<PartSlot> getType() {
 
         return PartSlot.class;
     }
 
     @Override
-    public String getName(PartSlot value) {
+    public String valueToString(PartSlot value) {
 
         return value.getLocalizedName();
     }

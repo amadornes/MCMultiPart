@@ -11,26 +11,28 @@ import mcmultipart.property.PropertySlot;
 import mcmultipart.raytrace.PartMOP;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
-import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraftforge.common.property.ExtendedBlockState;
+import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
+import net.minecraftforge.common.property.Properties.PropertyAdapter;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 public abstract class Microblock extends Multipart implements IMicroblock {
 
-    public static final IProperty<?>[] PROPERTIES = new IProperty[3];
-    public static final IProperty<IMicroMaterial> PROPERTY_MATERIAL;
-    public static final IProperty<Integer> PROPERTY_SIZE;
-    public static final IProperty<PartSlot> PROPERTY_SLOT;
+    public static final IUnlistedProperty<?>[] PROPERTIES = new IUnlistedProperty[3];
+    public static final IUnlistedProperty<IMicroMaterial> PROPERTY_MATERIAL;
+    public static final IUnlistedProperty<Integer> PROPERTY_SIZE;
+    public static final IUnlistedProperty<PartSlot> PROPERTY_SLOT;
 
     static {
         PROPERTIES[0] = PROPERTY_MATERIAL = new PropertyMicroMaterial("material");
-        PROPERTIES[1] = PROPERTY_SIZE = PropertyInteger.create("size", 0, 7);
+        PROPERTIES[1] = PROPERTY_SIZE = new PropertyAdapter<Integer>(PropertyInteger.create("size", 0, 7));
         PROPERTIES[2] = PROPERTY_SLOT = new PropertySlot("slot");
     }
 
@@ -135,14 +137,14 @@ public abstract class Microblock extends Multipart implements IMicroblock {
     @Override
     public IBlockState getExtendedState(IBlockState state) {
 
-        return state.withProperty(PROPERTY_MATERIAL, getMicroMaterial()).withProperty(PROPERTY_SIZE, getSize())
+        return ((IExtendedBlockState) state).withProperty(PROPERTY_MATERIAL, getMicroMaterial()).withProperty(PROPERTY_SIZE, getSize())
                 .withProperty(PROPERTY_SLOT, slot);
     }
 
     @Override
-    public BlockState createBlockState() {
+    public ExtendedBlockState createBlockState() {
 
-        return new BlockState(null, PROPERTIES);
+        return new ExtendedBlockState(null, new IProperty[0], PROPERTIES);
     }
 
     @Override
