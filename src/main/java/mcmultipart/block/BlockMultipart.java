@@ -3,16 +3,7 @@ package mcmultipart.block;
 import java.util.Collections;
 import java.util.List;
 
-import mcmultipart.MCMultiPartMod;
-import mcmultipart.client.multipart.IHitEffectsPart;
-import mcmultipart.client.multipart.IHitEffectsPart.AdvancedEffectRenderer;
-import mcmultipart.client.multipart.ISmartMultipartModel;
-import mcmultipart.multipart.IMultipartContainer;
-import mcmultipart.multipart.MultipartRegistry;
-import mcmultipart.property.PropertyMultipartContainer;
-import mcmultipart.raytrace.PartMOP;
-import mcmultipart.raytrace.RayTraceUtils;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -37,9 +28,21 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
+
+import mcmultipart.MCMultiPartMod;
+import mcmultipart.client.multipart.IHitEffectsPart;
+import mcmultipart.client.multipart.IHitEffectsPart.AdvancedEffectRenderer;
+import mcmultipart.client.multipart.ISmartMultipartModel;
+import mcmultipart.multipart.IMultipartContainer;
+import mcmultipart.multipart.MultipartRegistry;
+import mcmultipart.property.PropertyMultipartContainer;
+import mcmultipart.raytrace.PartMOP;
+import mcmultipart.raytrace.RayTraceUtils;
+import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
 
 public final class BlockMultipart extends BlockContainer {
 
@@ -73,6 +76,11 @@ public final class BlockMultipart extends BlockContainer {
         }
 
         ((TileMultipart) worldIn.getTileEntity(pos)).getPartContainer().addCollisionBoxes(mask, list, collidingEntity);
+    }
+
+    @Override
+    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
+        ((TileMultipart) worldIn.getTileEntity(pos)).getPartContainer().onNeighborBlockChange(neighborBlock);
     }
 
     @Override
@@ -275,8 +283,6 @@ public final class BlockMultipart extends BlockContainer {
 
     @Override
     public boolean canRenderInLayer(EnumWorldBlockLayer layer) {
-
         return true;
     }
-
 }

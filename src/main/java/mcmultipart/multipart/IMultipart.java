@@ -3,8 +3,7 @@ package mcmultipart.multipart;
 import java.util.List;
 
 import io.netty.buffer.ByteBuf;
-import mcmultipart.raytrace.PartMOP;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
@@ -15,10 +14,15 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import mcmultipart.raytrace.PartMOP;
+import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
 
 public interface IMultipart {
 
@@ -81,6 +85,8 @@ public interface IMultipart {
     public void readUpdatePacket(ByteBuf buf);
 
     public void sendUpdatePacket();
+
+    public boolean canRenderInLayer(EnumWorldBlockLayer layer);
 
     public IBlockState getExtendedState(IBlockState state);
 

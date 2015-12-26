@@ -3,19 +3,20 @@ package mcmultipart.block;
 import java.util.Collection;
 import java.util.UUID;
 
-import mcmultipart.multipart.IMultipart;
-import mcmultipart.multipart.IMultipartContainer;
-import mcmultipart.multipart.ISlottedPart;
-import mcmultipart.multipart.MultipartContainer;
-import mcmultipart.multipart.PartSlot;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ITickable;
 
-public final class TileMultipart extends TileEntity implements IMultipartContainer {
+import mcmultipart.multipart.IMultipart;
+import mcmultipart.multipart.IMultipartContainer;
+import mcmultipart.multipart.ISlottedPart;
+import mcmultipart.multipart.MultipartContainer;
+import mcmultipart.multipart.PartSlot;
 
+public final class TileMultipart extends TileEntity implements IMultipartContainer, ITickable {
     private MultipartContainer container;
 
     public TileMultipart(MultipartContainer container) {
@@ -138,4 +139,12 @@ public final class TileMultipart extends TileEntity implements IMultipartContain
         return bounds.offset(getPos().getX(), getPos().getY(), getPos().getZ());
     }
 
+    @Override
+    public void update() {
+        for (IMultipart part : getParts()) {
+            if (part instanceof ITickable) {
+                ((ITickable) part).update();
+            }
+        }
+    }
 }

@@ -1,22 +1,24 @@
 package mcmultipart.multipart;
 
-import io.netty.buffer.ByteBuf;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.block.state.BlockState;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import io.netty.buffer.ByteBuf;
+
+import net.minecraft.block.state.BlockState;
+import net.minecraft.nbt.NBTTagCompound;
+
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class MultipartRegistry {
+    // TODO: FIXME - replace with getters
+    public static Map<BlockState, String> stateLocations = new HashMap<BlockState, String>();
+    public static Map<String, BlockState> defaultStates = new HashMap<String, BlockState>();
 
     private static Map<String, IPartFactory> partProviders = new HashMap<String, IPartFactory>();
     private static BiMap<String, Class<? extends IMultipart>> partClasses = HashBiMap.create();
-    private static Map<String, BlockState> defaultStates = new HashMap<String, BlockState>();
 
     public static void registerProvider(IPartFactory provider, String... parts) {
 
@@ -26,8 +28,11 @@ public class MultipartRegistry {
         for (String part : parts)
             partProviders.put(part, provider);
         try {
-            for (String part : parts)
-                defaultStates.put(part, provider.createPart(part, new NBTTagCompound()).createBlockState());
+            for (String part : parts) {
+                IMultipart multipart = provider.createPart(part, new NBTTagCompound());
+                defaultStates.put(part, multipart.createBlockState());
+                stateLocations.put(defaultStates.get(part), multipart.getModelPath());
+            }
         } catch (Exception e) {
             e.printStackTrace();
             FMLCommonHandler.instance().exitJava(-1, true);
@@ -45,7 +50,9 @@ public class MultipartRegistry {
         partClasses.put(identifier, clazz);
         partProviders.put(identifier, new SimplePartFactory(clazz));
         try {
-            defaultStates.put(identifier, clazz.newInstance().createBlockState());
+            IMultipart multipart = clazz.newInstance();
+            defaultStates.put(identifier, multipart.createBlockState());
+            stateLocations.put(defaultStates.get(identifier), multipart.getModelPath());
         } catch (Exception e) {
             e.printStackTrace();
             FMLCommonHandler.instance().exitJava(-1, true);
