@@ -248,7 +248,11 @@ public class MultipartContainer implements IMultipartContainer {
     public boolean harvest(EntityPlayer player, PartMOP hit) {
 
         if (getWorld().isRemote) return false;
-        if (hit == null) return false;
+        if (hit == null) {
+            for (IMultipart part : getParts())
+                part.harvest(player, hit);
+            return true;
+        }
         if (!partMap.values().contains(hit.partHit)) return false;
         if (getWorld().isRemote) return getParts().size() - 1 == 0;
         hit.partHit.harvest(player, hit);

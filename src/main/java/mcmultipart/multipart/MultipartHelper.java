@@ -2,15 +2,14 @@ package mcmultipart.multipart;
 
 import java.util.UUID;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-
 import mcmultipart.MCMultiPartMod;
 import mcmultipart.block.TileMultipart;
 import mcmultipart.microblock.IMicroblockTile;
 import mcmultipart.microblock.MicroblockContainer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 public class MultipartHelper {
 
@@ -27,12 +26,16 @@ public class MultipartHelper {
     }
 
     public static void addPart(World world, BlockPos pos, IMultipart part, UUID id) {
+
         IMultipartContainer container = getPartContainer(world, pos);
         if (container == null) {
             world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState());
-            world.setTileEntity(pos, (TileEntity) (container = new TileMultipart()));
+            TileEntity te = world.getTileEntity(pos);
+            if (te instanceof TileMultipart) container = (IMultipartContainer) te;
+            if (container == null) world.setTileEntity(pos, (TileEntity) (container = new TileMultipart()));
         }
         if (container.getPartFromID(id) != null) return;
+        part.setContainer(container);
         if (id != null) container.addPart(id, part);
         else container.addPart(part);
     }

@@ -19,12 +19,12 @@ public class MultipartStateMapper extends DefaultStateMapper {
         Map<IBlockState, ModelResourceLocation> mappings = new HashMap<IBlockState, ModelResourceLocation>();
         mappings.put(blockIn.getDefaultState(), this.getModelResourceLocation(blockIn.getDefaultState()));
 
-        for (String s : MultipartRegistry.defaultStates.keySet()) {
-            IStateMapper mapper = MultipartRegistryClient.getSpecialMapper(s);
+        for (String part : MultipartRegistry.defaultStates.keySet()) {
+            IStateMapper mapper = MultipartRegistryClient.getSpecialPartStateMapper(part);
             if (mapper != null) {
                 mappings.putAll(mapper.putStateModelLocations(blockIn));
             } else {
-                BlockState state = MultipartRegistry.defaultStates.get(s);
+                BlockState state = MultipartRegistry.defaultStates.get(part);
                 String modelPath = MultipartRegistry.stateLocations.get(state);
                 for (IBlockState istate : state.getValidStates())
                     mappings.put(istate, new ModelResourceLocation(modelPath, this.getPropertyString(istate.getProperties())));

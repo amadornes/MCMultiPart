@@ -1,20 +1,35 @@
 package mcmultipart.client.multipart;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.client.renderer.block.statemap.IStateMapper;
-
 import mcmultipart.multipart.IMultipart;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.statemap.IStateMapper;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 
 public class MultipartRegistryClient {
 
     private static Map<String, IStateMapper> specialMappers = new HashMap<String, IStateMapper>();
     private static Map<Class<?>, MultipartSpecialRenderer<?>> specialRenderers = new HashMap<Class<?>, MultipartSpecialRenderer<?>>();
 
-    public static void registerSpecialMapper(String identifier, IStateMapper mapper) {
+    public static void registerSpecialPartStateMapper(String part, IStateMapper mapper) {
 
-        specialMappers.put(identifier, mapper);
+        specialMappers.put(part, mapper);
+    }
+
+    public static void registerEmptySpecialPartStateMapper(String part) {
+
+        registerSpecialPartStateMapper(part, new IStateMapper() {
+
+            @Override
+            public Map<IBlockState, ModelResourceLocation> putStateModelLocations(Block blockIn) {
+
+                return Collections.emptyMap();
+            }
+        });
     }
 
     public static <T extends IMultipart> void bindMultipartSpecialRenderer(Class<? extends T> clazz, MultipartSpecialRenderer<T> renderer) {
@@ -28,8 +43,8 @@ public class MultipartRegistryClient {
         return (MultipartSpecialRenderer<T>) specialRenderers.get(multipart.getClass());
     }
 
-    public static IStateMapper getSpecialMapper(String name) {
+    public static IStateMapper getSpecialPartStateMapper(String part) {
 
-        return specialMappers.get(name);
+        return specialMappers.get(part);
     }
 }
