@@ -20,11 +20,16 @@ public abstract class ItemMultiPart extends Item {
 
         if (MultipartHelper.canAddPart(world, pos, mb)) {
             if (!world.isRemote) MultipartHelper.addPart(world, pos, mb);
-            stack.stackSize--;
+            consumeItem(stack);
             return true;
         }
 
         return false;
+    }
+
+    protected void consumeItem(ItemStack stack) {
+
+        stack.stackSize--;
     }
 
     @Override
