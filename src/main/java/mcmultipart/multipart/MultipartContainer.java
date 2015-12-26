@@ -11,13 +11,9 @@ import java.util.UUID;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import mcmultipart.network.MessageMultipartChange;
-import mcmultipart.network.MessageMultipartChange.Type;
-import mcmultipart.raytrace.PartMOP;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,6 +25,11 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+
+import mcmultipart.network.MessageMultipartChange;
+import mcmultipart.network.MessageMultipartChange.Type;
+import mcmultipart.raytrace.PartMOP;
+import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
 import putsomewhereelse.IWorldLocation;
 
 public class MultipartContainer implements IMultipartContainer {
@@ -113,7 +114,6 @@ public class MultipartContainer implements IMultipartContainer {
     }
 
     public void addPart(IMultipart part, boolean notifyPart, boolean notifyNeighbors, UUID id) {
-
         part.setContainer(this);
 
         BiMap<UUID, IMultipart> partMap = HashBiMap.create(this.partMap);
