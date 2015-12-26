@@ -48,9 +48,9 @@ public class ModelMultipartContainer implements ISmartBlockModel {
     public List<BakedQuad> getFaceQuads(EnumFacing face) {
 
         List<BakedQuad> quads = new ArrayList<BakedQuad>();
-        if (model != null && (!(block instanceof BlockCoverable)
-                || ((BlockCoverable) block).canRenderInLayerDefault(MinecraftForgeClient.getRenderLayer())))
-            quads.addAll(model.getFaceQuads(face));
+        if (model != null
+                && (!(block instanceof BlockCoverable) || ((BlockCoverable) block).canRenderInLayerDefault(MinecraftForgeClient
+                        .getRenderLayer()))) quads.addAll(model.getFaceQuads(face));
         if (tile != null) {
             for (IMultipart part : tile.getParts()) {
                 if (!part.canRenderInLayer(MinecraftForgeClient.getRenderLayer())) {
@@ -59,9 +59,9 @@ public class ModelMultipartContainer implements ISmartBlockModel {
                 String path = part.getModelPath();
                 IBlockState state = part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState());
 
-                IBakedModel model = path == null ? null
-                        : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager()
-                                .getModel(new ModelResourceLocation(path, MCMultiPartClientProxy.mapper.getPropertyString(state.getProperties())));
+                IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
+                        .getModelManager()
+                        .getModel(new ModelResourceLocation(path, MCMultiPartClientProxy.mapper.getPropertyString(state.getProperties())));
                 if (model != null) {
                     model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(state) : model;
                     quads.addAll(model.getFaceQuads(face));
@@ -75,9 +75,9 @@ public class ModelMultipartContainer implements ISmartBlockModel {
     public List<BakedQuad> getGeneralQuads() {
 
         List<BakedQuad> quads = new ArrayList<BakedQuad>();
-        if (model != null && (!(block instanceof BlockCoverable)
-                || ((BlockCoverable) block).canRenderInLayerDefault(MinecraftForgeClient.getRenderLayer())))
-            quads.addAll(model.getGeneralQuads());
+        if (model != null
+                && (!(block instanceof BlockCoverable) || ((BlockCoverable) block).canRenderInLayerDefault(MinecraftForgeClient
+                        .getRenderLayer()))) quads.addAll(model.getGeneralQuads());
         if (tile != null) {
             for (IMultipart part : tile.getParts()) {
                 if (!part.canRenderInLayer(MinecraftForgeClient.getRenderLayer())) {
@@ -86,9 +86,9 @@ public class ModelMultipartContainer implements ISmartBlockModel {
                 String path = part.getModelPath();
                 IBlockState state = part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState());
 
-                IBakedModel model = path == null ? null
-                        : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager()
-                                .getModel(new ModelResourceLocation(path, MCMultiPartClientProxy.mapper.getPropertyString(state.getProperties())));
+                IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
+                        .getModelManager()
+                        .getModel(new ModelResourceLocation(path, MCMultiPartClientProxy.mapper.getPropertyString(state.getProperties())));
                 if (model != null) {
                     model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(state) : model;
                     quads.addAll(model.getGeneralQuads());

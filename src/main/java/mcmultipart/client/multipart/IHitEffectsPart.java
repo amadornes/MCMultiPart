@@ -36,8 +36,9 @@ public interface IHitEffectsPart extends IMultipart {
 
         public static AdvancedEffectRenderer getInstance(EffectRenderer effectRenderer) {
 
-            if (instance == null) return instance = new AdvancedEffectRenderer(Minecraft.getMinecraft().theWorld,
-                    Minecraft.getMinecraft().renderEngine, effectRenderer);
+            if (instance == null)
+                return instance = new AdvancedEffectRenderer(Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().renderEngine,
+                        effectRenderer);
             instance.worldObj = Minecraft.getMinecraft().theWorld;
             instance.parent = effectRenderer;
             return instance;
@@ -66,8 +67,8 @@ public interface IHitEffectsPart extends IMultipart {
                         double d0 = pos.getX() + (j + 0.5D) / i;
                         double d1 = pos.getY() + (k + 0.5D) / i;
                         double d2 = pos.getZ() + (l + 0.5D) / i;
-                        this.addEffect(new AdvancedEntityDiggingFX(this.worldObj, d0, d1, d2, d0 - pos.getX() - 0.5D,
-                                d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, icon).func_174846_a(pos));
+                        this.addEffect(new AdvancedEntityDiggingFX(this.worldObj, d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY()
+                                - 0.5D, d2 - pos.getZ() - 0.5D, icon).func_174846_a(pos));
                     }
                 }
             }
@@ -184,6 +185,7 @@ public interface IHitEffectsPart extends IMultipart {
 
         protected AdvancedEntityDiggingFX(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
                 double ySpeedIn, double zSpeedIn, TextureAtlasSprite icon) {
+
             super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, Blocks.stone.getDefaultState());
             setParticleIcon(icon);
         }

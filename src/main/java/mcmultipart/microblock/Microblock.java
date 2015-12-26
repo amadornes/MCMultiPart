@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import io.netty.buffer.ByteBuf;
 import mcmultipart.multipart.Multipart;
 import mcmultipart.multipart.PartSlot;
 import mcmultipart.property.PropertyMicroMaterial;
@@ -17,6 +16,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -135,8 +135,8 @@ public abstract class Microblock extends Multipart implements IMicroblock {
     @Override
     public IBlockState getExtendedState(IBlockState state) {
 
-        return state.withProperty(PROPERTY_MATERIAL, getMicroMaterial()).withProperty(PROPERTY_SIZE, getSize()).withProperty(PROPERTY_SLOT,
-                slot);
+        return state.withProperty(PROPERTY_MATERIAL, getMicroMaterial()).withProperty(PROPERTY_SIZE, getSize())
+                .withProperty(PROPERTY_SLOT, slot);
     }
 
     @Override
@@ -146,7 +146,7 @@ public abstract class Microblock extends Multipart implements IMicroblock {
     }
 
     @Override
-    public void writeUpdatePacket(ByteBuf buf) {
+    public void writeUpdatePacket(PacketBuffer buf) {
 
         super.writeUpdatePacket(buf);
 
@@ -156,7 +156,7 @@ public abstract class Microblock extends Multipart implements IMicroblock {
     }
 
     @Override
-    public void readUpdatePacket(ByteBuf buf) {
+    public void readUpdatePacket(PacketBuffer buf) {
 
         super.readUpdatePacket(buf);
 

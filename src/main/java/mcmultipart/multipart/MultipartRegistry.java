@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class MultipartRegistry {
+
     // TODO: FIXME - replace with getters
     public static Map<BlockState, String> stateLocations = new HashMap<BlockState, String>();
     public static Map<String, BlockState> defaultStates = new HashMap<String, BlockState>();

@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import io.netty.buffer.ByteBuf;
-
+import mcmultipart.MCMultiPartMod;
+import mcmultipart.network.MessageMultipartChange;
+import mcmultipart.raytrace.PartMOP;
+import mcmultipart.raytrace.RayTraceUtils;
+import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockState;
@@ -15,18 +18,13 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-
-import mcmultipart.MCMultiPartMod;
-import mcmultipart.network.MessageMultipartChange;
-import mcmultipart.raytrace.PartMOP;
-import mcmultipart.raytrace.RayTraceUtils;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
 
 public abstract class Multipart implements IMultipart {
 
@@ -244,22 +242,24 @@ public abstract class Multipart implements IMultipart {
     }
 
     @Override
-    public void writeUpdatePacket(ByteBuf buf) {
+    public void writeUpdatePacket(PacketBuffer buf) {
 
     }
 
     @Override
-    public void readUpdatePacket(ByteBuf buf) {
+    public void readUpdatePacket(PacketBuffer buf) {
 
     }
 
     @Override
     public void sendUpdatePacket() {
+
         MessageMultipartChange.newPacket(getWorld(), getPos(), this, MessageMultipartChange.Type.ADD).send(getWorld());
     }
 
     @Override
     public boolean canRenderInLayer(EnumWorldBlockLayer layer) {
+
         return layer == EnumWorldBlockLayer.SOLID;
     }
 

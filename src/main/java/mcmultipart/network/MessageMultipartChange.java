@@ -1,15 +1,17 @@
 package mcmultipart.network;
 
-import java.util.UUID;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
+import java.util.UUID;
+
 import mcmultipart.MCMultiPartMod;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.MultipartHelper;
 import mcmultipart.multipart.MultipartRegistry;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -28,6 +30,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
     private byte[] data;
 
     private MessageMultipartChange(Type type, UUID partID, String partType, IMultipart part, BlockPos pos) {
+
         this.type = type;
         this.partID = partID;
         this.partType = partType;
@@ -36,6 +39,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
     }
 
     public MessageMultipartChange() {
+
     }
 
     @Override
@@ -48,9 +52,8 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
 
         if (type == Type.ADD || type == Type.UPDATE) {
             ByteBuf dataBuf = Unpooled.buffer();
-            if (type == Type.ADD || type == Type.UPDATE) part.writeUpdatePacket(dataBuf);
+            if (type == Type.ADD || type == Type.UPDATE) part.writeUpdatePacket(new PacketBuffer(dataBuf));
             data = dataBuf.array();
-            dataBuf.clear();
             buf.writeInt(data.length);
             buf.writeBytes(data);
         }
@@ -78,7 +81,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
 
             if (message.type == Type.ADD) {
                 message.part = MultipartRegistry.createPart(message.partType, Unpooled.copiedBuffer(message.data));
-                message.part.readUpdatePacket(Unpooled.copiedBuffer(message.data));
+                message.part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(message.data)));
                 MultipartHelper.addPart(player.worldObj, message.pos, message.part, message.partID);
             } else if (message.type == Type.REMOVE) {
                 IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
@@ -94,7 +97,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
                 message.part = container.getPartFromID(message.partID);
                 if (message.part == null)
                     throw new IllegalStateException("Attempted to update a multipart that doesn't exist on the client!");
-                message.part.readUpdatePacket(Unpooled.copiedBuffer(message.data));
+                message.part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(message.data)));
             }
             player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
         }

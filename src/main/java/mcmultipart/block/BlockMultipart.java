@@ -3,6 +3,16 @@ package mcmultipart.block;
 import java.util.Collections;
 import java.util.List;
 
+import mcmultipart.MCMultiPartMod;
+import mcmultipart.client.multipart.IHitEffectsPart;
+import mcmultipart.client.multipart.IHitEffectsPart.AdvancedEffectRenderer;
+import mcmultipart.client.multipart.ISmartMultipartModel;
+import mcmultipart.multipart.IMultipartContainer;
+import mcmultipart.multipart.MultipartRegistry;
+import mcmultipart.property.PropertyMultipartContainer;
+import mcmultipart.raytrace.PartMOP;
+import mcmultipart.raytrace.RayTraceUtils;
+import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -28,21 +38,9 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
-
-import mcmultipart.MCMultiPartMod;
-import mcmultipart.client.multipart.IHitEffectsPart;
-import mcmultipart.client.multipart.IHitEffectsPart.AdvancedEffectRenderer;
-import mcmultipart.client.multipart.ISmartMultipartModel;
-import mcmultipart.multipart.IMultipartContainer;
-import mcmultipart.multipart.MultipartRegistry;
-import mcmultipart.property.PropertyMultipartContainer;
-import mcmultipart.raytrace.PartMOP;
-import mcmultipart.raytrace.RayTraceUtils;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
 
 public final class BlockMultipart extends BlockContainer {
 
@@ -70,17 +68,7 @@ public final class BlockMultipart extends BlockContainer {
     public void addCollisionBoxesToList(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list,
             Entity collidingEntity) {
 
-        if (((TileMultipart) worldIn.getTileEntity(pos)).getPartContainer().getParts().isEmpty()) {
-            worldIn.setBlockToAir(pos);// TODO: Remove this lol
-            return;
-        }
-
         ((TileMultipart) worldIn.getTileEntity(pos)).getPartContainer().addCollisionBoxes(mask, list, collidingEntity);
-    }
-
-    @Override
-    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
-        ((TileMultipart) worldIn.getTileEntity(pos)).getPartContainer().onNeighborBlockChange(neighborBlock);
     }
 
     @Override
@@ -119,8 +107,8 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public boolean removedByPlayer(World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
 
-        return ((TileMultipart) world.getTileEntity(pos)).getPartContainer().harvest(player, reTrace(world, pos, player))
-                ? super.removedByPlayer(world, pos, player, willHarvest) : false;
+        return ((TileMultipart) world.getTileEntity(pos)).getPartContainer().harvest(player, reTrace(world, pos, player)) ? super
+                .removedByPlayer(world, pos, player, willHarvest) : false;
     }
 
     @Override
@@ -146,6 +134,19 @@ public final class BlockMultipart extends BlockContainer {
 
         ((TileMultipart) world.getTileEntity(pos)).getPartContainer().onClicked(player, player.getCurrentEquippedItem(),
                 reTrace(world, pos, player));
+    }
+
+    @Override
+    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
+
+        ((TileMultipart) worldIn.getTileEntity(pos)).getPartContainer().onNeighborBlockChange(neighborBlock);
+    }
+
+    @Override
+    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
+
+        ((TileMultipart) world.getTileEntity(pos)).getPartContainer().onNeighborTileChange(
+                EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ() - pos.getZ()));
     }
 
     @Override
@@ -175,12 +176,11 @@ public final class BlockMultipart extends BlockContainer {
                 if (((IHitEffectsPart) hit.partHit).addDestroyEffects(AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
 
             String path = hit.partHit.getModelPath();
-            IBakedModel model = path == null ? null
-                    : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager()
-                            .getModel(new ModelResourceLocation(path, "multipart"));
+            IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
+                    .getModelManager().getModel(new ModelResourceLocation(path, "multipart"));
             if (model != null) {
-                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(
-                        hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
+                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
+                        .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
                 if (model != null) {
                     TextureAtlasSprite icon = model.getTexture();
                     if (icon != null) AdvancedEffectRenderer.getInstance(effectRenderer).addBlockDestroyEffects(pos, icon);
@@ -199,18 +199,20 @@ public final class BlockMultipart extends BlockContainer {
                 if (((IHitEffectsPart) hit.partHit).addHitEffects(hit, AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
 
             String path = hit.partHit.getModelPath();
-            IBakedModel model = path == null ? null
-                    : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager()
-                            .getModel(new ModelResourceLocation(path, "multipart"));
+            IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
+                    .getModelManager().getModel(new ModelResourceLocation(path, "multipart"));
             if (model != null) {
-                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(
-                        hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
+                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
+                        .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
                 if (model != null) {
                     TextureAtlasSprite icon = model.getTexture();
-                    if (icon != null) AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(target.getBlockPos(),
-                            hit, world.getBlockState(target.getBlockPos()).getBlock().getSelectedBoundingBox(world, target.getBlockPos())
-                                    .offset(-target.getBlockPos().getX(), -target.getBlockPos().getY(), -target.getBlockPos().getZ()),
-                            icon);
+                    if (icon != null)
+                        AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(
+                                target.getBlockPos(),
+                                hit,
+                                world.getBlockState(target.getBlockPos()).getBlock().getSelectedBoundingBox(world, target.getBlockPos())
+                                        .offset(-target.getBlockPos().getX(), -target.getBlockPos().getY(), -target.getBlockPos().getZ()),
+                                icon);
                 }
             }
         }
@@ -283,6 +285,7 @@ public final class BlockMultipart extends BlockContainer {
 
     @Override
     public boolean canRenderInLayer(EnumWorldBlockLayer layer) {
+
         return true;
     }
 }

@@ -47,9 +47,8 @@ public class DefaultMicroModelProvider implements IMicroModelProvider {
             // TODO: Implement default model provider that returns a modified version of the block's original model
             for (EnumFacing d : EnumFacing.VALUES) {
                 if (!modelState.getHiddenFaces().contains(d)) {
-                    quads.add(FaceBakeryMicro.instance.bake(box, 0, new float[] { 0, 0, 16, 16 },
-                            Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("minecraft:blocks/stone"), d, ModelRotation.X0_Y0,
-                            true));
+                    quads.add(FaceBakeryMicro.instance.bake(box, 0, new float[] { 0, 0, 16, 16 }, Minecraft.getMinecraft()
+                            .getTextureMapBlocks().getAtlasSprite("minecraft:blocks/stone"), d, ModelRotation.X0_Y0, true));
                 }
             }
             return quads;

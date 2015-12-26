@@ -83,15 +83,13 @@ public final class MultipartContainerSpecialRenderer {
             renderer.renderMultipartAt(part, x, y, z, partialTicks, destroyStage);
         } else {
             String path = part.getModelPath();
-            IBakedModel model = path == null ? null
-                    : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager()
-                            .getModel(new ModelResourceLocation(path, "multipart"));
+            IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
+                    .getModelManager().getModel(new ModelResourceLocation(path, "multipart"));
             if (model != null) {
-                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model)
-                        .handlePartState(part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState())) : model;
-                model = (new SimpleBakedModel.Builder(model,
-                        Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("minecraft:blocks/destroy_stage_" + destroyStage)))
-                                .makeBakedModel();
+                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(part
+                        .getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState())) : model;
+                model = (new SimpleBakedModel.Builder(model, Minecraft.getMinecraft().getTextureMapBlocks()
+                        .getAtlasSprite("minecraft:blocks/destroy_stage_" + destroyStage))).makeBakedModel();
                 rendererDispatcher.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
                 startTessellating(x, y, z);
                 renderBreaking(model, consumer);
@@ -150,8 +148,13 @@ public final class MultipartContainerSpecialRenderer {
                     if (canRenderBreaking()) {
                         renderTileEntityAtDefault(te, x, y, z, partialTicks, destroyStage);
                     } else {
-                        IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState(
-                                te.getBlockType().getActualState(te.getWorld().getBlockState(te.getPos()), te.getWorld(), te.getPos()));
+                        IBakedModel model = Minecraft
+                                .getMinecraft()
+                                .getBlockRendererDispatcher()
+                                .getBlockModelShapes()
+                                .getModelForState(
+                                        te.getBlockType().getActualState(te.getWorld().getBlockState(te.getPos()), te.getWorld(),
+                                                te.getPos()));
                         if (model != null && model instanceof ModelMultipartContainer) model = ((ModelMultipartContainer) model).model;
                         if (model != null) {
                             model = (new SimpleBakedModel.Builder(model, Minecraft.getMinecraft().getTextureMapBlocks()

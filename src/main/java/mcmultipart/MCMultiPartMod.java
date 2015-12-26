@@ -25,6 +25,7 @@ public class MCMultiPartMod {
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+
         GameRegistry.registerBlock(multipart = new BlockMultipart(), null, "multipart");
         GameRegistry.registerTileEntity(TileMultipart.class, "mcmultipart:multipart");
         GameRegistry.registerTileEntity(TileCoverable.class, "mcmultipart:coverable");
@@ -34,6 +35,7 @@ public class MCMultiPartMod {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
+
         MultipartNetworkHandler.init();
 
         proxy.init();

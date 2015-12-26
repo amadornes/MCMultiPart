@@ -1,5 +1,8 @@
 package mcmultipart.multipart;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,11 +12,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import mcmultipart.network.MessageMultipartChange;
 import mcmultipart.network.MessageMultipartChange.Type;
 import mcmultipart.raytrace.PartMOP;
@@ -24,12 +22,16 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import putsomewhereelse.IWorldLocation;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 public class MultipartContainer implements IMultipartContainer {
 
@@ -336,7 +338,7 @@ public class MultipartContainer implements IMultipartContainer {
             t.setString("__partID", entry.getKey().toString());
             t.setString("__partType", entry.getValue().getType());
             ByteBuf buf = Unpooled.buffer();
-            entry.getValue().writeUpdatePacket(buf);
+            entry.getValue().writeUpdatePacket(new PacketBuffer(buf));
             t.setByteArray("data", buf.array());
             partList.appendTag(t);
         }
@@ -352,9 +354,9 @@ public class MultipartContainer implements IMultipartContainer {
             IMultipart part = partMap.get(id);
             if (part == null) {
                 part = MultipartRegistry.createPart(t.getString("__partType"), Unpooled.copiedBuffer(t.getByteArray("data")));
-                part.readUpdatePacket(Unpooled.copiedBuffer(t.getByteArray("data")));
+                part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
             } else {
-                part.readUpdatePacket(Unpooled.copiedBuffer(t.getByteArray("data")));
+                part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
             }
             addPart(part, true, false, id);
         }

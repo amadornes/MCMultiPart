@@ -21,10 +21,12 @@ import mcmultipart.client.multipart.MultipartContainerSpecialRenderer.TileMultip
 import mcmultipart.client.multipart.MultipartStateMapper;
 
 public class MCMultiPartClientProxy extends MCMultiPartCommonProxy {
+
     public static MultipartStateMapper mapper = new MultipartStateMapper();
 
     @Override
     public void preInit() {
+
         super.preInit();
 
         ModelLoader.setCustomStateMapper(MCMultiPartMod.multipart, mapper);
@@ -32,6 +34,7 @@ public class MCMultiPartClientProxy extends MCMultiPartCommonProxy {
 
     @Override
     public void init() {
+
         super.init();
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileMultipart.class, new TileMultipartSpecialRenderer());
@@ -42,12 +45,14 @@ public class MCMultiPartClientProxy extends MCMultiPartCommonProxy {
 
     @SubscribeEvent
     public void onModelBake(ModelBakeEvent event) {
+
         event.modelRegistry.putObject(new ModelResourceLocation(Block.blockRegistry.getNameForObject(MCMultiPartMod.multipart), "normal"),
                 new ModelMultipartContainer(null));
     }
 
     @Override
     public EntityPlayer getPlayer() {
+
         return FMLClientHandler.instance().getClientPlayerEntity();
     }
 

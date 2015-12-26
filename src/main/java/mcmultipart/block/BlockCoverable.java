@@ -14,6 +14,7 @@ import mcmultipart.property.PropertyMultipartContainer;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils;
 import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -91,12 +92,12 @@ public class BlockCoverable extends BlockContainer {
             Entity collidingEntity) {
 
         addCollisionBoxesToListDefault(worldIn, pos, state, mask, list, collidingEntity);
-        ((IMicroblockTile) worldIn.getTileEntity(pos)).getMicroblockContainer().getPartContainer().addCollisionBoxes(mask, list,
-                collidingEntity);
+        ((IMicroblockTile) worldIn.getTileEntity(pos)).getMicroblockContainer().getPartContainer()
+                .addCollisionBoxes(mask, list, collidingEntity);
     }
 
-    public void addCollisionBoxesToListDefault(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list,
-            Entity collidingEntity) {
+    public void addCollisionBoxesToListDefault(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask,
+            List<AxisAlignedBB> list, Entity collidingEntity) {
 
         super.addCollisionBoxesToList(worldIn, pos, state, mask, list, collidingEntity);
     }
@@ -117,8 +118,9 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos, EntityPlayer player) {
 
-        if (target instanceof PartMOP) return ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer()
-                .getPickBlock(player, (PartMOP) target);
+        if (target instanceof PartMOP)
+            return ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer()
+                    .getPickBlock(player, (PartMOP) target);
         return getPickBlockDefault(target, world, pos, player);
     }
 
@@ -163,8 +165,8 @@ public class BlockCoverable extends BlockContainer {
 
         MovingObjectPosition hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
-            return ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer().getHardness(player,
-                    (PartMOP) hit);
+            return ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer()
+                    .getHardness(player, (PartMOP) hit);
         } else {
             return getPlayerRelativeBlockHardnessDefault(player, world, pos);
         }
@@ -181,8 +183,8 @@ public class BlockCoverable extends BlockContainer {
 
         MovingObjectPosition hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
-            return ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer().onActivated(player,
-                    player.getCurrentEquippedItem(), (PartMOP) hit);
+            return ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer()
+                    .onActivated(player, player.getCurrentEquippedItem(), (PartMOP) hit);
         } else {
             return onBlockActivatedDefault(world, pos, state, player, side, hitX, hitY, hitZ);
         }
@@ -199,8 +201,8 @@ public class BlockCoverable extends BlockContainer {
 
         MovingObjectPosition hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
-            ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer().onClicked(player,
-                    player.getCurrentEquippedItem(), (PartMOP) hit);
+            ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer()
+                    .onClicked(player, player.getCurrentEquippedItem(), (PartMOP) hit);
         } else {
             onBlockClickedDefault(world, pos, player);
         }
@@ -209,6 +211,29 @@ public class BlockCoverable extends BlockContainer {
     public void onBlockClickedDefault(World world, BlockPos pos, EntityPlayer player) {
 
         super.onBlockClicked(world, pos, player);
+    }
+
+    @Override
+    public final void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
+
+        ((TileMultipart) world.getTileEntity(pos)).getPartContainer().onNeighborBlockChange(neighborBlock);
+        onNeighborBlockChangeDefault(world, pos, state, neighborBlock);
+    }
+
+    public void onNeighborBlockChangeDefault(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
+
+    }
+
+    @Override
+    public final void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
+
+        ((TileMultipart) world.getTileEntity(pos)).getPartContainer().onNeighborTileChange(
+                EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ() - pos.getZ()));
+        onNeighborChangeDefault(world, pos, neighbor);
+    }
+
+    public void onNeighborChangeDefault(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
+
     }
 
     @Override
@@ -260,12 +285,11 @@ public class BlockCoverable extends BlockContainer {
                 if (((IHitEffectsPart) hit.partHit).addDestroyEffects(AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
 
             String path = hit.partHit.getModelPath();
-            IBakedModel model = path == null ? null
-                    : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager()
-                            .getModel(new ModelResourceLocation(path, "multipart"));
+            IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
+                    .getModelManager().getModel(new ModelResourceLocation(path, "multipart"));
             if (model != null) {
-                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(
-                        hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
+                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
+                        .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
                 if (model != null) {
                     TextureAtlasSprite icon = model.getTexture();
                     if (icon != null) {
@@ -292,16 +316,17 @@ public class BlockCoverable extends BlockContainer {
                 if (((IHitEffectsPart) hit.partHit).addHitEffects(hit, AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
 
             String path = hit.partHit.getModelPath();
-            IBakedModel model = path == null ? null
-                    : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager()
-                            .getModel(new ModelResourceLocation(path, "multipart"));
+            IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
+                    .getModelManager().getModel(new ModelResourceLocation(path, "multipart"));
             if (model != null) {
-                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(
-                        hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
+                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
+                        .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
                 if (model != null) {
                     TextureAtlasSprite icon = model.getTexture();
                     if (icon != null) {
-                        AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(target.getBlockPos(), hit,
+                        AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(
+                                target.getBlockPos(),
+                                hit,
                                 world.getBlockState(target.getBlockPos()).getBlock().getSelectedBoundingBox(world, target.getBlockPos())
                                         .offset(-target.getBlockPos().getX(), -target.getBlockPos().getY(), -target.getBlockPos().getZ()),
                                 icon);
@@ -387,8 +412,8 @@ public class BlockCoverable extends BlockContainer {
     public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 
         IMicroblockTile tile = ((IMicroblockTile) world.getTileEntity(pos));
-        return ((IExtendedBlockState) state).withProperty(BlockMultipart.properties[0],
-                tile != null ? tile.getMicroblockContainer() : PropertyMultipartContainer.DEFAULT);
+        return ((IExtendedBlockState) state).withProperty(BlockMultipart.properties[0], tile != null ? tile.getMicroblockContainer()
+                : PropertyMultipartContainer.DEFAULT);
     }
 
     @Override

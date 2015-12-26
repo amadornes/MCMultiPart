@@ -32,6 +32,22 @@ public class TileCoverable extends TileEntity implements IMicroblockTile {
     }
 
     @Override
+    public void onLoad() {
+
+        super.onLoad();
+        for (IMultipart part : getMicroblockContainer().getParts())
+            part.onLoaded();
+    }
+
+    @Override
+    public void onChunkUnload() {
+
+        super.onChunkUnload();
+        for (IMultipart part : getMicroblockContainer().getParts())
+            part.onUnloaded();
+    }
+
+    @Override
     public void writeToNBT(NBTTagCompound compound) {
 
         super.writeToNBT(compound);

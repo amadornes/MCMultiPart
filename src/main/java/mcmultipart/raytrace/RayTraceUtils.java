@@ -31,8 +31,10 @@ public final class RayTraceUtils {
 
         public void setBounds(World world, BlockPos pos) {
 
-            world.getBlockState(pos).getBlock().setBlockBounds((float) bounds.minX, (float) bounds.minY, (float) bounds.minZ,
-                    (float) bounds.maxX, (float) bounds.maxY, (float) bounds.maxZ);
+            world.getBlockState(pos)
+                    .getBlock()
+                    .setBlockBounds((float) bounds.minX, (float) bounds.minY, (float) bounds.minZ, (float) bounds.maxX,
+                            (float) bounds.maxY, (float) bounds.maxZ);
         }
 
         public double squareDistanceTo(Vec3 vec) {
@@ -142,19 +144,19 @@ public final class RayTraceUtils {
 
     private static boolean isVecInsideYZBounds(AxisAlignedBB bounds, Vec3 vec) {
 
-        return vec == null ? false
-                : vec.yCoord >= bounds.minY && vec.yCoord <= bounds.maxY && vec.zCoord >= bounds.minZ && vec.zCoord <= bounds.maxZ;
+        return vec == null ? false : vec.yCoord >= bounds.minY && vec.yCoord <= bounds.maxY && vec.zCoord >= bounds.minZ
+                && vec.zCoord <= bounds.maxZ;
     }
 
     private static boolean isVecInsideXZBounds(AxisAlignedBB bounds, Vec3 vec) {
 
-        return vec == null ? false
-                : vec.xCoord >= bounds.minX && vec.xCoord <= bounds.maxX && vec.zCoord >= bounds.minZ && vec.zCoord <= bounds.maxZ;
+        return vec == null ? false : vec.xCoord >= bounds.minX && vec.xCoord <= bounds.maxX && vec.zCoord >= bounds.minZ
+                && vec.zCoord <= bounds.maxZ;
     }
 
     private static boolean isVecInsideXYBounds(AxisAlignedBB bounds, Vec3 vec) {
 
-        return vec == null ? false
-                : vec.xCoord >= bounds.minX && vec.xCoord <= bounds.maxX && vec.yCoord >= bounds.minY && vec.yCoord <= bounds.maxY;
+        return vec == null ? false : vec.xCoord >= bounds.minX && vec.xCoord <= bounds.maxX && vec.yCoord >= bounds.minY
+                && vec.yCoord <= bounds.maxY;
     }
 }
