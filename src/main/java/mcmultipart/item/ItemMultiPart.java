@@ -20,6 +20,7 @@ public abstract class ItemMultiPart extends Item {
 
         if (MultipartHelper.canAddPart(world, pos, mb)) {
             if (!world.isRemote) MultipartHelper.addPart(world, pos, mb);
+            stack.stackSize--;
             return true;
         }
 
@@ -35,6 +36,12 @@ public abstract class ItemMultiPart extends Item {
                 * side.getFrontOffsetZ());
         if (depth < 1 && place(world, pos, side, hit, stack)) return true;
         return place(world, pos.offset(side), side.getOpposite(), hit, stack);
+    }
+
+    @Override
+    public boolean canItemEditBlocks() {
+
+        return true;
     }
 
 }
