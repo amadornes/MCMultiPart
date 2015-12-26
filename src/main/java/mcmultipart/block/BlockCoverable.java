@@ -3,6 +3,7 @@ package mcmultipart.block;
 import java.util.List;
 
 import mcmultipart.MCMultiPartMod;
+import mcmultipart.client.MCMultiPartClientProxy;
 import mcmultipart.client.multipart.IHitEffectsPart;
 import mcmultipart.client.multipart.IHitEffectsPart.AdvancedEffectRenderer;
 import mcmultipart.client.multipart.ISmartMultipartModel;
@@ -237,8 +238,15 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
+    public boolean canProvidePower() {
+
+        return true;
+    }
+
+    @Override
     public final boolean canConnectRedstone(IBlockAccess world, BlockPos pos, EnumFacing side) {
 
+        if (side == null) return false;
         MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
         if (container.getPartContainer().canConnectRedstone(side)) return true;
         return canConnectRedstoneDefault(world, pos, side, container);
@@ -252,6 +260,7 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final int isProvidingWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
 
+        if (side == null) return 0;
         MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
         return Math.max(container.getPartContainer().getWeakSignal(side), isProvidingWeakPowerDefault(world, pos, state, side, container));
     }
@@ -265,6 +274,7 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final int isProvidingStrongPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
 
+        if (side == null) return 0;
         MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
         return Math.max(container.getPartContainer().getStrongSignal(side),
                 isProvidingStrongPowerDefault(world, pos, state, side, container));
@@ -277,6 +287,14 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
+    public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
+
+        MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
+        if (container == null) return false;
+        return container.getPartContainer().isSideSolid(side);
+    }
+
+    @Override
     public final boolean addDestroyEffects(World world, BlockPos pos, EffectRenderer effectRenderer) {
 
         PartMOP hit = reTrace(world, pos, MCMultiPartMod.proxy.getPlayer());
@@ -285,8 +303,10 @@ public class BlockCoverable extends BlockContainer {
                 if (((IHitEffectsPart) hit.partHit).addDestroyEffects(AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
 
             String path = hit.partHit.getModelPath();
+            IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
             IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
-                    .getModelManager().getModel(new ModelResourceLocation(path, "multipart"));
+                    .getModelManager()
+                    .getModel(new ModelResourceLocation(path, MCMultiPartClientProxy.mapper.getPropertyString(state.getProperties())));
             if (model != null) {
                 model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
                         .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
@@ -316,8 +336,10 @@ public class BlockCoverable extends BlockContainer {
                 if (((IHitEffectsPart) hit.partHit).addHitEffects(hit, AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
 
             String path = hit.partHit.getModelPath();
+            IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
             IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
-                    .getModelManager().getModel(new ModelResourceLocation(path, "multipart"));
+                    .getModelManager()
+                    .getModel(new ModelResourceLocation(path, MCMultiPartClientProxy.mapper.getPropertyString(state.getProperties())));
             if (model != null) {
                 model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
                         .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;

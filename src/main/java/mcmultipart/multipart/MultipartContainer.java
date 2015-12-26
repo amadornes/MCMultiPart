@@ -306,6 +306,16 @@ public class MultipartContainer implements IMultipartContainer {
         return MultipartRedstoneHelper.getStrongSignal(this, side);
     }
 
+    public boolean isSideSolid(EnumFacing side) {
+
+        IMultipart slotPart = getPartInSlot(PartSlot.getFaceSlot(side));
+        if (slotPart != null && slotPart instanceof ISolidPart) return ((ISolidPart) slotPart).isSideSolid(side);
+        for (IMultipart p : getParts())
+            if ((!(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty()) && p instanceof ISolidPart)
+                if (((ISolidPart) p).isSideSolid(side)) return true;
+        return false;
+    }
+
     public void writeToNBT(NBTTagCompound tag) {
 
         NBTTagList partList = new NBTTagList();
