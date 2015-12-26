@@ -46,7 +46,8 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
     public void toBytes(ByteBuf buf) {
 
         buf.writeInt(type.ordinal());
-        ByteBufUtils.writeUTF8String(buf, partID.toString());
+        buf.writeLong(partID.getMostSignificantBits());
+        buf.writeLong(partID.getLeastSignificantBits());
         ByteBufUtils.writeUTF8String(buf, part.getType());
         buf.writeInt(pos.getX()).writeInt(pos.getY()).writeInt(pos.getZ());
 
@@ -54,7 +55,8 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
             ByteBuf dataBuf = Unpooled.buffer();
             if (type == Type.ADD || type == Type.UPDATE) part.writeUpdatePacket(new PacketBuffer(dataBuf));
             data = dataBuf.array();
-            buf.writeInt(data.length);
+            dataBuf.clear();
+            buf.writeMedium(data.length);
             buf.writeBytes(data);
         }
     }
@@ -63,12 +65,16 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
     public void fromBytes(ByteBuf buf) {
 
         type = Type.VALUES[buf.readInt()];
-        partID = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+
+        long msb = buf.readLong();
+        long lsb = buf.readLong();
+        partID = new UUID(msb, lsb);
+
         partType = ByteBufUtils.readUTF8String(buf);
         pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
 
         if (type == Type.ADD || type == Type.UPDATE) {
-            data = new byte[buf.readInt()];
+            data = new byte[buf.readUnsignedMedium()];
             buf.readBytes(data, 0, data.length);
         }
     }
@@ -83,6 +89,8 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
                 message.part = MultipartRegistry.createPart(message.partType, Unpooled.copiedBuffer(message.data));
                 message.part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(message.data)));
                 MultipartHelper.addPart(player.worldObj, message.pos, message.part, message.partID);
+
+                player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
             } else if (message.type == Type.REMOVE) {
                 IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
                 if (container != null) {
@@ -91,6 +99,8 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
                         throw new IllegalStateException("Attempted to remove a multipart that doesn't exist on the client!");
                     container.removePart(message.part);
                 }
+
+                player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
             } else if (message.type == Type.UPDATE) {
                 IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
                 if (container == null) throw new IllegalStateException("Attempted to update a multipart at an illegal position!");
@@ -99,7 +109,6 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
                     throw new IllegalStateException("Attempted to update a multipart that doesn't exist on the client!");
                 message.part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(message.data)));
             }
-            player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
         }
         return null;
     }

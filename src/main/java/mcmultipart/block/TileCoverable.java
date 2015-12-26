@@ -1,14 +1,15 @@
 package mcmultipart.block;
 
-import mcmultipart.microblock.IMicroblock;
-import mcmultipart.microblock.IMicroblockTile;
-import mcmultipart.microblock.MicroblockContainer;
-import mcmultipart.multipart.IMultipart;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+
+import mcmultipart.microblock.IMicroblock;
+import mcmultipart.microblock.IMicroblockTile;
+import mcmultipart.microblock.MicroblockContainer;
+import mcmultipart.multipart.IMultipart;
 
 public class TileCoverable extends TileEntity implements IMicroblockTile {
 
@@ -96,5 +97,4 @@ public class TileCoverable extends TileEntity implements IMicroblockTile {
         if (bounds == null) bounds = AxisAlignedBB.fromBounds(0, 0, 0, 1, 1, 1);
         return bounds.offset(getPos().getX(), getPos().getY(), getPos().getZ());
     }
-
 }

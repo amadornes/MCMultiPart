@@ -254,7 +254,7 @@ public abstract class Multipart implements IMultipart {
     @Override
     public void sendUpdatePacket() {
 
-        MessageMultipartChange.newPacket(getWorld(), getPos(), this, MessageMultipartChange.Type.ADD).send(getWorld());
+        MessageMultipartChange.newPacket(getWorld(), getPos(), this, MessageMultipartChange.Type.UPDATE).send(getWorld());
     }
 
     @Override
@@ -281,7 +281,16 @@ public abstract class Multipart implements IMultipart {
         return DEFAULT_RENDER_BOUNDS;
     }
 
-    public void markDirty() {
+    protected void markRenderUpdate() {
+
+        World world = getWorld();
+        BlockPos pos = getPos();
+        if (world != null) {
+            world.markBlockRangeForRenderUpdate(pos, pos);
+        }
+    }
+
+    protected void markDirty() {
 
         World world = getWorld();
         BlockPos pos = getPos();
@@ -291,13 +300,13 @@ public abstract class Multipart implements IMultipart {
         }
     }
 
-    public void markLightingUpdate() {
+    protected void markLightingUpdate() {
 
         World world = getWorld();
         if (world != null) world.notifyLightSet(getPos());
     }
 
-    public void notifyBlockUpdate() {
+    protected void notifyBlockUpdate() {
 
         World world = getWorld();
         BlockPos pos = getPos();
