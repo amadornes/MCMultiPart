@@ -148,8 +148,6 @@ public class MultipartContainer implements IMultipartContainer {
         if (getWorld() != null && !getWorld().isRemote)
             MessageMultipartChange.newPacket(getWorld(), getPos(), part, Type.REMOVE).send(getWorld());
 
-        part.setContainer(null);
-
         BiMap<UUID, IMultipart> partMap = HashBiMap.create(this.partMap);
         Map<PartSlot, ISlottedPart> slotMap = new HashMap<PartSlot, ISlottedPart>(this.slotMap);
 
@@ -166,6 +164,8 @@ public class MultipartContainer implements IMultipartContainer {
 
         if (notifyPart) part.onRemoved();
         if (notifyNeighbors) notifyPartChanged(part);
+
+        part.setContainer(null);
     }
 
     @Override
