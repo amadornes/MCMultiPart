@@ -271,32 +271,29 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public final int isProvidingWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
+    public final int getWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
 
         if (side == null) return 0;
         MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
-        return Math.max(container.getPartContainer().getWeakSignal(side), isProvidingWeakPowerDefault(world, pos, state, side, container));
+        return Math.max(container.getPartContainer().getWeakSignal(side), getWeakPower(world, pos, state, side, container));
     }
 
-    public int isProvidingWeakPowerDefault(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side,
-            MicroblockContainer partContainer) {
+    public int getWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side, MicroblockContainer partContainer) {
 
-        return super.isProvidingWeakPower(world, pos, state, side);
+        return super.getWeakPower(world, pos, state, side);
     }
 
     @Override
-    public final int isProvidingStrongPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
+    public final int getStrongPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
 
         if (side == null) return 0;
         MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
-        return Math.max(container.getPartContainer().getStrongSignal(side),
-                isProvidingStrongPowerDefault(world, pos, state, side, container));
+        return Math.max(container.getPartContainer().getStrongSignal(side), getStrongPower(world, pos, state, side, container));
     }
 
-    public int isProvidingStrongPowerDefault(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side,
-            MicroblockContainer partContainer) {
+    public int getStrongPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side, MicroblockContainer partContainer) {
 
-        return super.isProvidingStrongPower(world, pos, state, side);
+        return super.getStrongPower(world, pos, state, side);
     }
 
     @Override
@@ -324,7 +321,7 @@ public class BlockCoverable extends BlockContainer {
                 model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
                         .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
                 if (model != null) {
-                    TextureAtlasSprite icon = model.getTexture();
+                    TextureAtlasSprite icon = model.getParticleTexture();
                     if (icon != null) {
                         AdvancedEffectRenderer.getInstance(effectRenderer).addBlockDestroyEffects(pos, icon);
                         return true;
@@ -358,7 +355,7 @@ public class BlockCoverable extends BlockContainer {
                 model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
                         .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
                 if (model != null) {
-                    TextureAtlasSprite icon = model.getTexture();
+                    TextureAtlasSprite icon = model.getParticleTexture();
                     if (icon != null) {
                         AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(
                                 target.getBlockPos(),

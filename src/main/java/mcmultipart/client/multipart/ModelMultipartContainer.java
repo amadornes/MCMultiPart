@@ -114,9 +114,10 @@ public class ModelMultipartContainer implements ISmartBlockModel {
     }
 
     @Override
-    public TextureAtlasSprite getTexture() {
+    public TextureAtlasSprite getParticleTexture() {
 
-        return model != null ? model.getTexture() : Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("minecraft:blocks/stone");
+        return model != null ? model.getParticleTexture() : Minecraft.getMinecraft().getTextureMapBlocks()
+                .getAtlasSprite("minecraft:blocks/stone");
     }
 
     @Override

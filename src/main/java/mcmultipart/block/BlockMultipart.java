@@ -197,7 +197,7 @@ public final class BlockMultipart extends BlockContainer {
     }
 
     @Override
-    public int isProvidingWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
+    public int getWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
 
         if (side == null) return 0;
         TileMultipart tile = getMultipartTile(world, pos);
@@ -206,7 +206,7 @@ public final class BlockMultipart extends BlockContainer {
     }
 
     @Override
-    public int isProvidingStrongPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
+    public int getStrongPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
 
         if (side == null) return 0;
         TileMultipart tile = getMultipartTile(world, pos);
@@ -239,7 +239,7 @@ public final class BlockMultipart extends BlockContainer {
                 model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
                         .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
                 if (model != null) {
-                    TextureAtlasSprite icon = model.getTexture();
+                    TextureAtlasSprite icon = model.getParticleTexture();
                     if (icon != null) AdvancedEffectRenderer.getInstance(effectRenderer).addBlockDestroyEffects(pos, icon);
                 }
             }
@@ -264,7 +264,7 @@ public final class BlockMultipart extends BlockContainer {
                 model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
                         .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
                 if (model != null) {
-                    TextureAtlasSprite icon = model.getTexture();
+                    TextureAtlasSprite icon = model.getParticleTexture();
                     if (icon != null)
                         AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(
                                 target.getBlockPos(),

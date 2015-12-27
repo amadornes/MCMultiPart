@@ -130,8 +130,8 @@ public abstract class Multipart implements IMultipart {
         BlockPos pos = getPos();
         double x = pos.getX() + 0.5, y = pos.getY() + 0.5, z = pos.getZ() + 0.5;
 
-        if ((player == null || !player.capabilities.isCreativeMode) && !world.isRemote
-                && world.getGameRules().getGameRuleBooleanValue("doTileDrops") && !world.restoringBlockSnapshots) {
+        if ((player == null || !player.capabilities.isCreativeMode) && !world.isRemote && world.getGameRules().getBoolean("doTileDrops")
+                && !world.restoringBlockSnapshots) {
             for (ItemStack stack : getDrops()) {
                 EntityItem item = new EntityItem(world, x, y, z, stack);
                 item.setDefaultPickupDelay();

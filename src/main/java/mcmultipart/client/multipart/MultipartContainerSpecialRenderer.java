@@ -71,7 +71,7 @@ public final class MultipartContainerSpecialRenderer {
 
     private static void startTessellating(double x, double y, double z) {
 
-        Tessellator.getInstance().getWorldRenderer().func_181668_a(7, DefaultVertexFormats.field_181703_c);
+        Tessellator.getInstance().getWorldRenderer().begin(7, DefaultVertexFormats.OLDMODEL_POSITION_TEX_NORMAL);
         Tessellator.getInstance().getWorldRenderer().setTranslation(x, y, z);
     }
 

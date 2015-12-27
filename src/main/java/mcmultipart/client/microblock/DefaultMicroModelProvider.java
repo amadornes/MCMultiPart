@@ -73,9 +73,9 @@ public class DefaultMicroModelProvider implements IMicroModelProvider {
         }
 
         @Override
-        public TextureAtlasSprite getTexture() {
+        public TextureAtlasSprite getParticleTexture() {
 
-            return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("minecraft:blocks/iron_block");
+            return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("minecraft:blocks/stone");
         }
 
         @Override
