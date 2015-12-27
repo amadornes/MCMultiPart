@@ -88,6 +88,11 @@ public class MultipartContainer implements IMultipartContainer {
         for (IMultipart p : getParts())
             if (!p.occlusionTest(part) || !part.occlusionTest(p)) return false;
 
+        List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
+        part.addCollisionBoxes(new AxisAlignedBB(0, 0, 0, 1, 1, 1), list, null);
+        for (AxisAlignedBB bb : list)
+            if (!getWorld().checkNoEntityCollision(bb.offset(getPos().getX(), getPos().getY(), getPos().getZ()))) return false;
+
         return true;
     }
 
@@ -250,7 +255,7 @@ public class MultipartContainer implements IMultipartContainer {
         if (getWorld().isRemote) return false;
         if (hit == null) {
             for (IMultipart part : getParts())
-                part.harvest(player, hit);
+                part.harvest(null, hit);
             return true;
         }
         if (!partMap.values().contains(hit.partHit)) return false;

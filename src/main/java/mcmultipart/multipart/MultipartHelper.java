@@ -1,5 +1,7 @@
 package mcmultipart.multipart;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import mcmultipart.MCMultiPartMod;
@@ -7,6 +9,7 @@ import mcmultipart.block.TileMultipart;
 import mcmultipart.microblock.IMicroblockTile;
 import mcmultipart.microblock.MicroblockContainer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -16,7 +19,14 @@ public class MultipartHelper {
     public static boolean canAddPart(World world, BlockPos pos, IMultipart part) {
 
         IMultipartContainer container = getPartContainer(world, pos);
-        if (container == null) return world.getBlockState(pos).getBlock().isReplaceable(world, pos);
+        if (container == null) {
+            List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
+            part.addCollisionBoxes(new AxisAlignedBB(0, 0, 0, 1, 1, 1), list, null);
+            for (AxisAlignedBB bb : list)
+                if (!world.checkNoEntityCollision(bb.offset(pos.getX(), pos.getY(), pos.getZ()))) return false;
+
+            return world.getBlockState(pos).getBlock().isReplaceable(world, pos);
+        }
         return container.canAddPart(part);
     }
 
