@@ -339,8 +339,12 @@ public class MultipartContainer implements IMultipartContainer {
             NBTTagCompound t = partList.getCompoundTagAt(i);
             UUID id = UUID.fromString(t.getString("__partID"));
             IMultipart part = MultipartRegistry.createPart(t.getString("__partType"), t);
-            part.readFromNBT(t);
-            addPart(part, false, false, id);
+
+            if (part != null)
+            {
+                part.readFromNBT(t);
+                addPart(part, false, false, id);
+            }
         }
     }
 
