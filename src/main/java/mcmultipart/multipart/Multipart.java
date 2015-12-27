@@ -222,13 +222,13 @@ public abstract class Multipart implements IMultipart {
     }
 
     @Override
-    public boolean onActivated(EntityPlayer playerIn, ItemStack stack, PartMOP hit) {
+    public boolean onActivated(EntityPlayer player, ItemStack stack, PartMOP hit) {
 
         return false;
     }
 
     @Override
-    public void onClicked(EntityPlayer playerIn, ItemStack stack, PartMOP hit) {
+    public void onClicked(EntityPlayer player, ItemStack stack, PartMOP hit) {
 
     }
 

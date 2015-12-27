@@ -69,9 +69,9 @@ public interface IMultipart {
 
     public EnumFacing[] getValidRotations();
 
-    public boolean onActivated(EntityPlayer playerIn, ItemStack stack, PartMOP hit);
+    public boolean onActivated(EntityPlayer player, ItemStack stack, PartMOP hit);
 
-    public void onClicked(EntityPlayer playerIn, ItemStack stack, PartMOP hit);
+    public void onClicked(EntityPlayer player, ItemStack stack, PartMOP hit);
 
     public void writeToNBT(NBTTagCompound tag);
 

@@ -153,7 +153,6 @@ public final class BlockMultipart extends BlockContainer {
 
         TileMultipart tile = getMultipartTile(world, pos);
         if (tile == null) return false;
-
         return tile.getPartContainer().onActivated(player, player.getCurrentEquippedItem(), reTrace(world, pos, player));
     }
 
@@ -162,7 +161,6 @@ public final class BlockMultipart extends BlockContainer {
 
         TileMultipart tile = getMultipartTile(world, pos);
         if (tile == null) return;
-
         tile.getPartContainer().onClicked(player, player.getCurrentEquippedItem(), reTrace(world, pos, player));
     }
 
