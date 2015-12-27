@@ -226,7 +226,7 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
 
-        ((TileMultipart) world.getTileEntity(pos)).getPartContainer().onNeighborBlockChange(neighborBlock);
+        ((TileCoverable) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer().onNeighborBlockChange(neighborBlock);
         onNeighborBlockChangeDefault(world, pos, state, neighborBlock);
     }
 
@@ -237,8 +237,12 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 
-        ((TileMultipart) world.getTileEntity(pos)).getPartContainer().onNeighborTileChange(
-                EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ() - pos.getZ()));
+        ((TileCoverable) world.getTileEntity(pos))
+                .getMicroblockContainer()
+                .getPartContainer()
+                .onNeighborTileChange(
+                        EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(),
+                                neighbor.getZ() - pos.getZ()));
         onNeighborChangeDefault(world, pos, neighbor);
     }
 
