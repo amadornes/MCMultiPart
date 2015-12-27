@@ -3,6 +3,7 @@ package mcmultipart.block;
 import java.util.List;
 
 import mcmultipart.MCMultiPartMod;
+import mcmultipart.client.multipart.ICustomHighlightPart;
 import mcmultipart.client.multipart.IHitEffectsPart;
 import mcmultipart.client.multipart.IHitEffectsPart.AdvancedEffectRenderer;
 import mcmultipart.client.multipart.ISmartMultipartModel;
@@ -23,6 +24,7 @@ import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -40,14 +42,21 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.client.event.DrawBlockHighlightEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BlockCoverable extends BlockContainer {
 
     public BlockCoverable(Material material) {
 
         super(material);
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
@@ -318,6 +327,7 @@ public class BlockCoverable extends BlockContainer {
                     }
                 }
             }
+            return true;
         }
         return addDestroyEffectsDefault(world, pos, effectRenderer);
     }
@@ -356,6 +366,7 @@ public class BlockCoverable extends BlockContainer {
                     }
                 }
             }
+            return true;
         }
         return addHitEffectsDefault(world, target, effectRenderer);
     }
@@ -453,6 +464,37 @@ public class BlockCoverable extends BlockContainer {
     public boolean canRenderInLayerDefault(EnumWorldBlockLayer layer) {
 
         return super.canRenderInLayer(layer);
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    @SideOnly(Side.CLIENT)
+    public final void onDrawBlockHighlight(DrawBlockHighlightEvent event) {
+
+        PartMOP hit = event.target instanceof PartMOP ? (PartMOP) event.target : null;
+        if (hit != null) {
+            GlStateManager.pushMatrix();
+
+            BlockPos pos = hit.getBlockPos();
+            EntityPlayer player = event.player;
+            float partialTicks = event.partialTicks;
+            double x = pos.getX() - (player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks);
+            double y = pos.getY() - (player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks);
+            double z = pos.getZ() - (player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks);
+            GlStateManager.translate(x, y, z);
+
+            if (hit.partHit instanceof ICustomHighlightPart
+                    && ((ICustomHighlightPart) hit.partHit).drawHighlight(hit, event.player, event.currentItem, event.partialTicks))
+                event.setCanceled(true);
+
+            GlStateManager.popMatrix();
+        } else {
+            onDrawBlockHighlightDefault(event);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void onDrawBlockHighlightDefault(DrawBlockHighlightEvent event) {
+
     }
 
 }

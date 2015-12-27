@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import mcmultipart.MCMultiPartMod;
+import mcmultipart.client.multipart.ICustomHighlightPart;
 import mcmultipart.client.multipart.IHitEffectsPart;
 import mcmultipart.client.multipart.IHitEffectsPart.AdvancedEffectRenderer;
 import mcmultipart.client.multipart.ISmartMultipartModel;
@@ -22,6 +23,7 @@ import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -39,15 +41,22 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.client.event.DrawBlockHighlightEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public final class BlockMultipart extends BlockContainer {
 
     public BlockMultipart() {
 
         super(Material.ground);
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     private TileMultipart getMultipartTile(IBlockAccess world, BlockPos pos) {
@@ -243,7 +252,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public boolean addHitEffects(World world, MovingObjectPosition target, EffectRenderer effectRenderer) {
 
-        PartMOP hit = target instanceof PartMOP ? (PartMOP) target : reTrace(world, target.getBlockPos(), MCMultiPartMod.proxy.getPlayer());
+        PartMOP hit = target instanceof PartMOP ? (PartMOP) target : null;
         if (hit != null) {
             if (hit.partHit instanceof IHitEffectsPart)
                 if (((IHitEffectsPart) hit.partHit).addHitEffects(hit, AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
@@ -340,4 +349,28 @@ public final class BlockMultipart extends BlockContainer {
 
         return true;
     }
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    @SideOnly(Side.CLIENT)
+    public final void onDrawBlockHighlight(DrawBlockHighlightEvent event) {
+
+        PartMOP hit = event.target instanceof PartMOP ? (PartMOP) event.target : null;
+        if (hit != null && hit.partHit instanceof ICustomHighlightPart) {
+            GlStateManager.pushMatrix();
+
+            BlockPos pos = hit.getBlockPos();
+            EntityPlayer player = event.player;
+            float partialTicks = event.partialTicks;
+            double x = pos.getX() - (player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks);
+            double y = pos.getY() - (player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks);
+            double z = pos.getZ() - (player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks);
+            GlStateManager.translate(x, y, z);
+
+            if (((ICustomHighlightPart) hit.partHit).drawHighlight(hit, event.player, event.currentItem, event.partialTicks))
+                event.setCanceled(true);
+
+            GlStateManager.popMatrix();
+        }
+    }
+
 }
