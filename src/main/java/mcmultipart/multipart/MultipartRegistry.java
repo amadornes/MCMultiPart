@@ -2,6 +2,7 @@ package mcmultipart.multipart;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import net.minecraft.block.state.BlockState;
@@ -14,9 +15,8 @@ import com.google.common.collect.HashBiMap;
 
 public class MultipartRegistry {
 
-    // TODO: FIXME - replace with getters
-    public static Map<BlockState, String> stateLocations = new HashMap<BlockState, String>();
-    public static Map<String, BlockState> defaultStates = new HashMap<String, BlockState>();
+    private static Map<BlockState, String> stateLocations = new HashMap<BlockState, String>();
+    private static Map<String, BlockState> defaultStates = new HashMap<String, BlockState>();
 
     private static Map<String, IAdvancedPartFactory> partProviders = new HashMap<String, IAdvancedPartFactory>();
     private static BiMap<String, Class<? extends IMultipart>> partClasses = HashBiMap.create();
@@ -57,7 +57,10 @@ public class MultipartRegistry {
         registerProvider(new SimplePartFactory(clazz), identifier);
     }
 
-    public static String getPartIdentifier(IMultipart part) {
+    /**
+     * Only for internal use. This will not return the type of custom multiparts!
+     */
+    public static String getPartType(IMultipart part) {
 
         return partClasses.inverse().get(part.getClass());
     }
@@ -65,6 +68,16 @@ public class MultipartRegistry {
     public static BlockState getDefaultState(IMultipart part) {
 
         return defaultStates.get(part.getType());
+    }
+
+    public static BlockState getDefaultState(String partType) {
+
+        return defaultStates.get(partType);
+    }
+
+    public static String getStateLocation(BlockState state) {
+
+        return stateLocations.get(state);
     }
 
     public static IMultipart createPart(String partType, NBTTagCompound tag) {
@@ -77,6 +90,11 @@ public class MultipartRegistry {
 
         IAdvancedPartFactory factory = partProviders.get(partType);
         return factory == null ? null : factory.createPart(partType, buf);
+    }
+
+    public static Set<String> getRegisteredParts() {
+
+        return partProviders.keySet();
     }
 
     public static boolean hasRegisteredParts() {

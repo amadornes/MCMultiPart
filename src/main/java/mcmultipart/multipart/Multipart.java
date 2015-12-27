@@ -30,7 +30,7 @@ public abstract class Multipart implements IMultipart {
 
     protected static final AxisAlignedBB DEFAULT_RENDER_BOUNDS = AxisAlignedBB.fromBounds(0, 0, 0, 1, 1, 1);
 
-    private final String partType = MultipartRegistry.getPartIdentifier(this);
+    private final String partType = MultipartRegistry.getPartType(this);
     private IMultipartContainer container;
 
     @Override
