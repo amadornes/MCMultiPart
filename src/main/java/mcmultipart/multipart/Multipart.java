@@ -25,6 +25,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 
 public abstract class Multipart implements IMultipart {
 
@@ -254,7 +255,8 @@ public abstract class Multipart implements IMultipart {
     @Override
     public void sendUpdatePacket() {
 
-        MessageMultipartChange.newPacket(getWorld(), getPos(), this, MessageMultipartChange.Type.UPDATE).send(getWorld());
+        if (getWorld() instanceof WorldServer)
+            MessageMultipartChange.newPacket(getWorld(), getPos(), this, MessageMultipartChange.Type.UPDATE).send(getWorld());
     }
 
     @Override
