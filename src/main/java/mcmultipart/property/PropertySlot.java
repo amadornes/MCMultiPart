@@ -21,7 +21,7 @@ public class PropertySlot implements IUnlistedProperty<PartSlot> {
     @Override
     public boolean isValid(PartSlot value) {
 
-        return value != null;
+        return true;
     }
 
     @Override

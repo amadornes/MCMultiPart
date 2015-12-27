@@ -135,7 +135,7 @@ public abstract class Microblock extends Multipart implements IMicroblock {
     }
 
     @Override
-    public IBlockState getExtendedState(IBlockState state) {
+    public IExtendedBlockState getExtendedState(IBlockState state) {
 
         return ((IExtendedBlockState) state).withProperty(PROPERTY_MATERIAL, getMicroMaterial()).withProperty(PROPERTY_SIZE, getSize())
                 .withProperty(PROPERTY_SLOT, slot);
