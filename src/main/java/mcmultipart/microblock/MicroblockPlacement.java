@@ -1,5 +1,6 @@
 package mcmultipart.microblock;
 
+import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.MultipartHelper;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
@@ -7,6 +8,8 @@ import net.minecraft.world.World;
 public abstract class MicroblockPlacement {
 
     public abstract boolean place(World world, BlockPos pos, boolean doPlace);
+
+    public abstract IMicroblock getPlacedPart(World world, BlockPos pos);
 
     public static class MicroblockPlacementDefault extends MicroblockPlacement {
 
@@ -24,38 +27,49 @@ public abstract class MicroblockPlacement {
             else return MultipartHelper.canAddPart(world, pos, microblock);
         }
 
+        @Override
+        public IMicroblock getPlacedPart(World world, BlockPos pos) {
+
+            return microblock;
+        }
+
     }
 
     public static class MicroblockPlacementExpand extends MicroblockPlacement {
 
-        private final IMicroblock microblock;
+        private final IMicroblock microblock, expanded;
         private final int amount;
 
-        public MicroblockPlacementExpand(IMicroblock microblock, int amount) {
+        public MicroblockPlacementExpand(IMicroblock microblockToExpand, IMicroblock expanded, int amount) {
 
-            this.microblock = microblock;
+            this.microblock = microblockToExpand;
+            this.expanded = expanded;
             this.amount = amount;
         }
 
         @Override
         public boolean place(World world, BlockPos pos, boolean doPlace) {
 
-            MicroblockContainer container = MultipartHelper.getMicroblockContainer(world, pos);
+            IMultipartContainer container = MultipartHelper.getPartContainer(world, pos);
             if (container == null) return false;
 
             int oldSize = microblock.getSize();
-            microblock.setSize(oldSize + amount);
-            if (container.canReplacePart(microblock, microblock)) {
+            if (container.canReplacePart(microblock, expanded)) {
                 if (doPlace) {
+                    microblock.setSize(oldSize + amount);
+                    microblock.onPartChanged(microblock);
                     microblock.sendUpdatePacket();
-                } else {
-                    microblock.setSize(oldSize);
                 }
                 return true;
             }
-            microblock.setSize(oldSize);
 
             return false;
+        }
+
+        @Override
+        public IMicroblock getPlacedPart(World world, BlockPos pos) {
+
+            return expanded;
         }
 
     }
