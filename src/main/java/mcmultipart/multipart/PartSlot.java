@@ -5,33 +5,33 @@ import net.minecraft.util.StatCollector;
 
 public enum PartSlot {
 
-    DOWN,
-    UP,
-    NORTH,
-    SOUTH,
-    WEST,
-    EAST,
-    CENTER,
-    EDGE_XNN,
-    EDGE_XNP,
-    EDGE_XPN,
-    EDGE_XPP,
-    EDGE_NYN,
-    EDGE_NYP,
-    EDGE_PYN,
-    EDGE_PYP,
-    EDGE_NNZ,
-    EDGE_NPZ,
-    EDGE_PNZ,
-    EDGE_PPZ,
-    CORNER_NNN,
-    CORNER_NNP,
-    CORNER_NPN,
-    CORNER_NPP,
-    CORNER_PNN,
-    CORNER_PNP,
-    CORNER_PPN,
-    CORNER_PPP;
+    DOWN(EnumFacing.DOWN),
+    UP(EnumFacing.UP),
+    NORTH(EnumFacing.NORTH),
+    SOUTH(EnumFacing.SOUTH),
+    WEST(EnumFacing.WEST),
+    EAST(EnumFacing.EAST),
+    CENTER(null),
+    EDGE_XNN(EnumFacing.DOWN, EnumFacing.WEST),
+    EDGE_XNP(EnumFacing.DOWN, EnumFacing.EAST),
+    EDGE_XPN(EnumFacing.UP, EnumFacing.WEST),
+    EDGE_XPP(EnumFacing.UP, EnumFacing.EAST),
+    EDGE_NYN(EnumFacing.NORTH, EnumFacing.WEST),
+    EDGE_NYP(EnumFacing.NORTH, EnumFacing.EAST),
+    EDGE_PYN(EnumFacing.SOUTH, EnumFacing.WEST),
+    EDGE_PYP(EnumFacing.SOUTH, EnumFacing.EAST),
+    EDGE_NNZ(EnumFacing.NORTH, EnumFacing.DOWN),
+    EDGE_NPZ(EnumFacing.NORTH, EnumFacing.UP),
+    EDGE_PNZ(EnumFacing.SOUTH, EnumFacing.DOWN),
+    EDGE_PPZ(EnumFacing.SOUTH, EnumFacing.UP),
+    CORNER_NNN(EnumFacing.NORTH, EnumFacing.DOWN, EnumFacing.WEST),
+    CORNER_NNP(EnumFacing.NORTH, EnumFacing.DOWN, EnumFacing.EAST),
+    CORNER_NPN(EnumFacing.NORTH, EnumFacing.UP, EnumFacing.WEST),
+    CORNER_NPP(EnumFacing.NORTH, EnumFacing.UP, EnumFacing.EAST),
+    CORNER_PNN(EnumFacing.SOUTH, EnumFacing.DOWN, EnumFacing.WEST),
+    CORNER_PNP(EnumFacing.SOUTH, EnumFacing.DOWN, EnumFacing.EAST),
+    CORNER_PPN(EnumFacing.SOUTH, EnumFacing.UP, EnumFacing.WEST),
+    CORNER_PPP(EnumFacing.SOUTH, EnumFacing.UP, EnumFacing.EAST);
 
     public static final PartSlot[] VALUES = values();
 
@@ -78,6 +78,28 @@ public enum PartSlot {
         return VALUES[corner + 19];
     }
 
+    public final EnumFacing f1, f2, f3;
+
+    private PartSlot(EnumFacing f1) {
+
+        this.f1 = f1;
+        this.f2 = this.f3 = null;
+    }
+
+    private PartSlot(EnumFacing f1, EnumFacing f2) {
+
+        this.f1 = f1;
+        this.f2 = f2;
+        this.f3 = null;
+    }
+
+    private PartSlot(EnumFacing f1, EnumFacing f2, EnumFacing f3) {
+
+        this.f1 = f1;
+        this.f2 = f2;
+        this.f3 = f3;
+    }
+
     public String getUnlocalizedName() {
 
         return "partslot." + name().toLowerCase();
@@ -86,6 +108,23 @@ public enum PartSlot {
     public String getLocalizedName() {
 
         return StatCollector.translateToLocal(getUnlocalizedName());
+    }
+
+    public boolean matches(EnumFacing f1) {
+
+        return this.f1 == f1 || this.f2 == f1 || this.f3 == f1;
+    }
+
+    public boolean matches(EnumFacing f1, EnumFacing f2) {
+
+        return (this.f1 == f1 && this.f2 == f2) || (this.f1 == f2 && this.f2 == f1) || (this.f1 == f1 && this.f3 == f2)
+                || (this.f1 == f2 && this.f3 == f1) || (this.f2 == f1 && this.f3 == f2) || (this.f2 == f2 && this.f3 == f1);
+    }
+
+    public boolean matches(EnumFacing f1, EnumFacing f2, EnumFacing f3) {
+
+        return (this.f1 == f1 && this.f2 == f2 && this.f3 == f3) || (this.f1 == f2 && this.f2 == f1 && this.f3 == f3)
+                || (this.f1 == f1 && this.f2 == f3 && this.f3 == f2) || (this.f1 == f3 && this.f2 == f2 && this.f3 == f1);
     }
 
 }
