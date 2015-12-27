@@ -91,6 +91,11 @@ public final class TileMultipart extends TileEntity implements IMultipartContain
     @Override
     public void update() {
 
+        if (!getWorld().isRemote && getParts().isEmpty()) {
+            getWorld().setBlockToAir(getPos());
+            return;
+        }
+
         for (IMultipart part : getParts())
             if (part instanceof ITickable) ((ITickable) part).update();
     }
