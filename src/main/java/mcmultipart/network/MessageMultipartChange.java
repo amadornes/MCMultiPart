@@ -86,8 +86,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
             EntityPlayer player = MCMultiPartMod.proxy.getPlayer();
 
             if (message.type == Type.ADD) {
-                message.part = MultipartRegistry.createPart(message.partType, Unpooled.copiedBuffer(message.data));
-                message.part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(message.data)));
+                message.part = MultipartRegistry.createPart(message.partType, new PacketBuffer(Unpooled.copiedBuffer(message.data)));
                 MultipartHelper.addPart(player.worldObj, message.pos, message.part, message.partID);
 
                 player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);

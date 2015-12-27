@@ -339,12 +339,7 @@ public class MultipartContainer implements IMultipartContainer {
             NBTTagCompound t = partList.getCompoundTagAt(i);
             UUID id = UUID.fromString(t.getString("__partID"));
             IMultipart part = MultipartRegistry.createPart(t.getString("__partType"), t);
-
-            if (part != null)
-            {
-                part.readFromNBT(t);
-                addPart(part, false, false, id);
-            }
+            if (part != null) addPart(part, false, false, id);
         }
     }
 
@@ -371,8 +366,8 @@ public class MultipartContainer implements IMultipartContainer {
             UUID id = UUID.fromString(t.getString("__partID"));
             IMultipart part = partMap.get(id);
             if (part == null) {
-                part = MultipartRegistry.createPart(t.getString("__partType"), Unpooled.copiedBuffer(t.getByteArray("data")));
-                part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
+                part = MultipartRegistry.createPart(t.getString("__partType"),
+                        new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
             } else {
                 part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
             }
