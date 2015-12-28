@@ -45,7 +45,7 @@ public class MultipartHelper {
 
     public static void addPart(World world, BlockPos pos, IMultipart part, UUID id) {
 
-        IMultipartContainer container = getOrConvertPartContainer(world, pos);
+        IMultipartContainer container = getOrConvertPartContainer(world, pos, true);
         boolean newContainer;
         if (newContainer = (container == null)) {
             world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState());
@@ -76,7 +76,7 @@ public class MultipartHelper {
         return null;
     }
 
-    public static IMultipartContainer getOrConvertPartContainer(World world, BlockPos pos) {
+    public static IMultipartContainer getOrConvertPartContainer(World world, BlockPos pos, boolean doconvert) {
 
         IMultipartContainer container = getPartContainer(world, pos);
         if (container != null) return container;
@@ -84,21 +84,28 @@ public class MultipartHelper {
         Collection<? extends IMultipart> parts = MultipartRegistry.convert(world, pos);
         if (parts == null || parts.isEmpty()) return null;
 
-        TileEntity oldTile = world.getTileEntity(pos);
-        world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState());
-        TileEntity tile = world.getTileEntity(pos);
-        TileMultipart te = null;
-        if (tile == null || !(tile instanceof TileMultipart)) world.setTileEntity(pos, te = new TileMultipart());
-        else te = (TileMultipart) tile;
+        if (doconvert) {
+            TileEntity oldTile = world.getTileEntity(pos);
+            world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState());
+            TileEntity tile = world.getTileEntity(pos);
+            TileMultipart te = null;
+            if (tile == null || !(tile instanceof TileMultipart)) world.setTileEntity(pos, te = new TileMultipart());
+            else te = (TileMultipart) tile;
 
-        for (IMultipart part : parts)
-            te.getPartContainer().addPart(part, false, false, UUID.randomUUID());
-        for (IMultipart part : parts)
-            part.onConverted(oldTile);
+            for (IMultipart part : parts)
+                te.getPartContainer().addPart(part, false, false, UUID.randomUUID());
+            for (IMultipart part : parts)
+                part.onConverted(oldTile);
 
-        world.notifyLightSet(pos);
+            return te;
+        } else {
+            TileMultipart te = new TileMultipart();
 
-        return te;
+            for (IMultipart part : parts)
+                te.getPartContainer().addPart(part, false, false, UUID.randomUUID());
+
+            return te;
+        }
     }
 
 }
