@@ -25,9 +25,9 @@ public interface IMicroblock extends ISlottedPart {
 
         public EnumFacing getFace();
 
-        public boolean isHollow();
+        public boolean isFaceHollow();
 
-        public boolean isWireHollow();
+        public boolean isEdgeHollow();
 
     }
 
