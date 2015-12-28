@@ -89,7 +89,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
                 message.part = MultipartRegistry.createPart(message.partType, new PacketBuffer(Unpooled.copiedBuffer(message.data)));
                 MultipartHelper.addPart(player.worldObj, message.pos, message.part, message.partID);
 
-                player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
+                if (message.part.getModelPath() != null) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
             } else if (message.type == Type.REMOVE) {
                 IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
                 if (container != null) {
@@ -99,7 +99,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
                     container.removePart(message.part);
                 }
 
-                player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
+                if (message.part.getModelPath() != null) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
             } else if (message.type == Type.UPDATE) {
                 IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
                 if (container == null) throw new IllegalStateException("Attempted to update a multipart at an illegal position!");
@@ -107,6 +107,8 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
                 if (message.part == null)
                     throw new IllegalStateException("Attempted to update a multipart that doesn't exist on the client!");
                 message.part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(message.data)));
+
+                if (message.part.getModelPath() != null) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
             }
         }
         return null;
