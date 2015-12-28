@@ -315,7 +315,7 @@ public abstract class Multipart implements IMultipart {
     protected void markLightingUpdate() {
 
         World world = getWorld();
-        if (world != null) world.notifyLightSet(getPos());
+        if (world != null) world.checkLight(getPos());
     }
 
     protected void notifyBlockUpdate() {
