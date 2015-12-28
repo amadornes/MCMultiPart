@@ -90,7 +90,7 @@ public class MultipartContainer implements IMultipartContainer {
 
         List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
         part.addCollisionBoxes(new AxisAlignedBB(0, 0, 0, 1, 1, 1), list, null);
-        for (AxisAlignedBB bb : list)
+        if (getWorld() != null && getPos() != null) for (AxisAlignedBB bb : list)
             if (!getWorld().checkNoEntityCollision(bb.offset(getPos().getX(), getPos().getY(), getPos().getZ()))) return false;
 
         return true;
@@ -108,6 +108,11 @@ public class MultipartContainer implements IMultipartContainer {
 
         for (IMultipart p : getParts())
             if (p != oldPart && (!p.occlusionTest(newPart) || !newPart.occlusionTest(p))) return false;
+
+        List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
+        newPart.addCollisionBoxes(new AxisAlignedBB(0, 0, 0, 1, 1, 1), list, null);
+        if (getWorld() != null && getPos() != null) for (AxisAlignedBB bb : list)
+            if (!getWorld().checkNoEntityCollision(bb.offset(getPos().getX(), getPos().getY(), getPos().getZ()))) return false;
 
         return true;
     }
