@@ -10,8 +10,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.UUID;
 
+import mcmultipart.client.multipart.IRandomDisplayTickPart;
 import mcmultipart.multipart.ISolidPart.ISolidTopPart;
 import mcmultipart.network.MessageMultipartChange;
 import mcmultipart.network.MessageMultipartChange.Type;
@@ -29,6 +31,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import putsomewhereelse.IWorldLocation;
 
 import com.google.common.collect.BiMap;
@@ -337,6 +341,13 @@ public class MultipartContainer implements IMultipartContainer {
         return false;
     }
 
+    @SideOnly(Side.CLIENT)
+    public void randomDisplayTick(Random rand) {
+
+        for (IMultipart p : getParts())
+            if (p instanceof IRandomDisplayTickPart) ((IRandomDisplayTickPart) p).randomDisplayTick(rand);
+    }
+
     public void writeToNBT(NBTTagCompound tag) {
 
         NBTTagList partList = new NBTTagList();
@@ -388,7 +399,7 @@ public class MultipartContainer implements IMultipartContainer {
             IMultipart part = partMap.get(id);
             if (part == null) {
                 part = MultipartRegistry.createPart(t.getString("__partType"),
-                                                    new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
+                        new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
             } else {
                 part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
             }

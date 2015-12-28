@@ -2,6 +2,7 @@ package mcmultipart.block;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import mcmultipart.MCMultiPartMod;
 import mcmultipart.client.multipart.ICustomHighlightPart;
@@ -85,7 +86,7 @@ public final class BlockMultipart extends BlockContainer {
 
     @Override
     public void addCollisionBoxesToList(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list,
-                                        Entity collidingEntity) {
+            Entity collidingEntity) {
 
         TileMultipart tile = getMultipartTile(worldIn, pos);
         if (tile == null) return;
@@ -149,7 +150,7 @@ public final class BlockMultipart extends BlockContainer {
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX,
-                                    float hitY, float hitZ) {
+            float hitY, float hitZ) {
 
         TileMultipart tile = getMultipartTile(world, pos);
         if (tile == null) return false;
@@ -177,9 +178,8 @@ public final class BlockMultipart extends BlockContainer {
 
         TileMultipart tile = ((TileMultipart) world.getTileEntity(pos));
         if (tile == null) return;
-        tile.getPartContainer().onNeighborTileChange(EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(),
-                                                                                    neighbor.getY() - pos.getY(),
-                                                                                    neighbor.getZ() - pos.getZ()));
+        tile.getPartContainer().onNeighborTileChange(
+                EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ() - pos.getZ()));
     }
 
     @Override
@@ -232,6 +232,15 @@ public final class BlockMultipart extends BlockContainer {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand) {
+
+        TileMultipart tile = getMultipartTile(world, pos);
+        if (tile != null) tile.getPartContainer().randomDisplayTick(rand);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
     public boolean addDestroyEffects(World world, BlockPos pos, EffectRenderer effectRenderer) {
 
         PartMOP hit = reTrace(world, pos, MCMultiPartMod.proxy.getPlayer());
@@ -257,6 +266,7 @@ public final class BlockMultipart extends BlockContainer {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean addHitEffects(World world, MovingObjectPosition target, EffectRenderer effectRenderer) {
 
         PartMOP hit = target instanceof PartMOP ? (PartMOP) target : null;
@@ -275,14 +285,12 @@ public final class BlockMultipart extends BlockContainer {
                 if (model != null) {
                     TextureAtlasSprite icon = model.getParticleTexture();
                     if (icon != null)
-                        AdvancedEffectRenderer.getInstance(effectRenderer)
-                                .addBlockHitEffects(target.getBlockPos(),
-                                                    hit,
-                                                    world.getBlockState(target.getBlockPos())
-                                                            .getBlock()
-                                                            .getSelectedBoundingBox(world, target.getBlockPos())
-                                                            .offset(-target.getBlockPos().getX(), -target.getBlockPos().getY(),
-                                                                    -target.getBlockPos().getZ()), icon);
+                        AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(
+                                target.getBlockPos(),
+                                hit,
+                                world.getBlockState(target.getBlockPos()).getBlock().getSelectedBoundingBox(world, target.getBlockPos())
+                                        .offset(-target.getBlockPos().getX(), -target.getBlockPos().getY(), -target.getBlockPos().getZ()),
+                                icon);
                 }
             }
         }
@@ -290,8 +298,9 @@ public final class BlockMultipart extends BlockContainer {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean addLandingEffects(WorldServer worldObj, BlockPos blockPosition, IBlockState iblockstate, EntityLivingBase entity,
-                                     int numberOfParticles) {
+            int numberOfParticles) {
 
         return true;
     }

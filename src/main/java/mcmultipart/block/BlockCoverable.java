@@ -1,6 +1,7 @@
 package mcmultipart.block;
 
 import java.util.List;
+import java.util.Random;
 
 import mcmultipart.MCMultiPartMod;
 import mcmultipart.client.multipart.ICustomHighlightPart;
@@ -323,6 +324,22 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
+    public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand) {
+
+        randomDisplayTickDefault(world, pos, state, rand);
+        MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
+        if (container != null) container.getPartContainer().randomDisplayTick(rand);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void randomDisplayTickDefault(World world, BlockPos pos, IBlockState state, Random rand) {
+
+        super.randomDisplayTick(world, pos, state, rand);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
     public final boolean addDestroyEffects(World world, BlockPos pos, EffectRenderer effectRenderer) {
 
         PartMOP hit = reTrace(world, pos, MCMultiPartMod.proxy.getPlayer());
@@ -351,12 +368,14 @@ public class BlockCoverable extends BlockContainer {
         return addDestroyEffectsDefault(world, pos, effectRenderer);
     }
 
+    @SideOnly(Side.CLIENT)
     public boolean addDestroyEffectsDefault(World world, BlockPos pos, EffectRenderer effectRenderer) {
 
         return super.addDestroyEffects(world, pos, effectRenderer);
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public final boolean addHitEffects(World world, MovingObjectPosition target, EffectRenderer effectRenderer) {
 
         PartMOP hit = target instanceof PartMOP ? (PartMOP) target : null;
@@ -390,12 +409,14 @@ public class BlockCoverable extends BlockContainer {
         return addHitEffectsDefault(world, target, effectRenderer);
     }
 
+    @SideOnly(Side.CLIENT)
     public boolean addHitEffectsDefault(World world, MovingObjectPosition target, EffectRenderer effectRenderer) {
 
         return super.addHitEffects(world, target, effectRenderer);
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean addLandingEffects(WorldServer worldObj, BlockPos blockPosition, IBlockState iblockstate, EntityLivingBase entity,
             int numberOfParticles) {
 
