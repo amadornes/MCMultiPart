@@ -19,6 +19,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -143,7 +144,7 @@ public abstract class Multipart implements IMultipart {
 
     public float getHardness(PartMOP hit) {
 
-        return -1F;
+        return 0;
     }
 
     public Material getMaterial() {
@@ -206,6 +207,11 @@ public abstract class Multipart implements IMultipart {
 
     @Override
     public void onUnloaded() {
+
+    }
+
+    @Override
+    public void onConverted(TileEntity tile) {
 
     }
 
@@ -287,9 +293,7 @@ public abstract class Multipart implements IMultipart {
 
         World world = getWorld();
         BlockPos pos = getPos();
-        if (world != null) {
-            world.markBlockRangeForRenderUpdate(pos, pos);
-        }
+        if (world != null) world.markBlockRangeForRenderUpdate(pos, pos);
     }
 
     protected void markDirty() {

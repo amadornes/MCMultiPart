@@ -1,13 +1,17 @@
 package mcmultipart.multipart;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import com.google.common.collect.BiMap;
@@ -20,6 +24,8 @@ public class MultipartRegistry {
 
     private static Map<String, IAdvancedPartFactory> partProviders = new HashMap<String, IAdvancedPartFactory>();
     private static BiMap<String, Class<? extends IMultipart>> partClasses = HashBiMap.create();
+
+    private static Map<Block, IPartConverter> converters = new HashMap<Block, IPartConverter>();
 
     public static void registerProvider(IPartFactory provider, String... parts) {
 
@@ -55,6 +61,12 @@ public class MultipartRegistry {
             throw new IllegalArgumentException("Attempted to register a multipart with an identifier that's already in use!");
         partClasses.put(identifier, clazz);
         registerProvider(new SimplePartFactory(clazz), identifier);
+    }
+
+    public static void registerPartConverter(IPartConverter converter) {
+
+        for (Block block : converter.getConvertableBlocks())
+            converters.put(block, converter);
     }
 
     /**
@@ -100,6 +112,13 @@ public class MultipartRegistry {
     public static boolean hasRegisteredParts() {
 
         return !partProviders.isEmpty();
+    }
+
+    public static Collection<? extends IMultipart> convert(IBlockAccess world, BlockPos pos) {
+
+        IPartConverter converter = converters.get(world.getBlockState(pos).getBlock());
+        if (converter != null) return converter.convertBlock(world, pos);
+        return null;
     }
 
     private static class SimplePartFactory implements IPartFactory {

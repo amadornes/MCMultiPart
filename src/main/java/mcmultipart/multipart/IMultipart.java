@@ -12,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -64,6 +65,8 @@ public interface IMultipart {
     public void onLoaded();
 
     public void onUnloaded();
+
+    public void onConverted(TileEntity tile);
 
     public boolean rotatePart(EnumFacing axis);
 
