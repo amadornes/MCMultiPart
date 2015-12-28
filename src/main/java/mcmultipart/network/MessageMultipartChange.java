@@ -51,7 +51,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
         ByteBufUtils.writeUTF8String(buf, part.getType());
         buf.writeInt(pos.getX()).writeInt(pos.getY()).writeInt(pos.getZ());
 
-        if (type == Type.ADD || type == Type.UPDATE) {
+        if (type == Type.ADD || type == Type.UPDATE || type == Type.UPDATE_RERENDER) {
             ByteBuf dataBuf = Unpooled.buffer();
             if (type == Type.ADD || type == Type.UPDATE) part.writeUpdatePacket(new PacketBuffer(dataBuf));
             data = dataBuf.array();
@@ -73,7 +73,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
         partType = ByteBufUtils.readUTF8String(buf);
         pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
 
-        if (type == Type.ADD || type == Type.UPDATE) {
+        if (type == Type.ADD || type == Type.UPDATE || type == Type.UPDATE_RERENDER) {
             data = new byte[buf.readUnsignedMedium()];
             buf.readBytes(data, 0, data.length);
         }
@@ -100,7 +100,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
                 }
 
                 if (message.part.getModelPath() != null) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
-            } else if (message.type == Type.UPDATE) {
+            } else if (message.type == Type.UPDATE || type == Type.UPDATE_RERENDER) {
                 IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
                 if (container == null) throw new IllegalStateException("Attempted to update a multipart at an illegal position!");
                 message.part = container.getPartFromID(message.partID);
@@ -108,7 +108,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
                     throw new IllegalStateException("Attempted to update a multipart that doesn't exist on the client!");
                 message.part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(message.data)));
 
-                if (message.part.getModelPath() != null) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
+                if (type == Type.UPDATE_RERENDER) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
             }
         }
         return null;
@@ -130,7 +130,8 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
     public static enum Type {
         ADD,
         REMOVE,
-        UPDATE;
+        UPDATE,
+        UPDATE_RERENDER;
 
         public static final Type[] VALUES = values();
     }

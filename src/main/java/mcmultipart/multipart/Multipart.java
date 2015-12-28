@@ -261,8 +261,14 @@ public abstract class Multipart implements IMultipart {
     @Override
     public void sendUpdatePacket() {
 
+        sendUpdatePacket(getModelPath() != null);
+    }
+
+    public void sendUpdatePacket(boolean reRender) {
+
         if (getWorld() instanceof WorldServer)
-            MessageMultipartChange.newPacket(getWorld(), getPos(), this, MessageMultipartChange.Type.UPDATE).send(getWorld());
+            MessageMultipartChange.newPacket(getWorld(), getPos(), this,
+                    reRender ? MessageMultipartChange.Type.UPDATE_RERENDER : MessageMultipartChange.Type.UPDATE).send(getWorld());
     }
 
     @Override
