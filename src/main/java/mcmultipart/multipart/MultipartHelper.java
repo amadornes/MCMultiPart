@@ -45,7 +45,7 @@ public class MultipartHelper {
 
     public static void addPart(World world, BlockPos pos, IMultipart part, UUID id) {
 
-        IMultipartContainer container = getOrConvertPartContainer(world, pos, true);
+        IMultipartContainer container = world.isRemote ? getPartContainer(world, pos) : getOrConvertPartContainer(world, pos, true);
         boolean newContainer;
         if (newContainer = (container == null)) {
             world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState());
