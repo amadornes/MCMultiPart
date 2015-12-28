@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import mcmultipart.multipart.ISolidPart.ISolidTopPart;
 import mcmultipart.network.MessageMultipartChange;
 import mcmultipart.network.MessageMultipartChange.Type;
 import mcmultipart.raytrace.PartMOP;
@@ -326,6 +327,16 @@ public class MultipartContainer implements IMultipartContainer {
         return false;
     }
 
+    public boolean canPlaceTorchOnTop() {
+
+        IMultipart slotPart = getPartInSlot(PartSlot.getFaceSlot(EnumFacing.UP));
+        if (slotPart != null && slotPart instanceof ISolidTopPart) return ((ISolidTopPart) slotPart).canPlaceTorchOnTop();
+        for (IMultipart p : getParts())
+            if ((!(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty()) && p instanceof ISolidTopPart)
+                if (((ISolidTopPart) p).canPlaceTorchOnTop()) return true;
+        return false;
+    }
+
     public void writeToNBT(NBTTagCompound tag) {
 
         NBTTagList partList = new NBTTagList();
@@ -377,7 +388,7 @@ public class MultipartContainer implements IMultipartContainer {
             IMultipart part = partMap.get(id);
             if (part == null) {
                 part = MultipartRegistry.createPart(t.getString("__partType"),
-                        new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
+                                                    new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
             } else {
                 part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
             }

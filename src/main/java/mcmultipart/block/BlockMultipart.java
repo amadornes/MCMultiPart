@@ -85,7 +85,7 @@ public final class BlockMultipart extends BlockContainer {
 
     @Override
     public void addCollisionBoxesToList(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list,
-            Entity collidingEntity) {
+                                        Entity collidingEntity) {
 
         TileMultipart tile = getMultipartTile(worldIn, pos);
         if (tile == null) return;
@@ -149,7 +149,7 @@ public final class BlockMultipart extends BlockContainer {
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX,
-            float hitY, float hitZ) {
+                                    float hitY, float hitZ) {
 
         TileMultipart tile = getMultipartTile(world, pos);
         if (tile == null) return false;
@@ -177,8 +177,9 @@ public final class BlockMultipart extends BlockContainer {
 
         TileMultipart tile = ((TileMultipart) world.getTileEntity(pos));
         if (tile == null) return;
-        tile.getPartContainer().onNeighborTileChange(
-                EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ() - pos.getZ()));
+        tile.getPartContainer().onNeighborTileChange(EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(),
+                                                                                    neighbor.getY() - pos.getY(),
+                                                                                    neighbor.getZ() - pos.getZ()));
     }
 
     @Override
@@ -220,6 +221,14 @@ public final class BlockMultipart extends BlockContainer {
         TileMultipart tile = getMultipartTile(world, pos);
         if (tile == null) return false;
         return tile.getPartContainer().isSideSolid(side);
+    }
+
+    @Override
+    public boolean canPlaceTorchOnTop(IBlockAccess world, BlockPos pos) {
+
+        TileMultipart tile = getMultipartTile(world, pos);
+        if (tile == null) return false;
+        return tile.getPartContainer().canPlaceTorchOnTop();
     }
 
     @Override
@@ -266,12 +275,14 @@ public final class BlockMultipart extends BlockContainer {
                 if (model != null) {
                     TextureAtlasSprite icon = model.getParticleTexture();
                     if (icon != null)
-                        AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(
-                                target.getBlockPos(),
-                                hit,
-                                world.getBlockState(target.getBlockPos()).getBlock().getSelectedBoundingBox(world, target.getBlockPos())
-                                        .offset(-target.getBlockPos().getX(), -target.getBlockPos().getY(), -target.getBlockPos().getZ()),
-                                icon);
+                        AdvancedEffectRenderer.getInstance(effectRenderer)
+                                .addBlockHitEffects(target.getBlockPos(),
+                                                    hit,
+                                                    world.getBlockState(target.getBlockPos())
+                                                            .getBlock()
+                                                            .getSelectedBoundingBox(world, target.getBlockPos())
+                                                            .offset(-target.getBlockPos().getX(), -target.getBlockPos().getY(),
+                                                                    -target.getBlockPos().getZ()), icon);
                 }
             }
         }
@@ -280,7 +291,7 @@ public final class BlockMultipart extends BlockContainer {
 
     @Override
     public boolean addLandingEffects(WorldServer worldObj, BlockPos blockPosition, IBlockState iblockstate, EntityLivingBase entity,
-            int numberOfParticles) {
+                                     int numberOfParticles) {
 
         return true;
     }

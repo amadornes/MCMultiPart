@@ -275,10 +275,10 @@ public class BlockCoverable extends BlockContainer {
 
         if (side == null) return 0;
         MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
-        return Math.max(container.getPartContainer().getWeakSignal(side), getWeakPower(world, pos, state, side, container));
+        return Math.max(container.getPartContainer().getWeakSignal(side), getWeakPowerDefault(world, pos, state, side, container));
     }
 
-    public int getWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side, MicroblockContainer partContainer) {
+    public int getWeakPowerDefault(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side, MicroblockContainer partContainer) {
 
         return super.getWeakPower(world, pos, state, side);
     }
@@ -288,20 +288,38 @@ public class BlockCoverable extends BlockContainer {
 
         if (side == null) return 0;
         MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
-        return Math.max(container.getPartContainer().getStrongSignal(side), getStrongPower(world, pos, state, side, container));
+        return Math.max(container.getPartContainer().getStrongSignal(side), getStrongPowerDefault(world, pos, state, side, container));
     }
 
-    public int getStrongPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side, MicroblockContainer partContainer) {
+    public int getStrongPowerDefault(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side, MicroblockContainer partContainer) {
 
         return super.getStrongPower(world, pos, state, side);
     }
 
     @Override
-    public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
+    public final boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
 
         MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
         if (container == null) return false;
-        return container.getPartContainer().isSideSolid(side);
+        return container.getPartContainer().isSideSolid(side) || isSideSolidDefault(world, pos, side);
+    }
+
+    public boolean isSideSolidDefault(IBlockAccess world, BlockPos pos, EnumFacing side) {
+
+        return super.isSideSolid(world, pos, side);
+    }
+
+    @Override
+    public final boolean canPlaceTorchOnTop(IBlockAccess world, BlockPos pos) {
+
+        MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
+        if (container == null) return false;
+        return container.getPartContainer().canPlaceTorchOnTop() || canPlaceTorchOnTopDefault(world, pos);
+    }
+
+    public boolean canPlaceTorchOnTopDefault(IBlockAccess world, BlockPos pos) {
+
+        return super.canPlaceTorchOnTop(world, pos);
     }
 
     @Override
