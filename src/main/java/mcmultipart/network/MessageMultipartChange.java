@@ -53,7 +53,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
 
         if (type == Type.ADD || type == Type.UPDATE || type == Type.UPDATE_RERENDER) {
             ByteBuf dataBuf = Unpooled.buffer();
-            if (type == Type.ADD || type == Type.UPDATE) part.writeUpdatePacket(new PacketBuffer(dataBuf));
+            part.writeUpdatePacket(new PacketBuffer(dataBuf));
             data = dataBuf.array();
             dataBuf.clear();
             buf.writeMedium(data.length);
@@ -100,7 +100,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
                 }
 
                 if (message.part.getModelPath() != null) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
-            } else if (message.type == Type.UPDATE || type == Type.UPDATE_RERENDER) {
+            } else if (message.type == Type.UPDATE || message.type == Type.UPDATE_RERENDER) {
                 IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
                 if (container == null) throw new IllegalStateException("Attempted to update a multipart at an illegal position!");
                 message.part = container.getPartFromID(message.partID);
@@ -108,7 +108,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
                     throw new IllegalStateException("Attempted to update a multipart that doesn't exist on the client!");
                 message.part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(message.data)));
 
-                if (type == Type.UPDATE_RERENDER) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
+                if (message.type == Type.UPDATE_RERENDER) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
             }
         }
         return null;
