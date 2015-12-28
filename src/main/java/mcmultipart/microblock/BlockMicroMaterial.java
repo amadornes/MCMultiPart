@@ -2,15 +2,15 @@ package mcmultipart.microblock;
 
 import java.util.Map.Entry;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumWorldBlockLayer;
+
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 
 public class BlockMicroMaterial implements IMicroMaterial {
 
@@ -92,12 +92,6 @@ public class BlockMicroMaterial implements IMicroMaterial {
     public boolean canRenderInLayer(EnumWorldBlockLayer layer) {
 
         return blockState.getBlock().canRenderInLayer(layer);
-    }
-
-    @Override
-    public int compareTo(IMicroMaterial material) {
-
-        return getName().compareTo(material.getName());
     }
 
 }

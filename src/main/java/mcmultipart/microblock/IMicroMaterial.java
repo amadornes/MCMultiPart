@@ -2,7 +2,7 @@ package mcmultipart.microblock;
 
 import net.minecraft.util.EnumWorldBlockLayer;
 
-public interface IMicroMaterial extends Comparable<IMicroMaterial> {
+public interface IMicroMaterial {
 
     public String getName();
 
@@ -17,5 +17,11 @@ public interface IMicroMaterial extends Comparable<IMicroMaterial> {
     public int getSawStrength();
 
     public boolean canRenderInLayer(EnumWorldBlockLayer layer);
+
+    public static interface IDelegatedMicroMaterial extends IMicroMaterial {
+
+        public MicroblockDelegate provideDelegate(IMicroblock microblock, boolean isRemote);
+
+    }
 
 }

@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+import mcmultipart.microblock.IMicroMaterial.IDelegatedMicroMaterial;
+import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.Multipart;
 import mcmultipart.multipart.PartSlot;
 import mcmultipart.property.PropertyMicroMaterial;
 import mcmultipart.property.PropertySlot;
 import mcmultipart.raytrace.PartMOP;
+import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.IBlockState;
@@ -17,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
@@ -39,12 +43,15 @@ public abstract class Microblock extends Multipart implements IMicroblock {
     protected IMicroMaterial material;
     protected PartSlot slot;
     protected int size;
+    protected MicroblockDelegate delegate;
 
-    public Microblock(IMicroMaterial material, PartSlot slot, int size) {
+    public Microblock(IMicroMaterial material, PartSlot slot, int size, boolean isRemote) {
 
         this.material = material;
         this.slot = slot;
         this.size = size;
+        this.delegate = material instanceof IDelegatedMicroMaterial ? ((IDelegatedMicroMaterial) material).provideDelegate(this, isRemote)
+                : null;
     }
 
     @Override
@@ -135,6 +142,13 @@ public abstract class Microblock extends Multipart implements IMicroblock {
     }
 
     @Override
+    public boolean occlusionTest(IMultipart part) {
+
+        if (part instanceof IMicroblock) return true;
+        return super.occlusionTest(part);
+    }
+
+    @Override
     public IExtendedBlockState getExtendedState(IBlockState state) {
 
         return ((IExtendedBlockState) state).withProperty(PROPERTY_MATERIAL, getMicroMaterial()).withProperty(PROPERTY_SIZE, getSize())
@@ -155,6 +169,7 @@ public abstract class Microblock extends Multipart implements IMicroblock {
         ByteBufUtils.writeUTF8String(buf, getMicroMaterial().getName());
         buf.writeInt(slot != null ? slot.ordinal() : -1);
         buf.writeInt(getSize());
+        if (delegate != null) delegate.writeUpdatePacket(buf);
     }
 
     @Override
@@ -162,10 +177,15 @@ public abstract class Microblock extends Multipart implements IMicroblock {
 
         super.readUpdatePacket(buf);
 
+        IMicroMaterial oldMat = material;
         material = MicroblockRegistry.getMaterial(ByteBufUtils.readUTF8String(buf));
         int iSlot = buf.readInt();
         slot = iSlot == -1 ? null : PartSlot.VALUES[iSlot];
         size = buf.readInt();
+        if (oldMat != material)
+            delegate = material instanceof IDelegatedMicroMaterial ? ((IDelegatedMicroMaterial) material).provideDelegate(this, true)
+                    : null;
+        if (delegate != null) delegate.readUpdatePacket(buf);
     }
 
     @Override
@@ -176,6 +196,7 @@ public abstract class Microblock extends Multipart implements IMicroblock {
         tag.setString("material", getMicroMaterial().getName());
         tag.setInteger("slot", slot != null ? slot.ordinal() : -1);
         tag.setInteger("size", getSize());
+        if (delegate != null) delegate.writeToNBT(tag);
     }
 
     @Override
@@ -187,6 +208,88 @@ public abstract class Microblock extends Multipart implements IMicroblock {
         int iSlot = tag.getInteger("slot");
         slot = iSlot == -1 ? null : PartSlot.VALUES[iSlot];
         size = tag.getInteger("size");
+        delegate = material instanceof IDelegatedMicroMaterial ? ((IDelegatedMicroMaterial) material).provideDelegate(this, false) : null;
+        if (delegate != null) delegate.readFromNBT(tag);
+    }
+
+    // Delegation
+
+    @Override
+    public void harvest(EntityPlayer player, PartMOP hit) {
+
+        if (delegate == null || !delegate.harvest(player, hit)) super.harvest(player, hit);
+    }
+
+    @Override
+    public float getStrength(EntityPlayer player, PartMOP hit) {
+
+        Float strength = delegate != null ? delegate.getStrength(player, hit) : null;
+        if (strength != null) return strength;
+        return super.getStrength(player, hit);
+    }
+
+    @Override
+    public void onPartChanged(IMultipart part) {
+
+        super.onPartChanged(part);
+        if (delegate != null) delegate.onPartChanged(part);
+    }
+
+    @Override
+    public void onNeighborBlockChange(Block block) {
+
+        super.onNeighborBlockChange(block);
+        if (delegate != null) delegate.onNeighborBlockChange(block);
+    }
+
+    @Override
+    public void onNeighborTileChange(EnumFacing facing) {
+
+        super.onNeighborTileChange(facing);
+        if (delegate != null) delegate.onNeighborTileChange(facing);
+    }
+
+    @Override
+    public void onAdded() {
+
+        super.onAdded();
+        if (delegate != null) delegate.onAdded();
+    }
+
+    @Override
+    public void onRemoved() {
+
+        super.onRemoved();
+        if (delegate != null) delegate.onRemoved();
+    }
+
+    @Override
+    public void onLoaded() {
+
+        super.onLoaded();
+        if (delegate != null) delegate.onLoaded();
+    }
+
+    @Override
+    public void onUnloaded() {
+
+        super.onUnloaded();
+        if (delegate != null) delegate.onUnloaded();
+    }
+
+    @Override
+    public boolean onActivated(EntityPlayer player, ItemStack stack, PartMOP hit) {
+
+        Boolean activated = delegate != null ? delegate.onActivated(player, stack, hit) : null;
+        if (activated != null) return activated;
+        return super.onActivated(player, stack, hit);
+    }
+
+    @Override
+    public void onClicked(EntityPlayer player, ItemStack stack, PartMOP hit) {
+
+        super.onClicked(player, stack, hit);
+        if (delegate != null) delegate.onClicked(player, stack, hit);
     }
 
     public static class PropertyAABB implements IUnlistedProperty<AxisAlignedBB> {
