@@ -25,7 +25,7 @@ group="mcmultipart" // http://maven.apache.org/guides/mini/guide-naming-conventi
 archivesBaseName = "MCMultiPart"
 
 minecraft {
-    version = "1.8.8-11.15.0.1650-1.8.8"
+    version = "1.8.8-11.15.0.1651-1.8.8"
     runDir = "run"
     
     // the mappings can be changed at any time, and must be in the following format.
