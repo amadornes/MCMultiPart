@@ -3,10 +3,17 @@ package mcmultipart.microblock;
 import java.util.Map.Entry;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.Block.SoundType;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -31,7 +38,7 @@ public class BlockMicroMaterial implements IMicroMaterial {
         }
     };
 
-    public IBlockState blockState;
+    private IBlockState blockState;
     private String name;
 
     public BlockMicroMaterial(IBlockState blockState) {
@@ -61,7 +68,7 @@ public class BlockMicroMaterial implements IMicroMaterial {
     @Override
     public String getLocalizedName() {
 
-        return new ItemStack(blockState.getBlock(), 1, blockState.getBlock().getMetaFromState(blockState)).getDisplayName();
+        return getItem().getDisplayName();
     }
 
     @Override
@@ -73,7 +80,7 @@ public class BlockMicroMaterial implements IMicroMaterial {
     @Override
     public int getLightValue() {
 
-        return 0;
+        return blockState.getBlock().getLightValue();
     }
 
     @Override
@@ -85,13 +92,32 @@ public class BlockMicroMaterial implements IMicroMaterial {
     @Override
     public int getSawStrength() {
 
-        return 0;
+        return blockState.getBlock().getHarvestLevel(blockState);
+    }
+
+    @Override
+    public ItemStack getItem() {
+
+        return new ItemStack(blockState.getBlock(), 1, blockState.getBlock().getMetaFromState(blockState));
+    }
+
+    @Override
+    public SoundType getSound() {
+
+        return blockState.getBlock().stepSound;
     }
 
     @Override
     public boolean canRenderInLayer(EnumWorldBlockLayer layer) {
 
         return blockState.getBlock().canRenderInLayer(layer);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public IBakedModel getBakedModel(IBlockAccess world, BlockPos pos, IMicroblock microblock) {
+
+        return Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState(blockState);
     }
 
 }

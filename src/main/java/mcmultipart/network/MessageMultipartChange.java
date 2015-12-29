@@ -90,25 +90,29 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
                 MultipartHelper.addPart(player.worldObj, message.pos, message.part, message.partID);
 
                 if (message.part.getModelPath() != null) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
+                player.worldObj.checkLight(message.pos);
             } else if (message.type == Type.REMOVE) {
                 IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
                 if (container != null) {
                     message.part = container.getPartFromID(message.partID);
-                    if (message.part == null)
-                        throw new IllegalStateException("Attempted to remove a multipart that doesn't exist on the client!");
-                    container.removePart(message.part);
+                    // if (message.part == null)
+                    // throw new IllegalStateException("Attempted to remove a multipart that doesn't exist on the client!");
+                    if (message.part != null) container.removePart(message.part);
                 }
 
                 if (message.part.getModelPath() != null) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
+                player.worldObj.checkLight(message.pos);
             } else if (message.type == Type.UPDATE || message.type == Type.UPDATE_RERENDER) {
                 IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
                 if (container == null) throw new IllegalStateException("Attempted to update a multipart at an illegal position!");
                 message.part = container.getPartFromID(message.partID);
-                if (message.part == null)
-                    throw new IllegalStateException("Attempted to update a multipart that doesn't exist on the client!");
-                message.part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(message.data)));
+                // if (message.part == null)
+                // throw new IllegalStateException("Attempted to update a multipart that doesn't exist on the client!");
+                if (message.part != null) {
+                    message.part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(message.data)));
 
-                if (message.type == Type.UPDATE_RERENDER) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
+                    if (message.type == Type.UPDATE_RERENDER) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
+                }
             }
         }
         return null;

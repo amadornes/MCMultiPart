@@ -2,6 +2,7 @@ package mcmultipart.item;
 
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.MultipartHelper;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -21,6 +22,12 @@ public abstract class ItemMultiPart extends Item {
         if (MultipartHelper.canAddPart(world, pos, mb)) {
             if (!world.isRemote) MultipartHelper.addPart(world, pos, mb);
             consumeItem(stack);
+
+            Block.SoundType sound = getPlacementSound(stack);
+            if (sound != null)
+                world.playSoundEffect(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, sound.getPlaceSound(), sound.getVolume(),
+                        sound.getFrequency());
+
             return true;
         }
 
@@ -41,6 +48,11 @@ public abstract class ItemMultiPart extends Item {
                 * side.getFrontOffsetZ());
         if (depth < 1 && place(world, pos, side, hit, stack, player)) return true;
         return place(world, pos.offset(side), side.getOpposite(), hit, stack, player);
+    }
+
+    public Block.SoundType getPlacementSound(ItemStack stack) {
+
+        return Block.soundTypeGlass;
     }
 
     @Override
