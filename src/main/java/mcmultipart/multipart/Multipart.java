@@ -93,10 +93,10 @@ public abstract class Multipart implements IMultipart {
     @Override
     public boolean occlusionTest(IMultipart part) {
 
-        if (this intanceof IOccludingPart && part instanceof IOccludingPart) {
+        if (this instanceof IOccludingPart && part instanceof IOccludingPart) {
             List<AxisAlignedBB> selfBoxes = new ArrayList<AxisAlignedBB>();
             List<AxisAlignedBB> partBoxes = new ArrayList<AxisAlignedBB>();
-            ((IOccludingPart) this) .addOcclusionBoxes(selfBoxes);
+            ((IOccludingPart) this).addOcclusionBoxes(selfBoxes);
             ((IOccludingPart) part).addOcclusionBoxes(partBoxes);
 
             for (AxisAlignedBB a : selfBoxes)
