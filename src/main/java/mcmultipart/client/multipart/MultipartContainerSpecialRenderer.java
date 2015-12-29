@@ -35,7 +35,7 @@ public final class MultipartContainerSpecialRenderer {
             startBreaking(rendererDispatcher);
 
             MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
-            if (mop != null && mop.getBlockPos().equals(te.getPos()) && mop instanceof PartMOP
+            if (mop != null && mop.getBlockPos().equals(te.getPosIn()) && mop instanceof PartMOP
                     && te.getParts().contains(((PartMOP) mop).partHit)) {
                 renderBreaking(((PartMOP) mop).partHit, consumer, x, y, z, partialTicks, destroyStage, rendererDispatcher);
             } else {
@@ -145,7 +145,7 @@ public final class MultipartContainerSpecialRenderer {
                 if (MinecraftForgeClient.getRenderPass() != 1) return;
 
                 MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
-                if (mop != null && mop.getBlockPos().equals(te.getPos()) && !(mop instanceof PartMOP)) {
+                if (mop != null && mop.getBlockPos().equals(te.getPosIn()) && !(mop instanceof PartMOP)) {
                     IVertexConsumer consumer = new WorldRendererConsumer(Tessellator.getInstance().getWorldRenderer());
                     startBreaking(rendererDispatcher);
                     if (canRenderBreaking()) {
@@ -156,8 +156,8 @@ public final class MultipartContainerSpecialRenderer {
                                 .getBlockRendererDispatcher()
                                 .getBlockModelShapes()
                                 .getModelForState(
-                                        te.getBlockType().getActualState(te.getWorld().getBlockState(te.getPos()), te.getWorld(),
-                                                te.getPos()));
+                                        te.getBlockType().getActualState(te.getWorldIn().getBlockState(te.getPosIn()), te.getWorldIn(),
+                                                te.getPosIn()));
                         if (model != null && model instanceof ModelMultipartContainer) model = ((ModelMultipartContainer) model).model;
                         if (model != null) {
                             model = (new SimpleBakedModel.Builder(model, Minecraft.getMinecraft().getTextureMapBlocks()

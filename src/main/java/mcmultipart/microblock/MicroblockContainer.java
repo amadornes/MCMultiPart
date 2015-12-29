@@ -27,15 +27,15 @@ public class MicroblockContainer implements IMultipartContainer {
     }
 
     @Override
-    public World getWorld() {
+    public World getWorldIn() {
 
-        return container.getWorld();
+        return container.getWorldIn();
     }
 
     @Override
-    public BlockPos getPos() {
+    public BlockPos getPosIn() {
 
-        return container.getPos();
+        return container.getPosIn();
     }
 
     @SuppressWarnings("unchecked")

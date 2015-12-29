@@ -2,6 +2,7 @@ package mcmultipart.raytrace;
 
 import java.util.Collection;
 
+import mcmultipart.multipart.IMultipart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.AxisAlignedBB;
@@ -13,12 +14,12 @@ import net.minecraft.world.World;
 
 public final class RayTraceUtils {
 
-    public static class RayTraceResult {
+    private static class RayTraceResultBase<T extends MovingObjectPosition> {
 
         public final AxisAlignedBB bounds;
-        public final MovingObjectPosition hit;
+        public final T hit;
 
-        public RayTraceResult(MovingObjectPosition mop, AxisAlignedBB bounds) {
+        public RayTraceResultBase(T mop, AxisAlignedBB bounds) {
 
             this.hit = mop;
             this.bounds = bounds;
@@ -40,6 +41,27 @@ public final class RayTraceUtils {
         public double squareDistanceTo(Vec3 vec) {
 
             return hit.hitVec.squareDistanceTo(vec);
+        }
+    }
+
+    public static class RayTraceResult extends RayTraceResultBase<MovingObjectPosition> {
+
+        public RayTraceResult(MovingObjectPosition mop, AxisAlignedBB bounds) {
+
+            super(mop, bounds);
+        }
+    }
+
+    public static class RayTraceResultPart extends RayTraceResultBase<PartMOP> {
+
+        public RayTraceResultPart(RayTraceResult result, IMultipart part) {
+
+            super(new PartMOP(result.hit, part), result.bounds);
+        }
+
+        public RayTraceResultPart(PartMOP mop, AxisAlignedBB bounds) {
+
+            super(mop, bounds);
         }
     }
 

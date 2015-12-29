@@ -18,7 +18,7 @@ import mcmultipart.multipart.ISolidPart.ISolidTopPart;
 import mcmultipart.network.MessageMultipartChange;
 import mcmultipart.network.MessageMultipartChange.Type;
 import mcmultipart.raytrace.PartMOP;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
+import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -59,15 +59,15 @@ public class MultipartContainer implements IMultipartContainer {
     }
 
     @Override
-    public World getWorld() {
+    public World getWorldIn() {
 
-        return location.getWorld();
+        return location.getWorldIn();
     }
 
     @Override
-    public BlockPos getPos() {
+    public BlockPos getPosIn() {
 
-        return location.getPos();
+        return location.getPosIn();
     }
 
     @Override
@@ -95,8 +95,8 @@ public class MultipartContainer implements IMultipartContainer {
 
         List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
         part.addCollisionBoxes(new AxisAlignedBB(0, 0, 0, 1, 1, 1), list, null);
-        if (getWorld() != null && getPos() != null) for (AxisAlignedBB bb : list)
-            if (!getWorld().checkNoEntityCollision(bb.offset(getPos().getX(), getPos().getY(), getPos().getZ()))) return false;
+        if (getWorldIn() != null && getPosIn() != null) for (AxisAlignedBB bb : list)
+            if (!getWorldIn().checkNoEntityCollision(bb.offset(getPosIn().getX(), getPosIn().getY(), getPosIn().getZ()))) return false;
 
         return true;
     }
@@ -116,8 +116,8 @@ public class MultipartContainer implements IMultipartContainer {
 
         List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
         newPart.addCollisionBoxes(new AxisAlignedBB(0, 0, 0, 1, 1, 1), list, null);
-        if (getWorld() != null && getPos() != null) for (AxisAlignedBB bb : list)
-            if (!getWorld().checkNoEntityCollision(bb.offset(getPos().getX(), getPos().getY(), getPos().getZ()))) return false;
+        if (getWorldIn() != null && getPosIn() != null) for (AxisAlignedBB bb : list)
+            if (!getWorldIn().checkNoEntityCollision(bb.offset(getPosIn().getX(), getPosIn().getY(), getPosIn().getZ()))) return false;
 
         return true;
     }
@@ -125,7 +125,7 @@ public class MultipartContainer implements IMultipartContainer {
     @Override
     public void addPart(IMultipart part) {
 
-        if (getWorld().isRemote) throw new IllegalStateException("Attempted to add a part on the client!");
+        if (getWorldIn().isRemote) throw new IllegalStateException("Attempted to add a part on the client!");
         addPart(part, true, true, UUID.randomUUID());
     }
 
@@ -148,8 +148,8 @@ public class MultipartContainer implements IMultipartContainer {
         if (notifyPart) part.onAdded();
         if (notifyNeighbors) notifyPartChanged(part);
 
-        if (getWorld() != null && !getWorld().isRemote)
-            MessageMultipartChange.newPacket(getWorld(), getPos(), part, Type.ADD).send(getWorld());
+        if (getWorldIn() != null && !getWorldIn().isRemote)
+            MessageMultipartChange.newPacket(getWorldIn(), getPosIn(), part, Type.ADD).send(getWorldIn());
     }
 
     @Override
@@ -160,8 +160,8 @@ public class MultipartContainer implements IMultipartContainer {
 
     public void removePart(IMultipart part, boolean notifyPart, boolean notifyNeighbors) {
 
-        if (getWorld() != null && !getWorld().isRemote)
-            MessageMultipartChange.newPacket(getWorld(), getPos(), part, Type.REMOVE).send(getWorld());
+        if (getWorldIn() != null && !getWorldIn().isRemote)
+            MessageMultipartChange.newPacket(getWorldIn(), getPosIn(), part, Type.REMOVE).send(getWorldIn());
 
         BiMap<UUID, IMultipart> partMap = HashBiMap.create(this.partMap);
         Map<PartSlot, ISlottedPart> slotMap = new HashMap<PartSlot, ISlottedPart>(this.slotMap);
@@ -205,16 +205,16 @@ public class MultipartContainer implements IMultipartContainer {
 
         for (IMultipart p : getParts())
             if (p != part) p.onPartChanged(part);
-        getWorld().notifyNeighborsOfStateChange(getPos(), getWorld().getBlockState(getPos()).getBlock());
+        getWorldIn().notifyNeighborsOfStateChange(getPosIn(), getWorldIn().getBlockState(getPosIn()).getBlock());
     }
 
-    public RayTraceResult collisionRayTrace(Vec3 start, Vec3 end) {
+    public RayTraceResultPart collisionRayTrace(Vec3 start, Vec3 end) {
 
         double dist = Double.POSITIVE_INFINITY;
-        RayTraceResult current = null;
+        RayTraceResultPart current = null;
 
         for (IMultipart p : getParts()) {
-            RayTraceResult result = p.collisionRayTrace(start, end);
+            RayTraceResultPart result = p.collisionRayTrace(start, end);
             if (result == null) continue;
             double d = result.squareDistanceTo(start);
             if (d <= dist) {
@@ -229,12 +229,12 @@ public class MultipartContainer implements IMultipartContainer {
     public void addCollisionBoxes(AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity) {
 
         List<AxisAlignedBB> collisionBoxes = new ArrayList<AxisAlignedBB>();
-        AxisAlignedBB offsetMask = mask.offset(-getPos().getX(), -getPos().getY(), -getPos().getZ());
+        AxisAlignedBB offsetMask = mask.offset(-getPosIn().getX(), -getPosIn().getY(), -getPosIn().getZ());
         for (IMultipart p : getParts())
             p.addCollisionBoxes(offsetMask, collisionBoxes, collidingEntity);
         Iterator<AxisAlignedBB> it = collisionBoxes.iterator();
         while (it.hasNext()) {
-            list.add(it.next().offset(getPos().getX(), getPos().getY(), getPos().getZ()));
+            list.add(it.next().offset(getPosIn().getX(), getPosIn().getY(), getPosIn().getZ()));
             it.remove();
         }
     }
@@ -262,14 +262,14 @@ public class MultipartContainer implements IMultipartContainer {
 
     public boolean harvest(EntityPlayer player, PartMOP hit) {
 
-        if (getWorld().isRemote) return false;
+        if (getWorldIn().isRemote) return false;
         if (hit == null) {
             for (IMultipart part : getParts())
                 part.harvest(null, hit);
             return true;
         }
         if (!partMap.values().contains(hit.partHit)) return false;
-        if (getWorld().isRemote) return getParts().size() - 1 == 0;
+        if (getWorldIn().isRemote) return getParts().size() - 1 == 0;
         hit.partHit.harvest(player, hit);
         return getParts().isEmpty();
     }

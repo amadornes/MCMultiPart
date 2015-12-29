@@ -13,7 +13,9 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ITickable;
+import net.minecraft.world.World;
 
 public final class TileMultipart extends TileEntity implements IMultipartContainer, ITickable {
 
@@ -27,6 +29,18 @@ public final class TileMultipart extends TileEntity implements IMultipartContain
     public TileMultipart() {
 
         this.container = new MultipartContainer(this);
+    }
+
+    @Override
+    public World getWorldIn() {
+
+        return getWorld();
+    }
+
+    @Override
+    public BlockPos getPosIn() {
+
+        return getPos();
     }
 
     public MultipartContainer getPartContainer() {
@@ -91,8 +105,8 @@ public final class TileMultipart extends TileEntity implements IMultipartContain
     @Override
     public void update() {
 
-        if (!getWorld().isRemote && getParts().isEmpty()) {
-            getWorld().setBlockToAir(getPos());
+        if (!getWorldIn().isRemote && getParts().isEmpty()) {
+            getWorldIn().setBlockToAir(getPosIn());
             return;
         }
 
@@ -135,7 +149,7 @@ public final class TileMultipart extends TileEntity implements IMultipartContain
 
         NBTTagCompound tag = new NBTTagCompound();
         container.writeDescription(tag);
-        return new S35PacketUpdateTileEntity(getPos(), getBlockMetadata(), tag);
+        return new S35PacketUpdateTileEntity(getPosIn(), getBlockMetadata(), tag);
     }
 
     @Override
@@ -164,7 +178,7 @@ public final class TileMultipart extends TileEntity implements IMultipartContain
             if (bounds == null) bounds = part.getRenderBoundingBox();
             else bounds = bounds.union(part.getRenderBoundingBox());
         if (bounds == null) bounds = AxisAlignedBB.fromBounds(0, 0, 0, 1, 1, 1);
-        return bounds.offset(getPos().getX(), getPos().getY(), getPos().getZ());
+        return bounds.offset(getPosIn().getX(), getPosIn().getY(), getPosIn().getZ());
     }
 
 }

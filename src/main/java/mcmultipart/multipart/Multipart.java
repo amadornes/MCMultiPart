@@ -9,6 +9,7 @@ import mcmultipart.network.MessageMultipartChange;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils;
 import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
+import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockState;
@@ -38,13 +39,13 @@ public abstract class Multipart implements IMultipart {
     @Override
     public World getWorld() {
 
-        return getContainer() != null ? getContainer().getWorld() : null;
+        return getContainer() != null ? getContainer().getWorldIn() : null;
     }
 
     @Override
     public BlockPos getPos() {
 
-        return getContainer() != null ? getContainer().getPos() : null;
+        return getContainer() != null ? getContainer().getPosIn() : null;
     }
 
     @Override
@@ -72,12 +73,12 @@ public abstract class Multipart implements IMultipart {
     }
 
     @Override
-    public RayTraceResult collisionRayTrace(Vec3 start, Vec3 end) {
+    public RayTraceResultPart collisionRayTrace(Vec3 start, Vec3 end) {
 
         List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
         addSelectionBoxes(list);
         RayTraceResult result = RayTraceUtils.collisionRayTrace(getWorld(), getPos(), start, end, list);
-        return result == null ? null : new RayTraceResult(new PartMOP(result.hit, this), result.bounds);
+        return result == null ? null : new RayTraceResultPart(result, this);
     }
 
     public void addSelectionBoxes(List<AxisAlignedBB> list) {

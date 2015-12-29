@@ -15,7 +15,7 @@ import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.property.PropertyMultipartContainer;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
+import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -78,7 +78,7 @@ public final class BlockMultipart extends BlockContainer {
         if (world == null || pos == null || start == null || end == null) return null;
         TileMultipart tile = getMultipartTile(world, pos);
         if (tile == null) return null;
-        RayTraceResult result = tile.getPartContainer().collisionRayTrace(start, end);
+        RayTraceResultPart result = tile.getPartContainer().collisionRayTrace(start, end);
         if (result == null) return null;
         result.setBounds(world, pos);
         return result.hit;
@@ -309,8 +309,8 @@ public final class BlockMultipart extends BlockContainer {
 
         Vec3 start = RayTraceUtils.getStart(player);
         Vec3 end = RayTraceUtils.getEnd(player);
-        RayTraceResult result = ((TileMultipart) world.getTileEntity(pos)).getPartContainer().collisionRayTrace(start, end);
-        return result == null ? null : (PartMOP) result.hit;
+        RayTraceResultPart result = ((TileMultipart) world.getTileEntity(pos)).getPartContainer().collisionRayTrace(start, end);
+        return result == null ? null : result.hit;
     }
 
     @Override

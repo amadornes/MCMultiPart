@@ -3,7 +3,7 @@ package mcmultipart.multipart;
 import java.util.List;
 
 import mcmultipart.raytrace.PartMOP;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
+import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
@@ -36,7 +36,7 @@ public interface IMultipart {
 
     public String getModelPath();
 
-    public RayTraceResult collisionRayTrace(Vec3 start, Vec3 end);
+    public RayTraceResultPart collisionRayTrace(Vec3 start, Vec3 end);
 
     public void addCollisionBoxes(AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity);
 

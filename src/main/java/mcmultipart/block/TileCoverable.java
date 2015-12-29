@@ -1,19 +1,36 @@
 package mcmultipart.block;
 
+import mcmultipart.microblock.IMicroblock;
+import mcmultipart.microblock.IMicroblockTile;
+import mcmultipart.microblock.MicroblockContainer;
+import mcmultipart.multipart.IMultipart;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-
-import mcmultipart.microblock.IMicroblock;
-import mcmultipart.microblock.IMicroblockTile;
-import mcmultipart.microblock.MicroblockContainer;
-import mcmultipart.multipart.IMultipart;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.World;
 
 public class TileCoverable extends TileEntity implements IMicroblockTile {
 
     private MicroblockContainer container;
+
+    public TileCoverable() {
+
+    }
+
+    @Override
+    public World getWorldIn() {
+
+        return getWorld();
+    }
+
+    @Override
+    public BlockPos getPosIn() {
+
+        return getPos();
+    }
 
     @Override
     public MicroblockContainer getMicroblockContainer() {
@@ -67,7 +84,7 @@ public class TileCoverable extends TileEntity implements IMicroblockTile {
 
         NBTTagCompound tag = new NBTTagCompound();
         getMicroblockContainer().getPartContainer().writeDescription(tag);
-        return new S35PacketUpdateTileEntity(getPos(), getBlockMetadata(), tag);
+        return new S35PacketUpdateTileEntity(getPosIn(), getBlockMetadata(), tag);
     }
 
     @Override
@@ -91,10 +108,10 @@ public class TileCoverable extends TileEntity implements IMicroblockTile {
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
 
-        AxisAlignedBB bounds = super.getRenderBoundingBox().offset(-getPos().getX(), -getPos().getY(), -getPos().getZ());
+        AxisAlignedBB bounds = super.getRenderBoundingBox().offset(-getPosIn().getX(), -getPosIn().getY(), -getPosIn().getZ());
         for (IMultipart part : getMicroblockContainer().getParts())
             bounds.union(part.getRenderBoundingBox());
         if (bounds == null) bounds = AxisAlignedBB.fromBounds(0, 0, 0, 1, 1, 1);
-        return bounds.offset(getPos().getX(), getPos().getY(), getPos().getZ());
+        return bounds.offset(getPosIn().getX(), getPosIn().getY(), getPosIn().getZ());
     }
 }

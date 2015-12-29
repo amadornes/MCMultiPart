@@ -6,8 +6,8 @@ import net.minecraft.util.BlockPos;
 
 public interface IWorldLocation {
 
-    public World getWorld();
+    public World getWorldIn();
 
-    public BlockPos getPos();
+    public BlockPos getPosIn();
 
 }

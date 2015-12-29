@@ -16,7 +16,7 @@ import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.property.PropertyMultipartContainer;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
+import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -69,7 +69,7 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final MovingObjectPosition collisionRayTrace(World world, BlockPos pos, Vec3 start, Vec3 end) {
 
-        RayTraceResult result = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer()
+        RayTraceResultPart result = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer()
                 .collisionRayTrace(start, end);
         MovingObjectPosition hit = collisionRayTraceDefault(world, pos, start, end);
         if (result == null) return hit;
@@ -429,8 +429,8 @@ public class BlockCoverable extends BlockContainer {
         if (tile == null) return null;
         Vec3 start = RayTraceUtils.getStart(player);
         Vec3 end = RayTraceUtils.getEnd(player);
-        RayTraceResult result = tile.getMicroblockContainer().getPartContainer().collisionRayTrace(start, end);
-        return result == null ? null : (PartMOP) result.hit;
+        RayTraceResultPart result = tile.getMicroblockContainer().getPartContainer().collisionRayTrace(start, end);
+        return result == null ? null : result.hit;
     }
 
     private MovingObjectPosition reTraceBlock(World world, BlockPos pos, EntityPlayer player) {
