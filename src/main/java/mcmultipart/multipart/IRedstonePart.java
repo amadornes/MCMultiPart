@@ -10,4 +10,8 @@ public interface IRedstonePart extends IMultipart {
 
     public int getStrongSignal(EnumFacing side);
 
+    public static interface ISlottedRedstonePart extends IRedstonePart, ISlottedPart {
+
+    }
+
 }

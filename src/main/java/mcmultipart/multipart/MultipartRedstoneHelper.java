@@ -1,5 +1,6 @@
 package mcmultipart.multipart;
 
+import mcmultipart.multipart.IRedstonePart.ISlottedRedstonePart;
 import net.minecraft.util.EnumFacing;
 
 public class MultipartRedstoneHelper {
@@ -41,7 +42,7 @@ public class MultipartRedstoneHelper {
         part = container.getPartInSlot(PartSlot.CENTER);
         if (part instanceof IRedstonePart) return ((IRedstonePart) part).canConnectRedstone(side);
         for (IMultipart p : container.getParts())
-            if (!(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty())
+            if (!(p instanceof ISlottedRedstonePart) || ((ISlottedRedstonePart) p).getSlotMask().isEmpty())
                 if (p instanceof IRedstonePart) return ((IRedstonePart) p).canConnectRedstone(side);
 
         return false;
@@ -63,7 +64,7 @@ public class MultipartRedstoneHelper {
         part = container.getPartInSlot(PartSlot.CENTER);
         if (part instanceof IRedstonePart) max = ((IRedstonePart) part).getWeakSignal(side);
         for (IMultipart p : container.getParts())
-            if (!(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty())
+            if (!(p instanceof ISlottedRedstonePart) || ((ISlottedRedstonePart) p).getSlotMask().isEmpty())
                 if (p instanceof IRedstonePart) max = Math.max(max, ((IRedstonePart) p).getWeakSignal(side));
 
         return max;
@@ -85,7 +86,7 @@ public class MultipartRedstoneHelper {
         part = container.getPartInSlot(PartSlot.CENTER);
         if (part instanceof IRedstonePart) max = ((IRedstonePart) part).getStrongSignal(side);
         for (IMultipart p : container.getParts())
-            if (!(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty())
+            if (!(p instanceof ISlottedRedstonePart) || ((ISlottedRedstonePart) p).getSlotMask().isEmpty())
                 if (p instanceof IRedstonePart) max = Math.max(max, ((IRedstonePart) p).getStrongSignal(side));
 
         return max;
