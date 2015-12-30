@@ -79,7 +79,7 @@ public enum PartSlot {
         int y = facing1.getFrontOffsetY() + facing2.getFrontOffsetY() + facing3.getFrontOffsetY();
         int x = facing1.getFrontOffsetZ() + facing2.getFrontOffsetZ() + facing3.getFrontOffsetZ();
 
-        int corner = (x == 1 ? 0b100 : 0b000) | (y == 1 ? 0b010 : 0b000) | (z == 1 ? 0b001 : 0b000);
+        int corner = (x << 2) | (y << 1) | (z << 0);
 
         return VALUES[corner + 19];
     }
