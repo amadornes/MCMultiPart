@@ -18,7 +18,7 @@ public class MicroblockContainer implements IMultipartContainer {
     public MicroblockContainer(IMicroblockTile microTile) {
 
         this.microTile = microTile;
-        this.container = new MultipartContainer(microTile);
+        this.container = new MultipartContainer(microTile, false);
     }
 
     public MultipartContainer getPartContainer() {

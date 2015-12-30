@@ -23,12 +23,12 @@ public final class TileMultipart extends TileEntity implements IMultipartContain
 
     public TileMultipart(MultipartContainer container) {
 
-        this.container = new MultipartContainer(this, container);
+        this.container = new MultipartContainer(this, container.canTurnIntoBlock(), container);
     }
 
     public TileMultipart() {
 
-        this.container = new MultipartContainer(this);
+        this.container = new MultipartContainer(this, true);
     }
 
     @Override

@@ -6,7 +6,7 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 
 public class PropertyMultipartContainer implements IUnlistedProperty<IMultipartContainer> {
 
-    public static final MultipartContainer DEFAULT = new MultipartContainer(null);
+    public static final MultipartContainer DEFAULT = new MultipartContainer(null, false);
 
     private String name;
 

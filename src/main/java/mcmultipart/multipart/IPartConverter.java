@@ -12,4 +12,10 @@ public interface IPartConverter {
 
     public Collection<? extends IMultipart> convertBlock(IBlockAccess world, BlockPos pos);
 
+    public static interface IReversePartConverter {
+
+        public boolean convertToBlock(IMultipartContainer container);
+
+    }
+
 }

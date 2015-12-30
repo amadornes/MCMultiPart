@@ -2,6 +2,7 @@ package mcmultipart.microblock;
 
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
@@ -17,7 +18,8 @@ public abstract class MicroblockClass implements IAdvancedPartFactory {
 
     public abstract ItemStack createStack(IMicroMaterial material, int size, int stackSize);
 
-    public abstract MicroblockPlacement getPlacement(World world, BlockPos pos, IMicroMaterial material, int size, MovingObjectPosition hit);
+    public abstract MicroblockPlacement getPlacement(World world, BlockPos pos, IMicroMaterial material, int size,
+            MovingObjectPosition hit, EntityPlayer player);
 
     public abstract MicroblockPlacementGrid getPlacementGrid();
 

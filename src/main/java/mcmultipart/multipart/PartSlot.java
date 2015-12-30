@@ -1,6 +1,7 @@
 package mcmultipart.multipart;
 
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.StatCollector;
 
 public enum PartSlot {
@@ -74,11 +75,11 @@ public enum PartSlot {
         if (facing1 == facing3 || facing1.getOpposite() == facing3)
             throw new IllegalArgumentException("Tried to form an illegal corner between " + facing1 + " and " + facing2 + " " + facing3);
 
-        int x = facing1.getFrontOffsetX() + facing2.getFrontOffsetX() + facing3.getFrontOffsetX();
+        int z = facing1.getFrontOffsetX() + facing2.getFrontOffsetX() + facing3.getFrontOffsetX();
         int y = facing1.getFrontOffsetY() + facing2.getFrontOffsetY() + facing3.getFrontOffsetY();
-        int z = facing1.getFrontOffsetZ() + facing2.getFrontOffsetZ() + facing3.getFrontOffsetZ();
+        int x = facing1.getFrontOffsetZ() + facing2.getFrontOffsetZ() + facing3.getFrontOffsetZ();
 
-        int corner = (x > 1 ? 0b100 : 0b000) + (y > 1 ? 0b010 : 0b000) + (z > 1 ? 0b001 : 0b000);
+        int corner = (x == 1 ? 0b100 : 0b000) | (y == 1 ? 0b010 : 0b000) | (z == 1 ? 0b001 : 0b000);
 
         return VALUES[corner + 19];
     }
@@ -130,6 +131,18 @@ public enum PartSlot {
 
         return (this.f1 == f1 && this.f2 == f2 && this.f3 == f3) || (this.f1 == f2 && this.f2 == f1 && this.f3 == f3)
                 || (this.f1 == f1 && this.f2 == f3 && this.f3 == f2) || (this.f1 == f3 && this.f2 == f2 && this.f3 == f1);
+    }
+
+    public PartSlot getOpposite(Axis axis) {
+
+        if (f2 == null) {
+            if (f3 == null)
+                return getCornerSlot(f1.getAxis() == axis ? f1.getOpposite() : f1, f2.getAxis() == axis ? f2.getOpposite() : f2,
+                        f3.getAxis() == axis ? f3.getOpposite() : f3);
+            return getEdgeSlot(f1.getAxis() == axis ? f1.getOpposite() : f1, f2.getAxis() == axis ? f2.getOpposite() : f2);
+        }
+        if (f1 == null) return CENTER;
+        return getFaceSlot(f1.getAxis() == axis ? f1.getOpposite() : f1);
     }
 
 }

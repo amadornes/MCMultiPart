@@ -1,10 +1,13 @@
 package mcmultipart.multipart;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import mcmultipart.multipart.IPartConverter.IReversePartConverter;
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.BlockState;
@@ -26,6 +29,7 @@ public class MultipartRegistry {
     private static BiMap<String, Class<? extends IMultipart>> partClasses = HashBiMap.create();
 
     private static Map<Block, IPartConverter> converters = new HashMap<Block, IPartConverter>();
+    private static List<IReversePartConverter> reverseConverters = new ArrayList<IReversePartConverter>();
 
     public static void registerProvider(IPartFactory provider, String... parts) {
 
@@ -67,6 +71,11 @@ public class MultipartRegistry {
 
         for (Block block : converter.getConvertableBlocks())
             converters.put(block, converter);
+    }
+
+    public static void registerReversePartConverter(IReversePartConverter converter) {
+
+        reverseConverters.add(converter);
     }
 
     /**
@@ -119,6 +128,13 @@ public class MultipartRegistry {
         IPartConverter converter = converters.get(world.getBlockState(pos).getBlock());
         if (converter != null) return converter.convertBlock(world, pos);
         return null;
+    }
+
+    public static boolean convertToBlock(IMultipartContainer container) {
+
+        for (IReversePartConverter converter : reverseConverters)
+            if (converter.convertToBlock(container)) return true;
+        return false;
     }
 
     private static class SimplePartFactory implements IPartFactory {

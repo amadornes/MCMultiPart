@@ -41,17 +41,20 @@ import com.google.common.collect.HashBiMap;
 public class MultipartContainer implements IMultipartContainer {
 
     private IWorldLocation location;
+    private boolean canTurnIntoBlock;
     private BiMap<UUID, IMultipart> partMap = HashBiMap.create();
     private Map<PartSlot, ISlottedPart> slotMap = new HashMap<PartSlot, ISlottedPart>();
 
-    public MultipartContainer(IWorldLocation location) {
+    public MultipartContainer(IWorldLocation location, boolean canTurnIntoBlock) {
 
         this.location = location;
+        this.canTurnIntoBlock = canTurnIntoBlock;
     }
 
-    public MultipartContainer(IWorldLocation location, MultipartContainer container) {
+    public MultipartContainer(IWorldLocation location, boolean canTurnIntoBlock, MultipartContainer container) {
 
         this.location = location;
+        this.canTurnIntoBlock = canTurnIntoBlock;
         this.partMap = HashBiMap.create(container.partMap);
         this.slotMap = new HashMap<PartSlot, ISlottedPart>(container.slotMap);
         for (IMultipart part : partMap.values())
@@ -68,6 +71,11 @@ public class MultipartContainer implements IMultipartContainer {
     public BlockPos getPosIn() {
 
         return location.getPosIn();
+    }
+
+    public boolean canTurnIntoBlock() {
+
+        return canTurnIntoBlock;
     }
 
     @Override
@@ -148,7 +156,7 @@ public class MultipartContainer implements IMultipartContainer {
         if (notifyPart) part.onAdded();
         if (notifyNeighbors) notifyPartChanged(part);
 
-        if (getWorldIn() != null && !getWorldIn().isRemote)
+        if (getWorldIn() != null && !getWorldIn().isRemote && (!canTurnIntoBlock || !MultipartRegistry.convertToBlock(this)))
             MessageMultipartChange.newPacket(getWorldIn(), getPosIn(), part, Type.ADD).send(getWorldIn());
     }
 
@@ -160,11 +168,8 @@ public class MultipartContainer implements IMultipartContainer {
 
     public void removePart(IMultipart part, boolean notifyPart, boolean notifyNeighbors) {
 
-        if (getWorldIn() != null && !getWorldIn().isRemote)
-            MessageMultipartChange.newPacket(getWorldIn(), getPosIn(), part, Type.REMOVE).send(getWorldIn());
-
-        BiMap<UUID, IMultipart> partMap = HashBiMap.create(this.partMap);
-        Map<PartSlot, ISlottedPart> slotMap = new HashMap<PartSlot, ISlottedPart>(this.slotMap);
+        BiMap<UUID, IMultipart> partMap = HashBiMap.create(this.partMap), oldPartMap = this.partMap;
+        Map<PartSlot, ISlottedPart> slotMap = new HashMap<PartSlot, ISlottedPart>(this.slotMap), oldSlotMap = this.slotMap;
 
         partMap.inverse().remove(part);
         if (part instanceof ISlottedPart) {
@@ -176,6 +181,15 @@ public class MultipartContainer implements IMultipartContainer {
 
         this.partMap = partMap;
         this.slotMap = slotMap;
+
+        // Yes, it's a bit of a dirty solution, but it's the best I could come up with. The part must not be there in the if statement :P
+        if (getWorldIn() != null && !getWorldIn().isRemote && (!canTurnIntoBlock || !MultipartRegistry.convertToBlock(this))) {
+            this.partMap = oldPartMap;
+            this.slotMap = oldSlotMap;
+            MessageMultipartChange.newPacket(getWorldIn(), getPosIn(), part, Type.REMOVE).send(getWorldIn());
+            this.partMap = partMap;
+            this.slotMap = slotMap;
+        }
 
         if (notifyPart) part.onRemoved();
         if (notifyNeighbors) notifyPartChanged(part);
