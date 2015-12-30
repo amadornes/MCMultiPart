@@ -1,5 +1,6 @@
 package mcmultipart.block;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -353,8 +354,9 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 
-        return ((IExtendedBlockState) state).withProperty(properties[0], ((TileMultipart) world.getTileEntity(pos)).getPartContainer()
-                .getExtendedStates(world, pos));
+        TileMultipart tile = (TileMultipart) world.getTileEntity(pos);
+        return ((IExtendedBlockState) state).withProperty(properties[0],
+                tile != null ? tile.getPartContainer().getExtendedStates(world, pos) : new ArrayList<PartState>());
     }
 
     @Override
