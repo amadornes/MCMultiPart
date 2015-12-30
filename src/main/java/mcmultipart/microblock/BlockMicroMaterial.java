@@ -6,14 +6,10 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Block.SoundType;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -114,10 +110,9 @@ public class BlockMicroMaterial implements IMicroMaterial {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public IBakedModel getBakedModel(IBlockAccess world, BlockPos pos, IMicroblock microblock) {
+    public IBlockState getMaterialState(IBlockAccess world, BlockPos pos, IMicroblock microblock) {
 
-        return Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState(blockState);
+        return blockState;
     }
 
 }

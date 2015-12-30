@@ -8,6 +8,7 @@ import mcmultipart.microblock.IMicroMaterial.IDelegatedMicroMaterial;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.Multipart;
 import mcmultipart.multipart.PartSlot;
+import mcmultipart.property.PropertyBlockState;
 import mcmultipart.property.PropertyMicroMaterial;
 import mcmultipart.property.PropertySlot;
 import mcmultipart.raytrace.PartMOP;
@@ -29,15 +30,17 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 public abstract class Microblock extends Multipart implements IMicroblock {
 
-    public static final IUnlistedProperty<?>[] PROPERTIES = new IUnlistedProperty[3];
+    public static final IUnlistedProperty<?>[] PROPERTIES = new IUnlistedProperty[4];
     public static final IUnlistedProperty<IMicroMaterial> PROPERTY_MATERIAL;
+    public static final IUnlistedProperty<IBlockState> PROPERTY_MATERIAL_STATE;
     public static final IUnlistedProperty<Integer> PROPERTY_SIZE;
     public static final IUnlistedProperty<PartSlot> PROPERTY_SLOT;
 
     static {
         PROPERTIES[0] = PROPERTY_MATERIAL = new PropertyMicroMaterial("material");
-        PROPERTIES[1] = PROPERTY_SIZE = new PropertyAdapter<Integer>(PropertyInteger.create("size", 0, 7));
-        PROPERTIES[2] = PROPERTY_SLOT = new PropertySlot("slot");
+        PROPERTIES[1] = PROPERTY_MATERIAL_STATE = new PropertyBlockState("material_state");
+        PROPERTIES[2] = PROPERTY_SIZE = new PropertyAdapter<Integer>(PropertyInteger.create("size", 0, 7));
+        PROPERTIES[3] = PROPERTY_SLOT = new PropertySlot("slot");
     }
 
     protected IMicroMaterial material;
@@ -151,8 +154,9 @@ public abstract class Microblock extends Multipart implements IMicroblock {
     @Override
     public IExtendedBlockState getExtendedState(IBlockState state) {
 
-        return ((IExtendedBlockState) state).withProperty(PROPERTY_MATERIAL, getMicroMaterial()).withProperty(PROPERTY_SIZE, getSize())
-                .withProperty(PROPERTY_SLOT, slot);
+        return ((IExtendedBlockState) state).withProperty(PROPERTY_MATERIAL, getMicroMaterial())
+                .withProperty(PROPERTY_MATERIAL_STATE, getMicroMaterial().getMaterialState(getWorld(), getPos(), this))
+                .withProperty(PROPERTY_SIZE, getSize()).withProperty(PROPERTY_SLOT, slot);
     }
 
     @Override
