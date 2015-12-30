@@ -5,9 +5,7 @@ import java.util.List;
 
 import mcmultipart.block.BlockCoverable;
 import mcmultipart.block.BlockMultipart;
-import mcmultipart.multipart.IMultipart;
-import mcmultipart.multipart.IMultipartContainer;
-import mcmultipart.multipart.MultipartRegistry;
+import mcmultipart.multipart.PartState;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -27,16 +25,16 @@ public class ModelMultipartContainer implements ISmartBlockModel {
     public IBakedModel model;
 
     private Block block;
-    private IMultipartContainer tile;
+    private List<PartState> partStates;
 
     public ModelMultipartContainer(IBakedModel model) {
 
         this.model = model;
     }
 
-    private ModelMultipartContainer(IMultipartContainer tile, Block block, IBakedModel model) {
+    private ModelMultipartContainer(List<PartState> partStates, Block block, IBakedModel model) {
 
-        this.tile = tile;
+        this.partStates = partStates;
         this.block = block;
         this.model = model;
     }
@@ -48,21 +46,16 @@ public class ModelMultipartContainer implements ISmartBlockModel {
         if (model != null
                 && (!(block instanceof BlockCoverable) || ((BlockCoverable) block).canRenderInLayerDefault(MinecraftForgeClient
                         .getRenderLayer()))) quads.addAll(model.getFaceQuads(face));
-        if (tile != null) {
-            for (IMultipart part : tile.getParts()) {
-                if (!part.canRenderInLayer(MinecraftForgeClient.getRenderLayer())) {
-                    continue;
-                }
-                String path = part.getModelPath();
-                IBlockState state = part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState());
+        for (PartState partState : partStates) {
+            if (!partState.renderLayers.contains(MinecraftForgeClient.getRenderLayer())) continue;
 
-                IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
-                        .getModelManager()
-                        .getModel(new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
-                if (model != null) {
-                    model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(state) : model;
-                    quads.addAll(model.getFaceQuads(face));
-                }
+            ModelResourceLocation modelLocation = new ModelResourceLocation(partState.modelPath,
+                    MultipartStateMapper.instance.getPropertyString(partState.state.getProperties()));
+            IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager()
+                    .getModel(modelLocation);
+            if (model != null) {
+                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(partState.state) : model;
+                quads.addAll(model.getFaceQuads(face));
             }
         }
         return quads;
@@ -75,21 +68,17 @@ public class ModelMultipartContainer implements ISmartBlockModel {
         if (model != null
                 && (!(block instanceof BlockCoverable) || ((BlockCoverable) block).canRenderInLayerDefault(MinecraftForgeClient
                         .getRenderLayer()))) quads.addAll(model.getGeneralQuads());
-        if (tile != null) {
-            for (IMultipart part : tile.getParts()) {
-                if (!part.canRenderInLayer(MinecraftForgeClient.getRenderLayer())) {
-                    continue;
-                }
-                String path = part.getModelPath();
-                IBlockState state = part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState());
 
-                IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
-                        .getModelManager()
-                        .getModel(new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
-                if (model != null) {
-                    model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(state) : model;
-                    quads.addAll(model.getGeneralQuads());
-                }
+        for (PartState partState : partStates) {
+            if (!partState.renderLayers.contains(MinecraftForgeClient.getRenderLayer())) continue;
+
+            ModelResourceLocation modelLocation = new ModelResourceLocation(partState.modelPath,
+                    MultipartStateMapper.instance.getPropertyString(partState.state.getProperties()));
+            IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager()
+                    .getModel(modelLocation);
+            if (model != null) {
+                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(partState.state) : model;
+                quads.addAll(model.getGeneralQuads());
             }
         }
         return quads;

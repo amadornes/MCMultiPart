@@ -46,8 +46,9 @@ public class MultipartRegistry {
         try {
             for (String part : parts) {
                 IMultipart multipart = provider.createPart(part, new NBTTagCompound());
-                defaultStates.put(part, multipart.createBlockState());
-                stateLocations.put(defaultStates.get(part), multipart.getModelPath());
+                BlockState state = multipart.createBlockState();
+                defaultStates.put(part, state);
+                stateLocations.put(state, multipart.getModelPath());
             }
         } catch (Exception e) {
             e.printStackTrace();

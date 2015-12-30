@@ -1,5 +1,6 @@
 package mcmultipart.block;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -13,7 +14,7 @@ import mcmultipart.microblock.IMicroblockTile;
 import mcmultipart.microblock.MicroblockContainer;
 import mcmultipart.multipart.MultipartContainer;
 import mcmultipart.multipart.MultipartRegistry;
-import mcmultipart.property.PropertyMultipartContainer;
+import mcmultipart.multipart.PartState;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils;
 import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
@@ -486,7 +487,7 @@ public class BlockCoverable extends BlockContainer {
 
         IMicroblockTile tile = ((IMicroblockTile) world.getTileEntity(pos));
         return ((IExtendedBlockState) state).withProperty(BlockMultipart.properties[0], tile != null ? tile.getMicroblockContainer()
-                : PropertyMultipartContainer.DEFAULT);
+                .getPartContainer().getExtendedStates(world, pos) : new ArrayList<PartState>());
     }
 
     @Override

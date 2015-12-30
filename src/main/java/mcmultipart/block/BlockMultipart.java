@@ -10,9 +10,9 @@ import mcmultipart.client.multipart.IHitEffectsPart;
 import mcmultipart.client.multipart.IHitEffectsPart.AdvancedEffectRenderer;
 import mcmultipart.client.multipart.ISmartMultipartModel;
 import mcmultipart.client.multipart.MultipartStateMapper;
-import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.MultipartRegistry;
-import mcmultipart.property.PropertyMultipartContainer;
+import mcmultipart.multipart.PartState;
+import mcmultipart.property.PropertyMultipartStates;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils;
 import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
@@ -344,16 +344,17 @@ public final class BlockMultipart extends BlockContainer {
     }
 
     @SuppressWarnings("unchecked")
-    public static final IUnlistedProperty<IMultipartContainer>[] properties = new IUnlistedProperty[1];
+    public static final IUnlistedProperty<List<PartState>>[] properties = new IUnlistedProperty[1];
 
     static {
-        properties[0] = new PropertyMultipartContainer("multipart_container");
+        properties[0] = new PropertyMultipartStates("multipart_container");
     }
 
     @Override
     public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 
-        return ((IExtendedBlockState) state).withProperty(properties[0], (IMultipartContainer) world.getTileEntity(pos));
+        return ((IExtendedBlockState) state).withProperty(properties[0], ((TileMultipart) world.getTileEntity(pos)).getPartContainer()
+                .getExtendedStates(world, pos));
     }
 
     @Override

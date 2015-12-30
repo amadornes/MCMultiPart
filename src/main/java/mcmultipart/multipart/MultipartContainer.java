@@ -30,6 +30,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -419,6 +420,16 @@ public class MultipartContainer implements IMultipartContainer {
             }
             addPart(part, true, false, id);
         }
+    }
+
+    public List<PartState> getExtendedStates(IBlockAccess world, BlockPos pos) {
+
+        List<PartState> states = new ArrayList<PartState>();
+        for (IMultipart part : getParts()) {
+            PartState state = PartState.fromPart(part);
+            if (state != null) states.add(state);
+        }
+        return states;
     }
 
 }
