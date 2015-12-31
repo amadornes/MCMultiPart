@@ -162,7 +162,8 @@ public abstract class Multipart implements IMultipart {
     public float getStrength(EntityPlayer player, PartMOP hit) {
 
         float hardness = getHardness(hit);
-        if (hardness <= 0.0F) return 0.0F;
+        if (hardness < 0.0F) return 0.0F;
+        else if (hardness == 0.0F) return 1.0F;
 
         Material mat = getMaterial();
         ItemStack stack = player.getCurrentEquippedItem();
