@@ -19,7 +19,9 @@ import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.SimpleBakedModel;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import net.minecraftforge.client.model.pipeline.WorldRendererConsumer;
@@ -28,6 +30,8 @@ public final class MultipartContainerSpecialRenderer {
 
     public static boolean renderMultipartContainerAt(IMultipartContainer te, double x, double y, double z, float partialTicks,
             int destroyStage, TileEntityRendererDispatcher rendererDispatcher) {
+
+        destroyStage = 5;
 
         if (destroyStage >= 0) {
             if (MinecraftForgeClient.getRenderPass() != 1) return true;
@@ -67,12 +71,14 @@ public final class MultipartContainerSpecialRenderer {
         GlStateManager.enablePolygonOffset();
         GlStateManager.alphaFunc(516, 0.1F);
         GlStateManager.enableAlpha();
+        Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.locationBlocksTexture).setBlurMipmap(false, false);
     }
 
     private static void startTessellating(double x, double y, double z) {
 
         Tessellator.getInstance().getWorldRenderer().begin(7, DefaultVertexFormats.OLDMODEL_POSITION_TEX_NORMAL);
         Tessellator.getInstance().getWorldRenderer().setTranslation(x, y, z);
+        Tessellator.getInstance().getWorldRenderer().noColor();
     }
 
     private static void renderBreaking(IMultipart part, IVertexConsumer consumer, double x, double y, double z, float partialTicks,
@@ -89,14 +95,21 @@ public final class MultipartContainerSpecialRenderer {
                     .getModelManager()
                     .getModel(new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
             if (model != null) {
-                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(part
-                        .getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState())) : model;
-                model = (new SimpleBakedModel.Builder(model, Minecraft.getMinecraft().getTextureMapBlocks()
-                        .getAtlasSprite("minecraft:blocks/destroy_stage_" + destroyStage))).makeBakedModel();
-                rendererDispatcher.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-                startTessellating(x, y, z);
-                renderBreaking(model, consumer);
-                finishTessellating();
+                for (EnumWorldBlockLayer layer : EnumWorldBlockLayer.values()) {
+                    if (part.canRenderInLayer(layer)) {
+                        ForgeHooksClient.setRenderLayer(layer);
+                        IBakedModel layerModel = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model)
+                                .handlePartState(part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState())) : model;
+                        layerModel = (new SimpleBakedModel.Builder(layerModel, Minecraft.getMinecraft().getTextureMapBlocks()
+                                .getAtlasSprite("minecraft:blocks/destroy_stage_" + destroyStage))).makeBakedModel();
+                        rendererDispatcher.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+                        startTessellating(x, y, z);
+                        consumer = new WorldRendererConsumer(Tessellator.getInstance().getWorldRenderer());
+                        renderBreaking(layerModel, consumer);
+                        finishTessellating();
+                    }
+                }
+                ForgeHooksClient.setRenderLayer(EnumWorldBlockLayer.SOLID);
             }
         }
     }
@@ -104,10 +117,10 @@ public final class MultipartContainerSpecialRenderer {
     private static void renderBreaking(IBakedModel model, IVertexConsumer consumer) {
 
         for (BakedQuad quad : model.getGeneralQuads())
-            quad.pipe(new WorldRendererConsumer(Tessellator.getInstance().getWorldRenderer()));
+            quad.pipe(consumer);
         for (EnumFacing face : EnumFacing.VALUES)
             for (BakedQuad quad : model.getFaceQuads(face))
-                quad.pipe(new WorldRendererConsumer(Tessellator.getInstance().getWorldRenderer()));
+                quad.pipe(consumer);
     }
 
     private static void finishTessellating() {
@@ -118,6 +131,7 @@ public final class MultipartContainerSpecialRenderer {
 
     private static void finishBreaking() {
 
+        Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.locationBlocksTexture).restoreLastBlurMipmap();
         GlStateManager.disableAlpha();
         GlStateManager.doPolygonOffset(0.0F, 0.0F);
         GlStateManager.disablePolygonOffset();
