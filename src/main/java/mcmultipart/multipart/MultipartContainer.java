@@ -139,10 +139,10 @@ public class MultipartContainer implements IMultipartContainer {
     public void addPart(IMultipart part) {
 
         if (getWorldIn().isRemote) throw new IllegalStateException("Attempted to add a part on the client!");
-        addPart(part, true, true, UUID.randomUUID());
+        addPart(part, true, true, true, UUID.randomUUID());
     }
 
-    public void addPart(IMultipart part, boolean notifyPart, boolean notifyNeighbors, UUID id) {
+    public void addPart(IMultipart part, boolean notifyPart, boolean notifyNeighbors, boolean tryConvert, UUID id) {
 
         if (part == null) throw new NullPointerException("Attempted to add a null part at " + getPosIn());
         if (getParts().contains(part))
@@ -165,7 +165,7 @@ public class MultipartContainer implements IMultipartContainer {
         if (notifyPart) part.onAdded();
         if (notifyNeighbors) notifyPartChanged(part);
 
-        if (getWorldIn() != null && !getWorldIn().isRemote && (!canTurnIntoBlock || !MultipartRegistry.convertToBlock(this)))
+        if (getWorldIn() != null && !getWorldIn().isRemote && (!canTurnIntoBlock || !tryConvert || !MultipartRegistry.convertToBlock(this)))
             MessageMultipartChange.newPacket(getWorldIn(), getPosIn(), part, Type.ADD).send(getWorldIn());
     }
 
@@ -225,7 +225,7 @@ public class MultipartContainer implements IMultipartContainer {
     @Override
     public void addPart(UUID id, IMultipart part) {
 
-        addPart(part, true, true, id);
+        addPart(part, true, true, true, id);
     }
 
     public void notifyPartChanged(IMultipart part) {
@@ -398,7 +398,7 @@ public class MultipartContainer implements IMultipartContainer {
             NBTTagCompound t = partList.getCompoundTagAt(i);
             UUID id = UUID.fromString(t.getString("__partID"));
             IMultipart part = MultipartRegistry.createPart(t.getString("__partType"), t);
-            if (part != null) addPart(part, false, false, id);
+            if (part != null) addPart(part, false, false, false, id);
         }
     }
 
@@ -433,7 +433,7 @@ public class MultipartContainer implements IMultipartContainer {
             } else {
                 part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
             }
-            addPart(part, false, false, id);
+            addPart(part, false, false, false, id);
         }
     }
 
