@@ -94,6 +94,8 @@ public class MultipartContainer implements IMultipartContainer {
     @Override
     public boolean canAddPart(IMultipart part) {
 
+        if (part == null || getParts().contains(part)) return false;
+
         if (part instanceof ISlottedPart) {
             for (PartSlot s : ((ISlottedPart) part).getSlotMask())
                 if (getPartInSlot(s) != null) return false;
@@ -112,6 +114,8 @@ public class MultipartContainer implements IMultipartContainer {
 
     @Override
     public boolean canReplacePart(IMultipart oldPart, IMultipart newPart) {
+
+        if (oldPart == null || newPart == null || getParts().contains(newPart)) return false;
 
         if (newPart instanceof ISlottedPart) {
             for (PartSlot s : ((ISlottedPart) newPart).getSlotMask()) {
@@ -139,6 +143,10 @@ public class MultipartContainer implements IMultipartContainer {
     }
 
     public void addPart(IMultipart part, boolean notifyPart, boolean notifyNeighbors, UUID id) {
+
+        if (part == null) throw new NullPointerException("Attempted to add a null part at " + getPosIn());
+        if (getParts().contains(part))
+            throw new IllegalArgumentException("Attempted to add a duplicate part at " + getPosIn() + " (" + part + ")");
 
         part.setContainer(this);
 
@@ -168,6 +176,10 @@ public class MultipartContainer implements IMultipartContainer {
     }
 
     public void removePart(IMultipart part, boolean notifyPart, boolean notifyNeighbors) {
+
+        if (part == null) throw new NullPointerException("Attempted to remove a null part from " + getPosIn());
+        if (!getParts().contains(part))
+            throw new IllegalArgumentException("Attempted to remove a part that doesn't exist from " + getPosIn() + " (" + part + ")");
 
         BiMap<UUID, IMultipart> partMap = HashBiMap.create(this.partMap), oldPartMap = this.partMap;
         Map<PartSlot, ISlottedPart> slotMap = new HashMap<PartSlot, ISlottedPart>(this.slotMap), oldSlotMap = this.slotMap;
@@ -407,6 +419,9 @@ public class MultipartContainer implements IMultipartContainer {
 
     public void readDescription(NBTTagCompound tag) {
 
+        partMap = HashBiMap.create();
+        slotMap = new HashMap<PartSlot, ISlottedPart>();
+
         NBTTagList partList = tag.getTagList("partList", new NBTTagCompound().getId());
         for (int i = 0; i < partList.tagCount(); i++) {
             NBTTagCompound t = partList.getCompoundTagAt(i);
@@ -418,7 +433,7 @@ public class MultipartContainer implements IMultipartContainer {
             } else {
                 part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
             }
-            addPart(part, true, false, id);
+            addPart(part, false, false, id);
         }
     }
 
