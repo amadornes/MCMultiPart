@@ -32,7 +32,6 @@ public final class MultipartContainerSpecialRenderer {
             int destroyStage, TileEntityRendererDispatcher rendererDispatcher) {
 
         if (destroyStage >= 0) {
-            if (MinecraftForgeClient.getRenderPass() != 1) return true;
             IVertexConsumer consumer = new WorldRendererConsumer(Tessellator.getInstance().getWorldRenderer());
             startBreaking(rendererDispatcher);
 
@@ -51,7 +50,7 @@ public final class MultipartContainerSpecialRenderer {
 
         for (IMultipart part : te.getParts()) {
             MultipartSpecialRenderer<IMultipart> renderer = MultipartRegistryClient.getSpecialRenderer(part);
-            if (renderer != null && renderer.shouldRenderInPass(MinecraftForgeClient.getRenderPass())) {
+            if (renderer != null && renderer.shouldRenderInPass(part, MinecraftForgeClient.getRenderPass())) {
                 renderer.setRendererDispatcher(rendererDispatcher);
                 renderer.renderMultipartAt(part, x, y, z, partialTicks, destroyStage);
             }
@@ -83,31 +82,33 @@ public final class MultipartContainerSpecialRenderer {
             int destroyStage, TileEntityRendererDispatcher rendererDispatcher) {
 
         MultipartSpecialRenderer<IMultipart> renderer = MultipartRegistryClient.getSpecialRenderer(part);
-        if (renderer != null && renderer.canRenderBreaking()) {
+        if (renderer != null && renderer.canRenderBreaking(part)) {
             renderer.setRendererDispatcher(rendererDispatcher);
             renderer.renderMultipartAt(part, x, y, z, partialTicks, destroyStage);
         } else {
-            String path = part.getModelPath();
-            IBlockState state = part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState());
-            IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
-                    .getModelManager()
-                    .getModel(new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
-            if (model != null) {
-                for (EnumWorldBlockLayer layer : EnumWorldBlockLayer.values()) {
-                    if (part.canRenderInLayer(layer)) {
-                        ForgeHooksClient.setRenderLayer(layer);
-                        IBakedModel layerModel = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model)
-                                .handlePartState(part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState())) : model;
-                        layerModel = (new SimpleBakedModel.Builder(layerModel, Minecraft.getMinecraft().getTextureMapBlocks()
-                                .getAtlasSprite("minecraft:blocks/destroy_stage_" + destroyStage))).makeBakedModel();
-                        rendererDispatcher.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-                        startTessellating(x, y, z);
-                        consumer = new WorldRendererConsumer(Tessellator.getInstance().getWorldRenderer());
-                        renderBreaking(layerModel, consumer);
-                        finishTessellating();
+            if (MinecraftForgeClient.getRenderPass() == 1) {
+                String path = part.getModelPath();
+                IBlockState state = part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState());
+                IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
+                        .getModelManager()
+                        .getModel(new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
+                if (model != null) {
+                    for (EnumWorldBlockLayer layer : EnumWorldBlockLayer.values()) {
+                        if (part.canRenderInLayer(layer)) {
+                            ForgeHooksClient.setRenderLayer(layer);
+                            IBakedModel layerModel = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model)
+                                    .handlePartState(part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState())) : model;
+                            layerModel = (new SimpleBakedModel.Builder(layerModel, Minecraft.getMinecraft().getTextureMapBlocks()
+                                    .getAtlasSprite("minecraft:blocks/destroy_stage_" + destroyStage))).makeBakedModel();
+                            rendererDispatcher.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+                            startTessellating(x, y, z);
+                            consumer = new WorldRendererConsumer(Tessellator.getInstance().getWorldRenderer());
+                            renderBreaking(layerModel, consumer);
+                            finishTessellating();
+                        }
                     }
+                    ForgeHooksClient.setRenderLayer(EnumWorldBlockLayer.SOLID);
                 }
-                ForgeHooksClient.setRenderLayer(EnumWorldBlockLayer.SOLID);
             }
         }
     }
