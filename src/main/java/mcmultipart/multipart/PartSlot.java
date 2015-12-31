@@ -13,18 +13,18 @@ public enum PartSlot {
     WEST(EnumFacing.WEST),
     EAST(EnumFacing.EAST),
     CENTER(null),
-    EDGE_XNN(EnumFacing.DOWN, EnumFacing.WEST),
-    EDGE_XNP(EnumFacing.DOWN, EnumFacing.EAST),
-    EDGE_XPN(EnumFacing.UP, EnumFacing.WEST),
-    EDGE_XPP(EnumFacing.UP, EnumFacing.EAST),
-    EDGE_NYN(EnumFacing.NORTH, EnumFacing.WEST),
-    EDGE_NYP(EnumFacing.NORTH, EnumFacing.EAST),
-    EDGE_PYN(EnumFacing.SOUTH, EnumFacing.WEST),
-    EDGE_PYP(EnumFacing.SOUTH, EnumFacing.EAST),
-    EDGE_NNZ(EnumFacing.NORTH, EnumFacing.DOWN),
-    EDGE_NPZ(EnumFacing.NORTH, EnumFacing.UP),
-    EDGE_PNZ(EnumFacing.SOUTH, EnumFacing.DOWN),
-    EDGE_PPZ(EnumFacing.SOUTH, EnumFacing.UP),
+    EDGE_XNN(EnumFacing.DOWN, EnumFacing.NORTH),
+    EDGE_XNP(EnumFacing.DOWN, EnumFacing.SOUTH),
+    EDGE_XPN(EnumFacing.UP, EnumFacing.NORTH),
+    EDGE_XPP(EnumFacing.UP, EnumFacing.SOUTH),
+    EDGE_NYN(EnumFacing.WEST, EnumFacing.NORTH),
+    EDGE_NYP(EnumFacing.WEST, EnumFacing.SOUTH),
+    EDGE_PYN(EnumFacing.EAST, EnumFacing.NORTH),
+    EDGE_PYP(EnumFacing.EAST, EnumFacing.SOUTH),
+    EDGE_NNZ(EnumFacing.WEST, EnumFacing.DOWN),
+    EDGE_NPZ(EnumFacing.WEST, EnumFacing.UP),
+    EDGE_PNZ(EnumFacing.EAST, EnumFacing.DOWN),
+    EDGE_PPZ(EnumFacing.EAST, EnumFacing.UP),
     CORNER_NNN(EnumFacing.NORTH, EnumFacing.DOWN, EnumFacing.WEST),
     CORNER_NNP(EnumFacing.NORTH, EnumFacing.DOWN, EnumFacing.EAST),
     CORNER_NPN(EnumFacing.NORTH, EnumFacing.UP, EnumFacing.WEST),
@@ -53,16 +53,15 @@ public enum PartSlot {
         if (facing1 == facing2 || facing1.getOpposite() == facing2)
             throw new IllegalArgumentException("Tried to form an illegal edge between " + facing1 + " and " + facing2);
 
-        int x = facing1.getFrontOffsetZ() + facing2.getFrontOffsetZ();
+        int x = facing1.getFrontOffsetX() + facing2.getFrontOffsetX();
         int y = facing1.getFrontOffsetY() + facing2.getFrontOffsetY();
-        int z = facing1.getFrontOffsetX() + facing2.getFrontOffsetX();
+        int z = facing1.getFrontOffsetZ() + facing2.getFrontOffsetZ();
 
         int edge = 0;
-        if (x == 0) edge = 0b0000 + (y > 0 ? 0b10 : 0b00) + (z > 0 ? 0b01 : 0b00);
-        else if (y == 0) edge = 0b0100 + (x > 0 ? 0b10 : 0b00) + (z > 0 ? 0b01 : 0b00);
-        else if (z == 0) edge = 0b1000 + (x > 0 ? 0b10 : 0b00) + (y > 0 ? 0b01 : 0b00);
-
-        return VALUES[edge + 7];
+        if (x == 0) edge = 0x0 + (y > 0 ? 0x2 : 0x0) + (z > 0 ? 0x1 : 0x0);
+        else if (y == 0) edge = 0x4 + (x > 0 ? 0x2 : 0x0) + (z > 0 ? 0x1 : 0x0);
+        else if (z == 0) edge = 0x8 + (x > 0 ? 0x2 : 0x0) + (y > 0 ? 0x1 : 0x0);
+        return EDGES[edge];
     }
 
     public static PartSlot getCornerSlot(EnumFacing facing1, EnumFacing facing2, EnumFacing facing3) {
@@ -81,7 +80,7 @@ public enum PartSlot {
 
         int corner = (x << 2) | (y << 1) | (z << 0);
 
-        return VALUES[corner + 19];
+        return CORNERS[corner];
     }
 
     public final EnumFacing f1, f2, f3;
