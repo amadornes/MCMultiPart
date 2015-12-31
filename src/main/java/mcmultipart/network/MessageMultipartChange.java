@@ -100,7 +100,8 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
                     if (message.part != null) container.removePart(message.part);
                 }
 
-                if (message.part.getModelPath() != null) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
+                if (message.part == null || message.part.getModelPath() != null)
+                    player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
                 player.worldObj.checkLight(message.pos);
             } else if (message.type == Type.UPDATE || message.type == Type.UPDATE_RERENDER) {
                 IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);

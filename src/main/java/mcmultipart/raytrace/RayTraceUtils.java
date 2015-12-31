@@ -77,7 +77,7 @@ public final class RayTraceUtils {
     public static Vec3 getEnd(EntityPlayer player) {
 
         double reachDistance = player instanceof EntityPlayerMP ? ((EntityPlayerMP) player).theItemInWorldManager.getBlockReachDistance()
-                : 5.0d;
+                : (player.capabilities.isCreativeMode ? 5.0D : 4.5D);
         Vec3 lookVec = player.getLookVec();
         Vec3 start = getStart(player);
         return start.addVector(lookVec.xCoord * reachDistance, lookVec.yCoord * reachDistance, lookVec.zCoord * reachDistance);
