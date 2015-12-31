@@ -19,7 +19,7 @@ public abstract class MultipartSpecialRenderer<T extends IMultipart> {
 
     public abstract void renderMultipartAt(T part, double x, double y, double z, float partialTicks, int destroyStage);
 
-    public boolean shouldRenderInPass(int pass) {
+    public boolean shouldRenderInPass(T part, int pass) {
 
         return pass == 0;
     }
@@ -45,7 +45,7 @@ public abstract class MultipartSpecialRenderer<T extends IMultipart> {
         return this.rendererDispatcher.getFontRenderer();
     }
 
-    public boolean canRenderBreaking() {
+    public boolean canRenderBreaking(T part) {
 
         return false;
     }
