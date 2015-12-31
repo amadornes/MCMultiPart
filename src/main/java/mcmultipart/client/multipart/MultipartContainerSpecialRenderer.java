@@ -31,8 +31,6 @@ public final class MultipartContainerSpecialRenderer {
     public static boolean renderMultipartContainerAt(IMultipartContainer te, double x, double y, double z, float partialTicks,
             int destroyStage, TileEntityRendererDispatcher rendererDispatcher) {
 
-        destroyStage = 5;
-
         if (destroyStage >= 0) {
             if (MinecraftForgeClient.getRenderPass() != 1) return true;
             IVertexConsumer consumer = new WorldRendererConsumer(Tessellator.getInstance().getWorldRenderer());
