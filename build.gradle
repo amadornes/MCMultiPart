@@ -52,3 +52,64 @@ processResources
 
 sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
+
+jar {
+    classifier = "universal"
+}
+task deobfJar(type: Jar) {
+    from(sourceSets.main.output) {
+        classifier = "deobf"
+    }
+}
+artifacts {
+    archives deobfJar
+}
+
+task("uploadJars", dependsOn: "reobf") {
+    if (System.getenv("LOCAL_MAVEN") != null) {
+        apply plugin: 'maven'
+        uploadArchives {
+            repositories {
+                mavenDeployer {
+                    repository(url: "file://" + System.getenv("LOCAL_MAVEN"))
+                    pom {
+                        groupId = project.group
+                        version = project.version
+                        artifactId = project.archivesBaseName
+                        project {
+                            name project.archivesBaseName
+                            packaging 'jar'
+                            description 'MCMultiPart'
+                            url 'http://amadorn.es'
+                            scm {
+                                url 'https://github.com/amadornes/MCMultiPart'
+                                connection 'scm:git:git@github.com:amadornes/MCMultiPart.git'
+                                developerConnection 'scm:git:git@github.com:amadornes/MCMultiPart.git'
+                            }
+                            issueManagement {
+                                system 'github'
+                                url 'https://github.com/amadornes/MCMultiPart/issues'
+                            }
+                            licenses {
+                                license {
+                                    name 'MIT'
+                                    url 'https://github.com/amadornes/MCMultiPart/blob/master/LICENSE'
+                                    distribution 'repo'
+                                }
+                            }
+                            developers {
+                                developer {
+                                    id 'amadornes'
+                                    name 'amadornes'
+                                    roles { role 'developer' }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }else{
+		logger.error("The LOCAL_MAVEN environment variable isn't set, archives won't be uploaded!");
+	}
+}
