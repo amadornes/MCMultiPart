@@ -11,6 +11,8 @@ buildscript {
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 /*
 // for people who want stable - not yet functional for MC 1.8.8 - we require the forgegradle 2.1 snapshot
@@ -18,8 +20,15 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "2.0.2"
 }
 */
-version = "1.0.0"
-group="mcmultipart" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+
+String modversion = "1.0.0"
+
+if (System.getenv("BUILD_NUMBER") != null && System.getenv("SHOW_BUILD_NUMBER") != null) {
+	version = modversion + "_" + System.getenv("BUILD_NUMBER")
+} else {
+	version = modversion
+}
+group = "MCMultiPart" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "MCMultiPart"
 
 minecraft {
@@ -65,51 +74,46 @@ artifacts {
     archives deobfJar
 }
 
-task("uploadJars", dependsOn: "reobfJar") {
-    if (System.getenv("LOCAL_MAVEN") != null) {
-        apply plugin: 'maven'
-        uploadArchives {
-            repositories {
-                mavenDeployer {
-                    repository(url: "file://" + System.getenv("LOCAL_MAVEN"))
-                    pom {
-                        groupId = project.group
-                        version = project.version
-                        artifactId = project.archivesBaseName
-                        project {
-                            name project.archivesBaseName
-                            packaging 'jar'
-                            description 'MCMultiPart'
-                            url 'http://amadorn.es'
-                            scm {
-                                url 'https://github.com/amadornes/MCMultiPart'
-                                connection 'scm:git:git@github.com:amadornes/MCMultiPart.git'
-                                developerConnection 'scm:git:git@github.com:amadornes/MCMultiPart.git'
-                            }
-                            issueManagement {
-                                system 'github'
-                                url 'https://github.com/amadornes/MCMultiPart/issues'
-                            }
-                            licenses {
-                                license {
-                                    name 'MIT'
-                                    url 'https://github.com/amadornes/MCMultiPart/blob/master/LICENSE'
-                                    distribution 'repo'
-                                }
-                            }
-                            developers {
-                                developer {
-                                    id 'amadornes'
-                                    name 'amadornes'
-                                    roles { role 'developer' }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }else{
-		logger.error("The LOCAL_MAVEN environment variable isn't set, archives won't be uploaded!");
+uploadArchives {
+	if(System.getenv("LOCAL_MAVEN") != null) {
+		repositories {
+			mavenDeployer {
+				repository(url: "file://" + System.getenv("LOCAL_MAVEN"))
+				pom {
+					groupId = project.group
+					version = project.version
+					artifactId = project.archivesBaseName
+					project {
+						name project.archivesBaseName
+						packaging 'jar'
+						description 'MCMultiPart'
+						url 'https://github.com/amadornes/MCMultiPart'
+						scm {
+							url 'https://github.com/amadornes/MCMultiPart'
+							connection 'scm:git:git@github.com:amadornes/MCMultiPart.git'
+							developerConnection 'scm:git:git@github.com:amadornes/MCMultiPart.git'
+						}
+						issueManagement {
+							system 'github'
+							url 'https://github.com/amadornes/MCMultiPart/issues'
+						}
+						licenses {
+							license {
+								name 'MIT'
+								url 'https://github.com/amadornes/MCMultiPart/blob/master/LICENSE'
+								distribution 'repo'
+							}
+						}
+						developers {
+							developer {
+								id 'amadornes'
+								name 'amadornes'
+								roles { role 'developer' }
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }
