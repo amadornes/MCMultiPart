@@ -19,6 +19,7 @@ import mcmultipart.network.MessageMultipartChange;
 import mcmultipart.network.MessageMultipartChange.Type;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
+import mcmultipart.util.IWorldLocation;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -34,7 +35,6 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import putsomewhereelse.IWorldLocation;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;

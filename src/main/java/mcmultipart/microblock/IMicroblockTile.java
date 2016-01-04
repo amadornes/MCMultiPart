@@ -1,6 +1,6 @@
 package mcmultipart.microblock;
 
-import putsomewhereelse.IWorldLocation;
+import mcmultipart.util.IWorldLocation;
 
 public interface IMicroblockTile extends IWorldLocation {
 

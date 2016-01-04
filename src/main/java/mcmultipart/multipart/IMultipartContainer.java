@@ -3,7 +3,7 @@ package mcmultipart.multipart;
 import java.util.Collection;
 import java.util.UUID;
 
-import putsomewhereelse.IWorldLocation;
+import mcmultipart.util.IWorldLocation;
 
 public interface IMultipartContainer extends IWorldLocation {
 

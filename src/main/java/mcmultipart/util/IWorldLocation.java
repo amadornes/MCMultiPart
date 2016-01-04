@@ -1,4 +1,4 @@
-package putsomewhereelse;
+package mcmultipart.util;
 
 import net.minecraft.world.World;
 
