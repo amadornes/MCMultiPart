@@ -65,7 +65,7 @@ artifacts {
     archives deobfJar
 }
 
-task("uploadJars", dependsOn: "reobf") {
+task uploadJars {
     if (System.getenv("LOCAL_MAVEN") != null) {
         apply plugin: 'maven'
         uploadArchives {
