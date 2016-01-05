@@ -3,6 +3,7 @@ package mcmultipart.multipart;
 import java.util.ArrayList;
 import java.util.List;
 
+import mcmultipart.multipart.ISlottedPart.ISlotOccludingPart;
 import net.minecraft.util.AxisAlignedBB;
 
 public class OcclusionHelper {
@@ -63,4 +64,17 @@ public class OcclusionHelper {
         return true;
     }
 
+    public static boolean isSlotOccluded(Iterable<? extends IMultipart> parts, PartSlot slot) {
+
+        return isSlotOccluded(parts, null, slot);
+    }
+
+    public static boolean isSlotOccluded(Iterable<? extends IMultipart> parts, IMultipart except, PartSlot slot) {
+
+        for (IMultipart part : parts)
+            if (part != except
+                    && ((part instanceof ISlottedPart && ((ISlottedPart) part).getSlotMask().contains(slot)) || part instanceof ISlotOccludingPart
+                            && ((ISlotOccludingPart) part).getOccludedSlots().contains(slot))) return true;
+        return false;
+    }
 }
