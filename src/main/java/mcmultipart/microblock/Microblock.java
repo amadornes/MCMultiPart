@@ -6,6 +6,8 @@ import java.util.List;
 
 import mcmultipart.microblock.IMicroMaterial.IDelegatedMicroMaterial;
 import mcmultipart.multipart.IMultipart;
+import mcmultipart.multipart.IRedstonePart;
+import mcmultipart.multipart.IRedstonePart.ISlottedRedstonePart;
 import mcmultipart.multipart.Multipart;
 import mcmultipart.multipart.PartSlot;
 import mcmultipart.property.PropertyBlockState;
@@ -28,7 +30,9 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.common.property.Properties.PropertyAdapter;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 
-public abstract class Microblock extends Multipart implements IMicroblock {
+import com.google.common.base.Optional;
+
+public abstract class Microblock extends Multipart implements IMicroblock, IRedstonePart, ISlottedRedstonePart {
 
     public static final IUnlistedProperty<?>[] PROPERTIES = new IUnlistedProperty[4];
     public static final IUnlistedProperty<IMicroMaterial> PROPERTY_MATERIAL;
@@ -227,8 +231,10 @@ public abstract class Microblock extends Multipart implements IMicroblock {
     @Override
     public float getStrength(EntityPlayer player, PartMOP hit) {
 
-        Float strength = delegate != null ? delegate.getStrength(player, hit) : null;
-        if (strength != null) return strength;
+        if (delegate != null) {
+            Optional<Float> strength = delegate.getStrength(player, hit);
+            if (strength.isPresent()) return strength.get();
+        }
         return super.getStrength(player, hit);
     }
 
@@ -284,16 +290,48 @@ public abstract class Microblock extends Multipart implements IMicroblock {
     @Override
     public boolean onActivated(EntityPlayer player, ItemStack stack, PartMOP hit) {
 
-        Boolean activated = delegate != null ? delegate.onActivated(player, stack, hit) : null;
-        if (activated != null) return activated;
+        if (delegate != null) {
+            Optional<Boolean> activated = delegate.onActivated(player, stack, hit);
+            if (activated.isPresent()) return activated.get();
+        }
         return super.onActivated(player, stack, hit);
     }
 
     @Override
     public void onClicked(EntityPlayer player, ItemStack stack, PartMOP hit) {
 
+        if (delegate != null && delegate.onClicked(player, stack, hit)) return;
         super.onClicked(player, stack, hit);
-        if (delegate != null) delegate.onClicked(player, stack, hit);
+    }
+
+    @Override
+    public boolean canConnectRedstone(EnumFacing side) {
+
+        if (delegate != null) {
+            Optional<Boolean> can = delegate.canConnectRedstone(side);
+            if (can.isPresent()) return can.get();
+        }
+        return false;
+    }
+
+    @Override
+    public int getWeakSignal(EnumFacing side) {
+
+        if (delegate != null) {
+            Optional<Integer> signal = delegate.getWeakSignal(side);
+            if (signal.isPresent()) return signal.get();
+        }
+        return 0;
+    }
+
+    @Override
+    public int getStrongSignal(EnumFacing side) {
+
+        if (delegate != null) {
+            Optional<Integer> signal = delegate.getStrongSignal(side);
+            if (signal.isPresent()) return signal.get();
+        }
+        return 0;
     }
 
     public static class PropertyAABB implements IUnlistedProperty<AxisAlignedBB> {

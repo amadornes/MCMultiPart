@@ -9,6 +9,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 
+import com.google.common.base.Optional;
+
 public class MicroblockDelegate {
 
     protected final IMicroblock delegated;
@@ -18,19 +20,14 @@ public class MicroblockDelegate {
         this.delegated = delegated;
     }
 
-    public Integer getLightValue() {
-
-        return null;
-    }
-
     public boolean harvest(EntityPlayer player, PartMOP hit) {
 
         return false;
     }
 
-    public Float getStrength(EntityPlayer player, PartMOP hit) {
+    public Optional<Float> getStrength(EntityPlayer player, PartMOP hit) {
 
-        return null;
+        return Optional.absent();
     }
 
     public void onPartChanged(IMultipart part) {
@@ -61,13 +58,14 @@ public class MicroblockDelegate {
 
     }
 
-    public Boolean onActivated(EntityPlayer player, ItemStack stack, PartMOP hit) {
+    public Optional<Boolean> onActivated(EntityPlayer player, ItemStack stack, PartMOP hit) {
 
-        return null;
+        return Optional.absent();
     }
 
-    public void onClicked(EntityPlayer player, ItemStack stack, PartMOP hit) {
+    public boolean onClicked(EntityPlayer player, ItemStack stack, PartMOP hit) {
 
+        return false;
     }
 
     public void writeToNBT(NBTTagCompound tag) {
@@ -91,4 +89,18 @@ public class MicroblockDelegate {
         delegated.sendUpdatePacket();
     }
 
+    public Optional<Boolean> canConnectRedstone(EnumFacing side) {
+
+        return Optional.absent();
+    }
+
+    public Optional<Integer> getWeakSignal(EnumFacing side) {
+
+        return Optional.absent();
+    }
+
+    public Optional<Integer> getStrongSignal(EnumFacing side) {
+
+        return Optional.absent();
+    }
 }
