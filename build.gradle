@@ -82,7 +82,11 @@ uploadArchives {
 				pom {
 					groupId = project.group
 					version = project.version
-					artifactId = project.archivesBaseName
+					if (System.getenv("MAVEN_ARTIFACT") != null) {
+						artifactId = System.getenv("MAVEN_ARTIFACT")
+					} else {
+						artifactId = project.archivesBaseName
+					}
 					project {
 						name project.archivesBaseName
 						packaging 'jar'
