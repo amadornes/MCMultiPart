@@ -12,6 +12,8 @@ import mcmultipart.client.multipart.ISmartMultipartModel;
 import mcmultipart.client.multipart.MultipartStateMapper;
 import mcmultipart.microblock.IMicroblockTile;
 import mcmultipart.microblock.MicroblockContainer;
+import mcmultipart.multipart.IMultipart;
+import mcmultipart.multipart.Multipart;
 import mcmultipart.multipart.MultipartContainer;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.PartState;
@@ -53,6 +55,15 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * An implementation of {@link BlockContainer} that allows your block to act as a microblock container.<br/>
+ * Extend this class if you want your block to be able to have microblocks, but not any other kinds of multiparts. Otherwise, extend
+ * {@link Multipart} or make a custom implementation of {@link IMultipart}.<br/>
+ * All the overriden methods have a "default" counterpart that allows you to handle interactions with your block if the player isn't
+ * interacting with a multipart.<br/>
+ * Extend {@link TileCoverable} or implement {@link IMicroblockTile} and return it in {@link BlockCoverable#createNewTileEntity(World, int)}
+ * if you want a custom tile entity for your block.
+ */
 public class BlockCoverable extends BlockContainer {
 
     public BlockCoverable(Material material) {
@@ -228,7 +239,7 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
 
-        ((TileCoverable) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer().onNeighborBlockChange(neighborBlock);
+        ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer().onNeighborBlockChange(neighborBlock);
         onNeighborBlockChangeDefault(world, pos, state, neighborBlock);
     }
 
@@ -239,7 +250,7 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 
-        ((TileCoverable) world.getTileEntity(pos))
+        ((IMicroblockTile) world.getTileEntity(pos))
                 .getMicroblockContainer()
                 .getPartContainer()
                 .onNeighborTileChange(
@@ -447,7 +458,8 @@ public class BlockCoverable extends BlockContainer {
         PartMOP partMOP = reTrace(world, pos, player);
         MovingObjectPosition blockMOP = reTraceBlock(world, pos, player);
         if (partMOP == null && blockMOP == null) return null;
-        if ((partMOP == null) != (blockMOP == null)) return partMOP == null ? blockMOP : partMOP;
+        if (partMOP == null && blockMOP != null) return blockMOP;
+        if (partMOP != null && blockMOP == null) return partMOP;
         if (partMOP.hitVec.squareDistanceTo(start) <= blockMOP.hitVec.squareDistanceTo(start)) return partMOP;
         return blockMOP;
     }

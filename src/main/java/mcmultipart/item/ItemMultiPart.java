@@ -11,6 +11,11 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+/**
+ * {@link ItemMultiPart} is an {@link Item} that can handle multipart placement.<br/>
+ * Implement {@link ItemMultiPart#place(World, BlockPos, EnumFacing, Vec3, ItemStack, EntityPlayer)} and optionally override
+ * {@link ItemMultiPart#consumeItem(ItemStack)} and {@link ItemMultiPart#getPlacementSound(ItemStack)} to place your part in the world.
+ */
 public abstract class ItemMultiPart extends Item {
 
     public abstract IMultipart createPart(World world, BlockPos pos, EnumFacing side, Vec3 hit, ItemStack stack, EntityPlayer player);

@@ -11,6 +11,8 @@ import mcmultipart.client.multipart.IHitEffectsPart;
 import mcmultipart.client.multipart.IHitEffectsPart.AdvancedEffectRenderer;
 import mcmultipart.client.multipart.ISmartMultipartModel;
 import mcmultipart.client.multipart.MultipartStateMapper;
+import mcmultipart.multipart.IMultipart;
+import mcmultipart.multipart.Multipart;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.PartState;
 import mcmultipart.property.PropertyMultipartStates;
@@ -53,6 +55,11 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * A final class that extends {@link BlockContainer} and represents a block which can contain any kind of multipart.<br/>
+ * You do NOT need to extend this class for your multiparts to work. I repeat, you do NOT. You need to either extend {@link Multipart} or
+ * implement {@link IMultipart}. If you only need microblock support, look into {@link BlockCoverable}.
+ */
 public final class BlockMultipart extends BlockContainer {
 
     public BlockMultipart() {

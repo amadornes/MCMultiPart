@@ -6,8 +6,10 @@ import java.util.UUID;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.ISlottedPart;
+import mcmultipart.multipart.Multipart;
 import mcmultipart.multipart.MultipartContainer;
 import mcmultipart.multipart.PartSlot;
+import net.minecraft.block.BlockContainer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
@@ -17,6 +19,12 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.ITickable;
 import net.minecraft.world.World;
 
+/**
+ * A final class that extends {@link BlockContainer} and implements {@link IMultipartContainer}. Represents a TileEntity which can contain
+ * any kind of multipart.<br/>
+ * You do NOT need to extend this class for your multiparts to work. I repeat, you do NOT. You need to either extend {@link Multipart} or
+ * implement {@link IMultipart}. If you only need microblock support, look into {@link BlockCoverable}.
+ */
 public final class TileMultipart extends TileEntity implements IMultipartContainer, ITickable {
 
     private MultipartContainer container;
@@ -174,9 +182,13 @@ public final class TileMultipart extends TileEntity implements IMultipartContain
     public AxisAlignedBB getRenderBoundingBox() {
 
         AxisAlignedBB bounds = null;
-        for (IMultipart part : getParts())
-            if (bounds == null) bounds = part.getRenderBoundingBox();
-            else bounds = bounds.union(part.getRenderBoundingBox());
+        for (IMultipart part : getParts()) {
+            AxisAlignedBB bb = part.getRenderBoundingBox();
+            if (bb != null) {
+                if (bounds == null) bounds = bb;
+                else bounds = bounds.union(bb);
+            }
+        }
         if (bounds == null) bounds = AxisAlignedBB.fromBounds(0, 0, 0, 1, 1, 1);
         return bounds.offset(getPosIn().getX(), getPosIn().getY(), getPosIn().getZ());
     }

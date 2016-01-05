@@ -27,6 +27,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -39,6 +40,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
+/**
+ * Helper class that contains all the logic required for an {@link IMultipartContainer} to work, as well as methods that are forwarded to
+ * each of the parts.<br/>
+ * You can implement {@link IMultipartContainer} in your {@link TileEntity} and forward the calls to an instance of this class for default
+ * multipart container logic.
+ */
 public class MultipartContainer implements IMultipartContainer {
 
     private IWorldLocation location;

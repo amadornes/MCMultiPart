@@ -99,8 +99,6 @@ public final class RayTraceUtils {
         double minDistance = Double.POSITIVE_INFINITY;
         RayTraceResult hit = null;
 
-        if (world == null || pos == null || start == null || end == null) System.out.println(world + " " + pos + " " + start + " " + end);
-
         int i = -1;
         for (AxisAlignedBB aabb : boxes) {
             RayTraceResult result = aabb == null ? null : collisionRayTrace(pos, start, end, aabb, i, null);

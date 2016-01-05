@@ -4,6 +4,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.StatCollector;
 
+/**
+ * Enumeration of all the slots a multipart can occupy inside a block.
+ */
 public enum PartSlot {
 
     DOWN(EnumFacing.DOWN),

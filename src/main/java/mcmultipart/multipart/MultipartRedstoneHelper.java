@@ -3,6 +3,9 @@ package mcmultipart.multipart;
 import mcmultipart.multipart.IRedstonePart.ISlottedRedstonePart;
 import net.minecraft.util.EnumFacing;
 
+/**
+ * A general use multipart redstone helper, with getters for redstone signals and connection checking.
+ */
 public class MultipartRedstoneHelper {
 
     public static boolean canConnectRedstone(IMultipartContainer container, EnumFacing side) {

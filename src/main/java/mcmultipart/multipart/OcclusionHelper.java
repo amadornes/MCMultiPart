@@ -1,13 +1,20 @@
 package mcmultipart.multipart;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import mcmultipart.multipart.ISlottedPart.ISlotOccludingPart;
 import net.minecraft.util.AxisAlignedBB;
 
+/**
+ * A general use occlusion helper, with methods to check part-part occlusion, part-AABB occlusion, as well as slot occlusion.
+ */
 public class OcclusionHelper {
 
+    /**
+     * Performs the default occlusion test between two {@link IMultipart}s.
+     */
     public static boolean defaultOcclusionTest(IMultipart part1, IMultipart part2) {
 
         if (part1 instanceof IOccludingPart && part2 instanceof IOccludingPart) {
@@ -24,51 +31,72 @@ public class OcclusionHelper {
         return true;
     }
 
-    public static boolean defaultOcclusionTest(Iterable<? extends IMultipart> parts, IMultipart part2) {
+    /**
+     * Performs an occlusion test between the specified parts.
+     */
+    public static boolean occlusionTest(IMultipart part1, IMultipart part2) {
 
-        return defaultOcclusionTest(parts, null, part2);
+        return part1.occlusionTest(part2) && part2.occlusionTest(part1);
     }
 
-    public static boolean defaultOcclusionTest(Iterable<? extends IMultipart> parts, IMultipart except, IMultipart part2) {
+    /**
+     * Performs an occlusion test between the specified part list and the part.
+     */
+    public static boolean occlusionTest(Iterable<? extends IMultipart> parts, IMultipart part2) {
+
+        return occlusionTest(parts, null, part2);
+    }
+
+    /**
+     * Performs an occlusion test between the specified part list and the part, except for one part.
+     */
+    public static boolean occlusionTest(Iterable<? extends IMultipart> parts, IMultipart exception, IMultipart part2) {
 
         for (IMultipart part : parts)
-            if (part != except && !defaultOcclusionTest(part, part2)) return false;
+            if (part != exception && !occlusionTest(part, part2)) return false;
 
         return true;
     }
 
-    public static boolean defaultOcclusionTest(IMultipart part, AxisAlignedBB... boxes) {
+    /**
+     * Performs an occlusion test between the specified part and the boxes.
+     */
+    public static boolean occlusionTest(IMultipart part, AxisAlignedBB... boxes) {
 
-        if (part instanceof IOccludingPart) {
-            List<AxisAlignedBB> partBoxes = new ArrayList<AxisAlignedBB>();
-            ((IOccludingPart) part).addOcclusionBoxes(partBoxes);
-
-            for (AxisAlignedBB a : partBoxes)
-                for (AxisAlignedBB b : boxes)
-                    if (a.intersectsWith(b)) return false;
-        }
-
-        return true;
+        return occlusionTest(part, new NormallyOccludingPart(Arrays.asList(boxes)));
     }
 
-    public static boolean defaultOcclusionTest(Iterable<? extends IMultipart> parts, AxisAlignedBB... boxes) {
+    /**
+     * Performs an occlusion test between the specified part list and the boxes.
+     */
+    public static boolean occlusionTest(Iterable<? extends IMultipart> parts, AxisAlignedBB... boxes) {
 
-        return defaultOcclusionTest(parts, null, boxes);
+        return occlusionTest(parts, null, boxes);
     }
 
-    public static boolean defaultOcclusionTest(Iterable<? extends IMultipart> parts, IMultipart except, AxisAlignedBB... boxes) {
+    /**
+     * Performs an occlusion test between the specified part list and the boxes, except for one part.
+     */
+    public static boolean occlusionTest(Iterable<? extends IMultipart> parts, IMultipart exception, AxisAlignedBB... boxes) {
 
         for (IMultipart part : parts)
-            if (part != except && !defaultOcclusionTest(part, boxes)) return false;
+            if (part != exception && !occlusionTest(part, boxes)) return false;
 
         return true;
     }
 
+    /**
+     * Checks if a part in the list is occluding a slot. This means that either it's occupied by that part, or it's covered by it.
+     */
     public static boolean isSlotOccluded(Iterable<? extends IMultipart> parts, PartSlot slot) {
 
         return isSlotOccluded(parts, null, slot);
     }
 
+    /**
+     * Checks if a part in the list, except for one, is occluding a slot. This means that either it's occupied by that part, or it's covered
+     * by it.
+     */
     public static boolean isSlotOccluded(Iterable<? extends IMultipart> parts, IMultipart except, PartSlot slot) {
 
         for (IMultipart part : parts)
@@ -77,4 +105,32 @@ public class OcclusionHelper {
                             && ((ISlotOccludingPart) part).getOccludedSlots().contains(slot))) return true;
         return false;
     }
+
+    /**
+     * A part that just has occlusion boxes. Used for occlusion testing.
+     */
+    public static class NormallyOccludingPart extends Multipart implements IOccludingPart {
+
+        private Iterable<AxisAlignedBB> boxes;
+
+        public NormallyOccludingPart(Iterable<AxisAlignedBB> boxes) {
+
+            this.boxes = boxes;
+        }
+
+        @Override
+        public String getType() {
+
+            return null;
+        }
+
+        @Override
+        public void addOcclusionBoxes(List<AxisAlignedBB> list) {
+
+            for (AxisAlignedBB bb : boxes)
+                list.add(bb);
+        }
+
+    }
+
 }

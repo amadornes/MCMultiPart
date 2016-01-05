@@ -23,7 +23,7 @@ public abstract class MicroblockClass implements IAdvancedPartFactory {
 
     public abstract MicroblockPlacementGrid getPlacementGrid();
 
-    public abstract IMultipart create(boolean isRemote);
+    public abstract IMultipart create(boolean client);
 
     @Override
     public IMultipart createPart(String type, PacketBuffer buf) {

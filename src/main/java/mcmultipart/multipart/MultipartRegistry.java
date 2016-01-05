@@ -31,21 +31,38 @@ public class MultipartRegistry {
     private static Map<Block, IPartConverter> converters = new HashMap<Block, IPartConverter>();
     private static List<IReversePartConverter> reverseConverters = new ArrayList<IReversePartConverter>();
 
+    @Deprecated
     public static void registerProvider(IPartFactory provider, String... parts) {
 
-        registerProvider(provider == null ? null : new AdvancedPartFactory(provider), parts);
+        registerPartFactory(provider, parts);
     }
 
+    /**
+     * Links a set of parts to an {@link IPartFactory} that can produce them.
+     */
+    public static void registerPartFactory(IPartFactory factory, String... parts) {
+
+        registerPartFactory(factory == null ? null : new AdvancedPartFactory(factory), parts);
+    }
+
+    @Deprecated
     public static void registerProvider(IAdvancedPartFactory provider, String... parts) {
 
-        if (provider == null) throw new IllegalArgumentException("Attempted to register a null multipart provider!");
-        if (parts.length == 0)
-            throw new IllegalArgumentException("Attempted to register a multipart provider without any provided parts!");
+        registerPartFactory(provider, parts);
+    }
+
+    /**
+     * Links a set of parts to an {@link IAdvancedPartFactory} that can produce them.
+     */
+    public static void registerPartFactory(IAdvancedPartFactory factory, String... parts) {
+
+        if (factory == null) throw new IllegalArgumentException("Attempted to register a null multipart factory!");
+        if (parts.length == 0) throw new IllegalArgumentException("Attempted to register a multipart factory without any provided parts!");
         for (String part : parts)
-            partProviders.put(part, provider);
+            partProviders.put(part, factory);
         try {
             for (String part : parts) {
-                IMultipart multipart = provider.createPart(part, new NBTTagCompound());
+                IMultipart multipart = factory.createPart(part, new NBTTagCompound());
                 BlockState state = multipart.createBlockState();
                 defaultStates.put(part, state);
                 stateLocations.put(state, multipart.getModelPath());
@@ -56,6 +73,9 @@ public class MultipartRegistry {
         }
     }
 
+    /**
+     * Registers a part along with an identifier. A default part factory is automatically created.
+     */
     public static void registerPart(Class<? extends IMultipart> clazz, String identifier) {
 
         if (clazz == null) throw new IllegalArgumentException("Attempted to register a null multipart class!");
@@ -65,21 +85,28 @@ public class MultipartRegistry {
         if (partClasses.containsKey(identifier))
             throw new IllegalArgumentException("Attempted to register a multipart with an identifier that's already in use!");
         partClasses.put(identifier, clazz);
-        registerProvider(new SimplePartFactory(clazz), identifier);
+        registerPartFactory(new SimplePartFactory(clazz), identifier);
     }
 
+    /**
+     * Registers an {@link IPartConverter}.
+     */
     public static void registerPartConverter(IPartConverter converter) {
 
         for (Block block : converter.getConvertableBlocks())
             converters.put(block, converter);
     }
 
+    /**
+     * Registers an {@link IReversePartConverter}.
+     */
     public static void registerReversePartConverter(IReversePartConverter converter) {
 
         reverseConverters.add(converter);
     }
 
     /**
+     * Gets the type of a multipart.<br/>
      * Only for internal use. This will not return the type of custom multiparts!
      */
     public static String getPartType(IMultipart part) {
@@ -87,43 +114,67 @@ public class MultipartRegistry {
         return partClasses.inverse().get(part.getClass());
     }
 
+    /**
+     * Gets the {@link BlockState} that represents a specific part.
+     */
     public static BlockState getDefaultState(IMultipart part) {
 
         return defaultStates.get(part.getType());
     }
 
+    /**
+     * Gets the {@link BlockState} that represents a specific part type.
+     */
     public static BlockState getDefaultState(String partType) {
 
         return defaultStates.get(partType);
     }
 
+    /**
+     * Gets the location of a part's BlockState.
+     */
     public static String getStateLocation(BlockState state) {
 
         return stateLocations.get(state);
     }
 
+    /**
+     * Creates a new part from NBT.
+     */
     public static IMultipart createPart(String partType, NBTTagCompound tag) {
 
         IAdvancedPartFactory factory = partProviders.get(partType);
         return factory == null ? null : factory.createPart(partType, tag);
     }
 
+    /**
+     * Creates a new part from an update packet.
+     */
     public static IMultipart createPart(String partType, PacketBuffer buf) {
 
         IAdvancedPartFactory factory = partProviders.get(partType);
         return factory == null ? null : factory.createPart(partType, buf);
     }
 
+    /**
+     * Gets the set of registered part types.
+     */
     public static Set<String> getRegisteredParts() {
 
         return partProviders.keySet();
     }
 
+    /**
+     * Checks whether or not any parts have been registered.
+     */
     public static boolean hasRegisteredParts() {
 
         return !partProviders.isEmpty();
     }
 
+    /**
+     * Converts the block at the specified location into a collection of multiparts. Doesn't actually replace the block.
+     */
     public static Collection<? extends IMultipart> convert(IBlockAccess world, BlockPos pos) {
 
         IPartConverter converter = converters.get(world.getBlockState(pos).getBlock());
@@ -131,6 +182,9 @@ public class MultipartRegistry {
         return null;
     }
 
+    /**
+     * Converts a multipart container back into a block. Actually replaces the block.
+     */
     public static boolean convertToBlock(IMultipartContainer container) {
 
         for (IReversePartConverter converter : reverseConverters)

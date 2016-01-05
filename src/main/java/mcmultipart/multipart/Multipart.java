@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import mcmultipart.MCMultiPartMod;
+import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import mcmultipart.network.MessageMultipartChange;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils;
@@ -29,6 +30,14 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
+/**
+ * A default abstract implementation of {@link IMultipart}.<br/>
+ * Includes {@link AxisAlignedBB} raytracing, part hardness, materials and tool effectivity, as well as helper methods to notify various
+ * kinds of updates to the world.<br/>
+ * {@link IMultipart#getType()} is implemented by default and it returns the type with which this class was registered in
+ * {@link MultipartRegistry}, though custom types can be used if your part is created by a custom {@link IPartFactory} or
+ * {@link IAdvancedPartFactory}.
+ */
 public abstract class Multipart implements IMultipart {
 
     protected static final AxisAlignedBB DEFAULT_RENDER_BOUNDS = AxisAlignedBB.fromBounds(0, 0, 0, 1, 1, 1);
@@ -81,6 +90,9 @@ public abstract class Multipart implements IMultipart {
         return result == null ? null : new RayTraceResultPart(result, this);
     }
 
+    /**
+     * Adds the selection boxes used to ray trace this part.
+     */
     public void addSelectionBoxes(List<AxisAlignedBB> list) {
 
     }
@@ -132,16 +144,26 @@ public abstract class Multipart implements IMultipart {
         getContainer().removePart(this);
     }
 
+    /**
+     * Gets the hardness of this part. Similar to {@link Block#getBlockHardness(World, BlockPos)}, not to be confused with
+     * {@link IMultipart#getStrength(EntityPlayer, PartMOP)}.
+     */
     public float getHardness(PartMOP hit) {
 
         return 0;
     }
 
+    /**
+     * Gets the material this part is made of. Used for harvest speed checks.
+     */
     public Material getMaterial() {
 
         return null;
     }
 
+    /**
+     * Checks if the specified tool is strong enough to harvest this part at full speed.
+     */
     public boolean isToolEffective(String type, int level) {
 
         return true;
@@ -255,6 +277,9 @@ public abstract class Multipart implements IMultipart {
         sendUpdatePacket(getModelPath() != null);
     }
 
+    /**
+     * Similar to {@link IMultipart#sendUpdatePacket()}, but also allows the user to specify if the chunk should be re-rendered on arrival.
+     */
     public void sendUpdatePacket(boolean reRender) {
 
         if (getWorld() instanceof WorldServer)

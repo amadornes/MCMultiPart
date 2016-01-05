@@ -6,6 +6,9 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumWorldBlockLayer;
 import scala.collection.mutable.StringBuilder;
 
+/**
+ * Representation of a part's state. Used for rendering purposes.
+ */
 public class PartState {
 
     public final IBlockState state;

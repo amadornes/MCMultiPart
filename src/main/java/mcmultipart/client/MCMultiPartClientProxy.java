@@ -25,6 +25,7 @@ public class MCMultiPartClientProxy extends MCMultiPartCommonProxy {
 
         super.preInit();
 
+        // Register the MCMultiPart state mapper to be able to load multipart json models
         ModelLoader.setCustomStateMapper(MCMultiPartMod.multipart, MultipartStateMapper.instance);
     }
 
@@ -33,15 +34,18 @@ public class MCMultiPartClientProxy extends MCMultiPartCommonProxy {
 
         super.init();
 
+        // Register tile entity renderers, for breaking animations and dynamic rendering
         ClientRegistry.bindTileEntitySpecialRenderer(TileMultipart.class, new TileMultipartSpecialRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TileCoverable.class, new TileCoverableSpecialRenderer<TileCoverable>());
 
+        // Sets up the proxy as an event handler so it can listen to model bake events
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent
     public void onModelBake(ModelBakeEvent event) {
 
+        // Link the custom ISmartBlockModel to the multipart block
         event.modelRegistry.putObject(new ModelResourceLocation(Block.blockRegistry.getNameForObject(MCMultiPartMod.multipart), "normal"),
                 new ModelMultipartContainer(null));
     }

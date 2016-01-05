@@ -1,9 +1,11 @@
 package mcmultipart.util;
 
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
-import net.minecraft.util.BlockPos;
-
+/**
+ * Representation of the {@link World} and {@link BlockPos} of an object.
+ */
 public interface IWorldLocation {
 
     public World getWorldIn();

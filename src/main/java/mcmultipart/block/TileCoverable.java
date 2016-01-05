@@ -12,6 +12,10 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
+/**
+ * An implementation of {@link TileMultipart} and {@link IMicroblockTile} that acts as a microblock container.<br/>
+ * Extend this class if you want a custom TileEntity for your {@link BlockCoverable}.
+ */
 public class TileCoverable extends TileEntity implements IMicroblockTile {
 
     private MicroblockContainer container;
@@ -109,9 +113,10 @@ public class TileCoverable extends TileEntity implements IMicroblockTile {
     public AxisAlignedBB getRenderBoundingBox() {
 
         AxisAlignedBB bounds = super.getRenderBoundingBox().offset(-getPosIn().getX(), -getPosIn().getY(), -getPosIn().getZ());
-        for (IMultipart part : getMicroblockContainer().getParts())
-            bounds.union(part.getRenderBoundingBox());
-        if (bounds == null) bounds = AxisAlignedBB.fromBounds(0, 0, 0, 1, 1, 1);
+        for (IMultipart part : getMicroblockContainer().getParts()) {
+            AxisAlignedBB bb = part.getRenderBoundingBox();
+            if (bb != null) bounds = bounds.union(bb);
+        }
         return bounds.offset(getPosIn().getX(), getPosIn().getY(), getPosIn().getZ());
     }
 }

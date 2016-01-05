@@ -14,8 +14,14 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
+/**
+ * A general use multipart helper with methods for part addition and placement checking.
+ */
 public class MultipartHelper {
 
+    /**
+     * Checks whether or not the specified part can be added to the world.
+     */
     public static boolean canAddPart(World world, BlockPos pos, IMultipart part) {
 
         IMultipartContainer container = getPartContainer(world, pos);
@@ -38,11 +44,17 @@ public class MultipartHelper {
         return container.canAddPart(part);
     }
 
+    /**
+     * Adds a part at the specified location in the world.
+     */
     public static void addPart(World world, BlockPos pos, IMultipart part) {
 
         addPart(world, pos, part, null);
     }
 
+    /**
+     * Adds a part at the specified location in the world, with the provided UUID.
+     */
     public static void addPart(World world, BlockPos pos, IMultipart part, UUID id) {
 
         IMultipartContainer container = world.isRemote ? getPartContainer(world, pos) : getOrConvertPartContainer(world, pos, true);
@@ -60,6 +72,9 @@ public class MultipartHelper {
         if (newContainer) world.notifyLightSet(pos);
     }
 
+    /**
+     * Checks if a part can be added. If so, it adds it to the world.
+     */
     public static boolean addPartIfPossible(World world, BlockPos pos, IMultipart part) {
 
         if (!canAddPart(world, pos, part)) return false;
@@ -67,6 +82,9 @@ public class MultipartHelper {
         return true;
     }
 
+    /**
+     * Gets the part container at the specified position. Doesn't handle block conversion.
+     */
     public static IMultipartContainer getPartContainer(IBlockAccess world, BlockPos pos) {
 
         TileEntity te = world.getTileEntity(pos);
@@ -76,7 +94,11 @@ public class MultipartHelper {
         return null;
     }
 
-    public static IMultipartContainer getOrConvertPartContainer(World world, BlockPos pos, boolean doconvert) {
+    /**
+     * Gets the part container at the specified position. Handles block conversion. If doConvert is true, the block is converted into a
+     * multipart container. If not, it returns a dummy container with all the converted parts.
+     */
+    public static IMultipartContainer getOrConvertPartContainer(World world, BlockPos pos, boolean doConvert) {
 
         IMultipartContainer container = getPartContainer(world, pos);
         if (container != null) return container;
@@ -84,7 +106,7 @@ public class MultipartHelper {
         Collection<? extends IMultipart> parts = MultipartRegistry.convert(world, pos);
         if (parts == null || parts.isEmpty()) return null;
 
-        if (doconvert) {
+        if (doConvert) {
             TileEntity oldTile = world.getTileEntity(pos);
             world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState());
             TileEntity tile = world.getTileEntity(pos);

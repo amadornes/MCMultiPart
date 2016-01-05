@@ -3,7 +3,11 @@ package mcmultipart.raytrace;
 import mcmultipart.multipart.IMultipart;
 import net.minecraft.util.MovingObjectPosition;
 
-// To be replaced with partHit + constructors in a forge patch, along with a custom hit type
+/**
+ * {@link MovingObjectPosition} extension that represents the {@link IMultipart} that was hit. <br/>
+ * <br/>
+ * To be replaced with partHit + constructors in a forge patch, along with a custom hit type.
+ */
 public class PartMOP extends MovingObjectPosition {
 
     public IMultipart partHit;

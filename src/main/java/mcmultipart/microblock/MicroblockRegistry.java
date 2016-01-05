@@ -20,7 +20,7 @@ public class MicroblockRegistry {
     public static void registerMicroClass(MicroblockClass microClass) {
 
         microClasses.add(microClass);
-        MultipartRegistry.registerProvider(microClass, microClass.getType());
+        MultipartRegistry.registerPartFactory(microClass, microClass.getType());
     }
 
     public static <T extends IMicroMaterial> T registerMaterial(T material) {
@@ -31,6 +31,11 @@ public class MicroblockRegistry {
             throw new IllegalArgumentException("Attempting to register a micro material with a name that's already in use!");
         materials.put(name, material);
         return material;
+    }
+
+    public static IMicroMaterial registerMaterial(IBlockState blockState, float hardness) {
+
+        return registerMaterial(new BlockMicroMaterial(blockState, hardness));
     }
 
     public static IMicroMaterial registerMaterial(IBlockState blockState) {

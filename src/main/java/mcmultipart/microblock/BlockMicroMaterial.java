@@ -10,11 +10,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 
+/**
+ * A simple implementation of {@link IMicroMaterial} that's defined based on an {@link IBlockState}.
+ */
 public class BlockMicroMaterial implements IMicroMaterial {
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
@@ -34,16 +38,24 @@ public class BlockMicroMaterial implements IMicroMaterial {
         }
     };
 
-    private IBlockState blockState;
-    private String name;
+    private final IBlockState blockState;
+    private final float hardness;
+    private final String name;
 
     public BlockMicroMaterial(IBlockState blockState) {
 
-        this.blockState = blockState;
-        genName();
+        this(blockState, ((Float) ReflectionHelper.getPrivateValue(Block.class, blockState.getBlock(), "blockHardness", "field_149782_v"))
+                .floatValue());
     }
 
-    private void genName() {
+    public BlockMicroMaterial(IBlockState blockState, float hardness) {
+
+        this.blockState = blockState;
+        this.hardness = hardness;
+        this.name = genName();
+    }
+
+    private final String genName() {
 
         StringBuilder stringbuilder = new StringBuilder();
         stringbuilder.append(Block.blockRegistry.getNameForObject(blockState.getBlock()));
@@ -52,7 +64,7 @@ public class BlockMicroMaterial implements IMicroMaterial {
             COMMA_JOINER.appendTo(stringbuilder, Iterables.transform(blockState.getProperties().entrySet(), MAP_ENTRY_TO_STRING));
             stringbuilder.append("]");
         }
-        name = stringbuilder.toString();
+        return stringbuilder.toString();
     }
 
     @Override
@@ -82,7 +94,7 @@ public class BlockMicroMaterial implements IMicroMaterial {
     @Override
     public float getHardness() {
 
-        return 1;
+        return hardness;
     }
 
     @Override
