@@ -23,12 +23,12 @@ public class OcclusionHelper {
         return true;
     }
 
-    public static boolean defaultOcclusionTest(List<IMultipart> parts, IMultipart part2) {
+    public static boolean defaultOcclusionTest(Iterable<? extends IMultipart> parts, IMultipart part2) {
 
         return defaultOcclusionTest(parts, null, part2);
     }
 
-    public static boolean defaultOcclusionTest(List<IMultipart> parts, IMultipart except, IMultipart part2) {
+    public static boolean defaultOcclusionTest(Iterable<? extends IMultipart> parts, IMultipart except, IMultipart part2) {
 
         for (IMultipart part : parts)
             if (part != except && !defaultOcclusionTest(part, part2)) return false;
@@ -50,12 +50,12 @@ public class OcclusionHelper {
         return true;
     }
 
-    public static boolean defaultOcclusionTest(List<IMultipart> parts, AxisAlignedBB... boxes) {
+    public static boolean defaultOcclusionTest(Iterable<? extends IMultipart> parts, AxisAlignedBB... boxes) {
 
         return defaultOcclusionTest(parts, null, boxes);
     }
 
-    public static boolean defaultOcclusionTest(List<IMultipart> parts, IMultipart except, AxisAlignedBB... boxes) {
+    public static boolean defaultOcclusionTest(Iterable<? extends IMultipart> parts, IMultipart except, AxisAlignedBB... boxes) {
 
         for (IMultipart part : parts)
             if (part != except && !defaultOcclusionTest(part, boxes)) return false;
