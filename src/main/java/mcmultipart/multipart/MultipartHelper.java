@@ -58,8 +58,8 @@ public class MultipartHelper {
     public static void addPart(World world, BlockPos pos, IMultipart part, UUID id) {
 
         IMultipartContainer container = world.isRemote ? getPartContainer(world, pos) : getOrConvertPartContainer(world, pos, true);
-        boolean newContainer;
-        if (newContainer = (container == null)) {
+        boolean newContainer = container == null;
+        if (newContainer) {
             world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState());
             TileEntity te = world.getTileEntity(pos);
             if (te instanceof TileMultipart) container = (IMultipartContainer) te;
