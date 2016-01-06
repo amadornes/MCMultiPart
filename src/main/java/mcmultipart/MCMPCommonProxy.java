@@ -2,7 +2,7 @@ package mcmultipart;
 
 import net.minecraft.entity.player.EntityPlayer;
 
-public class MCMultiPartCommonProxy {
+public class MCMPCommonProxy {
 
     public void preInit() {
 

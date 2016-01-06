@@ -1,6 +1,6 @@
 package mcmultipart.client;
 
-import mcmultipart.MCMultiPartCommonProxy;
+import mcmultipart.MCMPCommonProxy;
 import mcmultipart.MCMultiPartMod;
 import mcmultipart.block.TileCoverable;
 import mcmultipart.block.TileMultipart;
@@ -18,7 +18,7 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class MCMultiPartClientProxy extends MCMultiPartCommonProxy {
+public class MCMPClientProxy extends MCMPCommonProxy {
 
     @Override
     public void preInit() {

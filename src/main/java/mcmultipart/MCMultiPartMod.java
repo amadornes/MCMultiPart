@@ -4,6 +4,8 @@ import mcmultipart.block.BlockMultipart;
 import mcmultipart.block.TileCoverable;
 import mcmultipart.block.TileMultipart;
 import mcmultipart.network.MultipartNetworkHandler;
+import mcmultipart.util.MCMPEventHandler;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -18,8 +20,8 @@ public class MCMultiPartMod {
 
     public static final String MODID = "mcmultipart", NAME = "MCMultiPart", VERSION = "%VERSION%";
 
-    @SidedProxy(serverSide = MODID + ".MCMultiPartCommonProxy", clientSide = MODID + ".client.MCMultiPartClientProxy")
-    public static MCMultiPartCommonProxy proxy;
+    @SidedProxy(serverSide = MODID + ".MCMPCommonProxy", clientSide = MODID + ".client.MCMPClientProxy")
+    public static MCMPCommonProxy proxy;
 
     public static BlockMultipart multipart;
 
@@ -33,6 +35,8 @@ public class MCMultiPartMod {
         GameRegistry.registerTileEntity(TileCoverable.class, "mcmultipart:coverable");
 
         proxy.preInit();
+
+        MinecraftForge.EVENT_BUS.register(new MCMPEventHandler());
     }
 
     @EventHandler
