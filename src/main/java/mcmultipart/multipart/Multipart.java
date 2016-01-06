@@ -341,4 +341,11 @@ public abstract class Multipart implements IMultipart {
         if (world != null) world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
     }
 
+    protected void notifyPartUpdate() {
+
+        IMultipartContainer container = getContainer();
+        if (container != null) for (IMultipart part : container.getParts())
+            part.onPartChanged(this);
+    }
+
 }
