@@ -10,6 +10,7 @@ import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.MultipartHelper;
 import mcmultipart.multipart.MultipartRegistry;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.BlockPos;
@@ -19,6 +20,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class MessageMultipartChange implements IMessage, IMessageHandler<MessageMultipartChange, MessageMultipartChange> {
 
@@ -82,41 +84,61 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
     @Override
     public MessageMultipartChange onMessage(MessageMultipartChange message, MessageContext ctx) {
 
-        if (ctx.side == Side.CLIENT) {
-            EntityPlayer player = MCMultiPartMod.proxy.getPlayer();
+        if (ctx.side == Side.CLIENT) if (!handlePacket(message)) schedulePacketHandling(message);
+        return null;
+    }
 
-            if (message.type == Type.ADD) {
-                message.part = MultipartRegistry.createPart(message.partType, new PacketBuffer(Unpooled.copiedBuffer(message.data)));
-                MultipartHelper.addPart(player.worldObj, message.pos, message.part, message.partID);
+    @SideOnly(Side.CLIENT)
+    private void schedulePacketHandling(final MessageMultipartChange message) {
 
-                if (message.part.getModelPath() != null) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
-                player.worldObj.checkLight(message.pos);
-            } else if (message.type == Type.REMOVE) {
-                IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
-                if (container != null) {
-                    message.part = container.getPartFromID(message.partID);
-                    // if (message.part == null)
-                    // throw new IllegalStateException("Attempted to remove a multipart that doesn't exist on the client!");
-                    if (message.part != null) container.removePart(message.part);
-                }
+        Minecraft.getMinecraft().addScheduledTask(new Runnable() {
 
-                if (message.part == null || message.part.getModelPath() != null)
-                    player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
-                player.worldObj.checkLight(message.pos);
-            } else if (message.type == Type.UPDATE || message.type == Type.UPDATE_RERENDER) {
-                IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
-                if (container == null) throw new IllegalStateException("Attempted to update a multipart at an illegal position!");
+            @Override
+            public void run() {
+
+                MessageMultipartChange.handlePacket(message);
+            }
+        });
+    }
+
+    private static boolean handlePacket(MessageMultipartChange message) {
+
+        EntityPlayer player = MCMultiPartMod.proxy.getPlayer();
+
+        if (message.type == Type.ADD) {
+            message.part = MultipartRegistry.createPart(message.partType, new PacketBuffer(Unpooled.copiedBuffer(message.data)));
+            MultipartHelper.addPart(player.worldObj, message.pos, message.part, message.partID);
+
+            if (message.part.getModelPath() != null) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
+            player.worldObj.checkLight(message.pos);
+        } else if (message.type == Type.REMOVE) {
+            IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
+            if (container != null) {
                 message.part = container.getPartFromID(message.partID);
-                // if (message.part == null)
-                // throw new IllegalStateException("Attempted to update a multipart that doesn't exist on the client!");
-                if (message.part != null) {
-                    message.part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(message.data)));
 
-                    if (message.type == Type.UPDATE_RERENDER) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
-                }
+                if (message.part != null) container.removePart(message.part);
+            } else {
+                return false;
+            }
+
+            if (message.part == null || message.part.getModelPath() != null)
+                player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
+            player.worldObj.checkLight(message.pos);
+        } else if (message.type == Type.UPDATE || message.type == Type.UPDATE_RERENDER) {
+            IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
+            if (container == null) return false;
+            message.part = container.getPartFromID(message.partID);
+
+            if (message.part != null) {
+                message.part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(message.data)));
+
+                if (message.type == Type.UPDATE_RERENDER) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
+            } else {
+                return false;
             }
         }
-        return null;
+
+        return true;
     }
 
     public void send(World world) {
