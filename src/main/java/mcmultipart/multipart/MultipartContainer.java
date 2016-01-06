@@ -426,9 +426,6 @@ public class MultipartContainer implements IMultipartContainer {
 
     public void readDescription(NBTTagCompound tag) {
 
-        partMap = HashBiMap.create();
-        slotMap = new HashMap<PartSlot, ISlottedPart>();
-
         NBTTagList partList = tag.getTagList("partList", new NBTTagCompound().getId());
         for (int i = 0; i < partList.tagCount(); i++) {
             NBTTagCompound t = partList.getCompoundTagAt(i);
@@ -437,10 +434,10 @@ public class MultipartContainer implements IMultipartContainer {
             if (part == null) {
                 part = MultipartRegistry.createPart(t.getString("__partType"),
                         new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
+                addPart(part, false, false, false, id);
             } else {
                 part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
             }
-            addPart(part, false, false, false, id);
         }
     }
 
