@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import mcmultipart.multipart.IPartConverter.IPartConverter2;
 import mcmultipart.multipart.IPartConverter.IReversePartConverter;
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import net.minecraft.block.Block;
@@ -28,7 +29,7 @@ public class MultipartRegistry {
     private static Map<String, IAdvancedPartFactory> partProviders = new HashMap<String, IAdvancedPartFactory>();
     private static BiMap<String, Class<? extends IMultipart>> partClasses = HashBiMap.create();
 
-    private static Map<Block, IPartConverter> converters = new HashMap<Block, IPartConverter>();
+    private static Map<Block, IPartConverter2> converters = new HashMap<Block, IPartConverter2>();
     private static List<IReversePartConverter> reverseConverters = new ArrayList<IReversePartConverter>();
 
     @Deprecated
@@ -89,9 +90,18 @@ public class MultipartRegistry {
     }
 
     /**
-     * Registers an {@link IPartConverter}.
+     * Registers an {@link IPartConverter}. USE {@link IPartConverter2}!
      */
+    @Deprecated
     public static void registerPartConverter(IPartConverter converter) {
+
+        registerPartConverter(new WrappedPartConverter(converter));
+    }
+
+    /**
+     * Registers an {@link IPartConverter2}.
+     */
+    public static void registerPartConverter(IPartConverter2 converter) {
 
         for (Block block : converter.getConvertableBlocks())
             converters.put(block, converter);
@@ -175,10 +185,10 @@ public class MultipartRegistry {
     /**
      * Converts the block at the specified location into a collection of multiparts. Doesn't actually replace the block.
      */
-    public static Collection<? extends IMultipart> convert(IBlockAccess world, BlockPos pos) {
+    public static Collection<? extends IMultipart> convert(IBlockAccess world, BlockPos pos, boolean simulated) {
 
-        IPartConverter converter = converters.get(world.getBlockState(pos).getBlock());
-        if (converter != null) return converter.convertBlock(world, pos);
+        IPartConverter2 converter = converters.get(world.getBlockState(pos).getBlock());
+        if (converter != null) return converter.convertBlock(world, pos, simulated);
         return null;
     }
 
@@ -245,6 +255,30 @@ public class MultipartRegistry {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    @SuppressWarnings("deprecation")
+    private static class WrappedPartConverter implements IPartConverter2 {
+
+        private final IPartConverter converter;
+
+        public WrappedPartConverter(IPartConverter converter) {
+
+            this.converter = converter;
+        }
+
+        @Override
+        public Collection<Block> getConvertableBlocks() {
+
+            return converter.getConvertableBlocks();
+        }
+
+        @Override
+        public Collection<? extends IMultipart> convertBlock(IBlockAccess world, BlockPos pos, boolean simulated) {
+
+            return converter.convertBlock(world, pos);
+        }
+
     }
 
 }

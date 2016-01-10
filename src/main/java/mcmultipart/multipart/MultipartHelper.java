@@ -31,7 +31,7 @@ public class MultipartHelper {
             for (AxisAlignedBB bb : list)
                 if (!world.checkNoEntityCollision(bb.offset(pos.getX(), pos.getY(), pos.getZ()))) return false;
 
-            Collection<? extends IMultipart> parts = MultipartRegistry.convert(world, pos);
+            Collection<? extends IMultipart> parts = MultipartRegistry.convert(world, pos, true);
             if (parts != null && !parts.isEmpty()) {
                 TileMultipart tmp = new TileMultipart();
                 for (IMultipart p : parts)
@@ -103,7 +103,7 @@ public class MultipartHelper {
         IMultipartContainer container = getPartContainer(world, pos);
         if (container != null) return container;
 
-        Collection<? extends IMultipart> parts = MultipartRegistry.convert(world, pos);
+        Collection<? extends IMultipart> parts = MultipartRegistry.convert(world, pos, false);
         if (parts == null || parts.isEmpty()) return null;
 
         if (doConvert) {

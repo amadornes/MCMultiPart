@@ -7,19 +7,39 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 /**
- * Implement this interface to allow conversion of normal blocks into multiparts.
+ * DO NOT IMPLEMENT THIS. USE {@link IPartConverter2}!
  */
 public interface IPartConverter {
 
     /**
      * Gets the blocks that can be converted by this class.
      */
+    @Deprecated
     public Collection<Block> getConvertableBlocks();
 
     /**
      * Converts a block into a collection of multiparts.
      */
+    @Deprecated
     public Collection<? extends IMultipart> convertBlock(IBlockAccess world, BlockPos pos);
+
+    /**
+     * Implement this interface to allow conversion of normal blocks into multiparts.
+     */
+    public static interface IPartConverter2 {
+
+        /**
+         * Gets the blocks that can be converted by this class.
+         */
+        public Collection<Block> getConvertableBlocks();
+
+        /**
+         * Converts a block into a collection of multiparts. Simulated determines whether we're getting the parts to perform checks or to
+         * actually convert the block.
+         */
+        public Collection<? extends IMultipart> convertBlock(IBlockAccess world, BlockPos pos, boolean simulated);
+
+    }
 
     /**
      * Implement this interface to allow reverse conversion of multiparts into blocks.
