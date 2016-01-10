@@ -35,7 +35,7 @@ public class MultipartHelper {
             if (parts != null && !parts.isEmpty()) {
                 TileMultipart tmp = new TileMultipart();
                 for (IMultipart p : parts)
-                    tmp.getPartContainer().addPart(p, false, false, false, UUID.randomUUID());
+                    tmp.getPartContainer().addPart(p, false, false, false, false, UUID.randomUUID());
                 return tmp.canAddPart(part);
             }
 
@@ -115,7 +115,7 @@ public class MultipartHelper {
             else te = (TileMultipart) tile;
 
             for (IMultipart part : parts)
-                te.getPartContainer().addPart(part, false, false, false, UUID.randomUUID());
+                te.getPartContainer().addPart(part, false, false, false, false, UUID.randomUUID());
             for (IMultipart part : parts)
                 part.onConverted(oldTile);
 
@@ -124,7 +124,7 @@ public class MultipartHelper {
             TileMultipart te = new TileMultipart();
 
             for (IMultipart part : parts)
-                te.getPartContainer().addPart(part, false, false, false, UUID.randomUUID());
+                te.getPartContainer().addPart(part, false, false, false, false, UUID.randomUUID());
 
             return te;
         }

@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import mcmultipart.client.multipart.IRandomDisplayTickPart;
+import mcmultipart.event.PartEvent;
 import mcmultipart.multipart.ISolidPart.ISolidTopPart;
 import mcmultipart.network.MessageMultipartChange;
 import mcmultipart.network.MessageMultipartChange.Type;
@@ -34,6 +35,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -146,10 +148,10 @@ public class MultipartContainer implements IMultipartContainer {
     public void addPart(IMultipart part) {
 
         if (getWorldIn().isRemote) throw new IllegalStateException("Attempted to add a part on the client!");
-        addPart(part, true, true, true, UUID.randomUUID());
+        addPart(part, true, true, true, true, UUID.randomUUID());
     }
 
-    public void addPart(IMultipart part, boolean notifyPart, boolean notifyNeighbors, boolean tryConvert, UUID id) {
+    public void addPart(IMultipart part, boolean notifyPart, boolean notifyNeighbors, boolean tryConvert, boolean postEvent, UUID id) {
 
         if (part == null) throw new NullPointerException("Attempted to add a null part at " + getPosIn());
         if (getParts().contains(part))
@@ -169,6 +171,8 @@ public class MultipartContainer implements IMultipartContainer {
         this.partMap = partMap;
         this.slotMap = slotMap;
 
+        if (postEvent) MinecraftForge.EVENT_BUS.post(new PartEvent.Add(part));
+
         if (notifyPart) part.onAdded();
         if (notifyNeighbors) notifyPartChanged(part);
 
@@ -179,10 +183,10 @@ public class MultipartContainer implements IMultipartContainer {
     @Override
     public void removePart(IMultipart part) {
 
-        removePart(part, true, true);
+        removePart(part, true, true, true);
     }
 
-    public void removePart(IMultipart part, boolean notifyPart, boolean notifyNeighbors) {
+    public void removePart(IMultipart part, boolean notifyPart, boolean notifyNeighbors, boolean postEvent) {
 
         if (part == null) throw new NullPointerException("Attempted to remove a null part from " + getPosIn());
         if (!getParts().contains(part))
@@ -201,6 +205,8 @@ public class MultipartContainer implements IMultipartContainer {
 
         this.partMap = partMap;
         this.slotMap = slotMap;
+
+        if (postEvent) MinecraftForge.EVENT_BUS.post(new PartEvent.Remove(part));
 
         // Yes, it's a bit of a dirty solution, but it's the best I could come up with. The part must not be there in the if statement :P
         if (getWorldIn() != null && !getWorldIn().isRemote && (!canTurnIntoBlock || !MultipartRegistry.convertToBlock(this))) {
@@ -232,7 +238,7 @@ public class MultipartContainer implements IMultipartContainer {
     @Override
     public void addPart(UUID id, IMultipart part) {
 
-        addPart(part, true, true, true, id);
+        addPart(part, true, true, true, true, id);
     }
 
     public void notifyPartChanged(IMultipart part) {
@@ -405,7 +411,7 @@ public class MultipartContainer implements IMultipartContainer {
             NBTTagCompound t = partList.getCompoundTagAt(i);
             UUID id = UUID.fromString(t.getString("__partID"));
             IMultipart part = MultipartRegistry.createPart(t.getString("__partType"), t);
-            if (part != null) addPart(part, false, false, false, id);
+            if (part != null) addPart(part, false, false, false, false, id);
         }
     }
 
@@ -434,7 +440,7 @@ public class MultipartContainer implements IMultipartContainer {
             if (part == null) {
                 part = MultipartRegistry.createPart(t.getString("__partType"),
                         new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
-                addPart(part, false, false, false, id);
+                addPart(part, false, false, false, false, id);
             } else {
                 part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
             }
