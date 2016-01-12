@@ -1,22 +1,27 @@
 package mcmultipart.block;
 
+import mcmultipart.capabilities.ISlottedCapabilityProvider;
+import mcmultipart.capabilities.MultipartCapabilityHelper;
 import mcmultipart.microblock.IMicroblock;
 import mcmultipart.microblock.IMicroblockTile;
 import mcmultipart.microblock.MicroblockContainer;
 import mcmultipart.multipart.IMultipart;
+import mcmultipart.multipart.PartSlot;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 
 /**
  * An implementation of {@link TileMultipart} and {@link IMicroblockTile} that acts as a microblock container.<br/>
  * Extend this class if you want a custom TileEntity for your {@link BlockCoverable}.
  */
-public class TileCoverable extends TileEntity implements IMicroblockTile {
+public class TileCoverable extends TileEntity implements IMicroblockTile, ISlottedCapabilityProvider {
 
     private MicroblockContainer container;
 
@@ -81,6 +86,33 @@ public class TileCoverable extends TileEntity implements IMicroblockTile {
 
         super.readFromNBT(compound);
         getMicroblockContainer().getPartContainer().readFromNBT(compound);
+    }
+
+    @Override
+    public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+
+        if (super.hasCapability(capability, facing)) return true;
+        return MultipartCapabilityHelper.hasCapability(container, capability, facing);
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+
+        T impl = super.getCapability(capability, facing);
+        if (impl != null) return impl;
+        return MultipartCapabilityHelper.getCapability(container, capability, facing);
+    }
+
+    @Override
+    public boolean hasCapability(Capability<?> capability, PartSlot slot, EnumFacing facing) {
+
+        return container.hasCapability(capability, slot, facing);
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, PartSlot slot, EnumFacing facing) {
+
+        return container.getCapability(capability, slot, facing);
     }
 
     @Override

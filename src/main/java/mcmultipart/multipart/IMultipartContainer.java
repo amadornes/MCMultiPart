@@ -3,12 +3,13 @@ package mcmultipart.multipart;
 import java.util.Collection;
 import java.util.UUID;
 
+import mcmultipart.capabilities.ISlottedCapabilityProvider;
 import mcmultipart.util.IWorldLocation;
 
 /**
  * Interface that represents an object that can contain multiparts.
  */
-public interface IMultipartContainer extends IWorldLocation {
+public interface IMultipartContainer extends IWorldLocation, ISlottedCapabilityProvider {
 
     /**
      * Gets all the parts in this container.

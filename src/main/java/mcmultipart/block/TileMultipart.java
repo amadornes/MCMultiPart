@@ -3,6 +3,7 @@ package mcmultipart.block;
 import java.util.Collection;
 import java.util.UUID;
 
+import mcmultipart.capabilities.MultipartCapabilityHelper;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.ISlottedPart;
@@ -16,8 +17,10 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 
 /**
  * A final class that extends {@link BlockContainer} and implements {@link IMultipartContainer}. Represents a TileEntity which can contain
@@ -108,6 +111,33 @@ public final class TileMultipart extends TileEntity implements IMultipartContain
     public void addPart(UUID id, IMultipart part) {
 
         container.addPart(id, part);
+    }
+
+    @Override
+    public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+
+        if (super.hasCapability(capability, facing)) return true;
+        return MultipartCapabilityHelper.hasCapability(container, capability, facing);
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+
+        T impl = super.getCapability(capability, facing);
+        if (impl != null) return impl;
+        return MultipartCapabilityHelper.getCapability(container, capability, facing);
+    }
+
+    @Override
+    public boolean hasCapability(Capability<?> capability, PartSlot slot, EnumFacing facing) {
+
+        return container.hasCapability(capability, slot, facing);
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, PartSlot slot, EnumFacing facing) {
+
+        return container.getCapability(capability, slot, facing);
     }
 
     @Override

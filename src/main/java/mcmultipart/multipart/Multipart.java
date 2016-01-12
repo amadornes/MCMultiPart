@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import mcmultipart.MCMultiPartMod;
+import mcmultipart.capabilities.PartAttachCapabilitiesEvent;
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import mcmultipart.network.MessageMultipartChange;
 import mcmultipart.raytrace.PartMOP;
@@ -29,6 +30,10 @@ import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityDispatcher;
+import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 
 /**
  * A default abstract implementation of {@link IMultipart}.<br/>
@@ -38,12 +43,21 @@ import net.minecraft.world.WorldServer;
  * {@link MultipartRegistry}, though custom types can be used if your part is created by a custom {@link IPartFactory} or
  * {@link IAdvancedPartFactory}.
  */
-public abstract class Multipart implements IMultipart {
+public abstract class Multipart implements IMultipart, ICapabilitySerializable<NBTTagCompound> {
 
     protected static final AxisAlignedBB DEFAULT_RENDER_BOUNDS = AxisAlignedBB.fromBounds(0, 0, 0, 1, 1, 1);
 
     private final String partType = MultipartRegistry.getPartType(this);
     private IMultipartContainer container;
+
+    private final CapabilityDispatcher capabilities;
+
+    public Multipart() {
+
+        PartAttachCapabilitiesEvent event = new PartAttachCapabilitiesEvent(this);
+        MinecraftForge.EVENT_BUS.post(event);
+        capabilities = event.getCapabilities().size() > 0 ? new CapabilityDispatcher(event.getCapabilities(), null) : null;
+    }
 
     @Override
     public World getWorld() {
@@ -346,6 +360,33 @@ public abstract class Multipart implements IMultipart {
         IMultipartContainer container = getContainer();
         if (container != null) for (IMultipart part : container.getParts())
             part.onPartChanged(this);
+    }
+
+    @Override
+    public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+
+        if (getCapability(capability, facing) != null) return true;
+        return capabilities == null ? false : capabilities.hasCapability(capability, facing);
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+
+        return capabilities == null ? null : capabilities.getCapability(capability, facing);
+    }
+
+    @Override
+    public void deserializeNBT(NBTTagCompound nbt) {
+
+        this.readFromNBT(nbt);
+    }
+
+    @Override
+    public NBTTagCompound serializeNBT() {
+
+        NBTTagCompound ret = new NBTTagCompound();
+        this.writeToNBT(ret);
+        return ret;
     }
 
 }

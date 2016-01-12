@@ -8,7 +8,9 @@ import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.MultipartContainer;
 import mcmultipart.multipart.PartSlot;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 
 public class MicroblockContainer implements IMultipartContainer {
 
@@ -100,6 +102,18 @@ public class MicroblockContainer implements IMultipartContainer {
     public void addPart(UUID id, IMultipart part) {
 
         container.addPart(id, part);
+    }
+
+    @Override
+    public boolean hasCapability(Capability<?> capability, PartSlot slot, EnumFacing facing) {
+
+        return container.hasCapability(capability, slot, facing);
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, PartSlot slot, EnumFacing facing) {
+
+        return container.getCapability(capability, slot, facing);
     }
 
 }

@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
 
+import mcmultipart.capabilities.ISlottedCapabilityProvider;
 import mcmultipart.client.multipart.IRandomDisplayTickPart;
 import mcmultipart.event.PartEvent;
 import mcmultipart.multipart.ISolidPart.ISolidTopPart;
@@ -36,6 +37,8 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -455,6 +458,45 @@ public class MultipartContainer implements IMultipartContainer {
             if (state != null) states.add(state);
         }
         return states;
+    }
+
+    @Override
+    public boolean hasCapability(Capability<?> capability, PartSlot slot, EnumFacing facing) {
+
+        if (slot == null) {
+            for (IMultipart p : getParts())
+                if (!(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty())
+                    if (p instanceof ICapabilityProvider && ((ICapabilityProvider) p).hasCapability(capability, facing)) return true;
+            return false;
+        }
+
+        IMultipart part = getPartInSlot(slot);
+        return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).hasCapability(capability, slot, facing)
+                : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).hasCapability(capability, facing) : false;
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, PartSlot slot, EnumFacing facing) {
+
+        if (slot == null) {
+            List<T> implementations = new ArrayList<T>();
+            for (IMultipart p : getParts()) {
+                if (!(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty()) {
+                    if (p instanceof ICapabilityProvider) {
+                        T impl = ((ICapabilityProvider) p).getCapability(capability, facing);
+                        if (impl != null) implementations.add(impl);
+                    }
+                }
+            }
+
+            if (implementations.isEmpty()) return null;
+            else if (implementations.size() == 1) return implementations.get(0);
+            else return null;// TODO: Implement wrappers
+        }
+
+        IMultipart part = getPartInSlot(slot);
+        return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).getCapability(capability, slot, facing)
+                : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).getCapability(capability, facing) : null;
     }
 
 }
