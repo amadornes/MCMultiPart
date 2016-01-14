@@ -193,7 +193,7 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
         Material mat = getMaterial();
         ItemStack stack = player.getCurrentEquippedItem();
         boolean effective = mat == null || mat.isToolNotRequired();
-        if (!effective) for (String tool : stack.getItem().getToolClasses(stack))
+        if (!effective && stack != null) for (String tool : stack.getItem().getToolClasses(stack))
             if (effective = isToolEffective(tool, stack.getItem().getHarvestLevel(stack, tool))) break;
 
         float breakSpeed = player.getBreakSpeed(getExtendedState(MultipartRegistry.getDefaultState(this).getBaseState()), getPos());
