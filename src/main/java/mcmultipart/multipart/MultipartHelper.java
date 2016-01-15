@@ -128,7 +128,7 @@ public class MultipartHelper {
         IMultipartContainer container = getPartContainer(world, pos);
         if (container != null) return container;
 
-        Collection<? extends IMultipart> parts = MultipartRegistry.convert(world, pos, false);
+        Collection<? extends IMultipart> parts = MultipartRegistry.convert(world, pos, !doConvert);
         if (parts == null || parts.isEmpty()) return null;
 
         if (doConvert) {
