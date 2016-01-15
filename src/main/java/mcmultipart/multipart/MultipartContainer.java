@@ -127,7 +127,8 @@ public class MultipartContainer implements IMultipartContainer {
     @Override
     public boolean canReplacePart(IMultipart oldPart, IMultipart newPart) {
 
-        if (oldPart == null || newPart == null || getParts().contains(newPart)) return false;
+        if (oldPart == null) return canAddPart(newPart);
+        if (newPart == null || getParts().contains(newPart)) return false;
 
         if (newPart instanceof ISlottedPart) {
             for (PartSlot s : ((ISlottedPart) newPart).getSlotMask()) {

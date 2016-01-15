@@ -47,24 +47,26 @@ public class MultipartHelper {
     /**
      * Checks whether or not the specified part can be replaced by another part to the world.
      */
-    public static boolean canAddPart(World world, BlockPos pos, IMultipart oldPart, IMultipart newPart) {
+    public static boolean canReplacePart(World world, BlockPos pos, IMultipart oldPart, IMultipart newPart) {
 
         IMultipartContainer container = getPartContainer(world, pos);
-        if (container == null) {
-            List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
-            newPart.addCollisionBoxes(new AxisAlignedBB(0, 0, 0, 1, 1, 1), list, null);
-            for (AxisAlignedBB bb : list)
-                if (!world.checkNoEntityCollision(bb.offset(pos.getX(), pos.getY(), pos.getZ()))) return false;
+        if (container == null) return false;
+        return container.canReplacePart(oldPart, newPart);
+    }
 
-            Collection<? extends IMultipart> parts = MultipartRegistry.convert(world, pos, true);
-            if (parts != null && !parts.isEmpty()) {
-                TileMultipart tmp = new TileMultipart();
-                for (IMultipart p : parts)
-                    tmp.getPartContainer().addPart(p, false, false, false, false, UUID.randomUUID());
-                return tmp.canReplacePart(oldPart, newPart);
+    /**
+     * Checks whether or not a part of the specified type can be replaced by another part to the world.
+     */
+    public static boolean canReplacePart(World world, BlockPos pos, String oldType, IMultipart newPart) {
+
+        IMultipartContainer container = getPartContainer(world, pos);
+        if (container == null) return false;
+        IMultipart oldPart = null;
+        for (IMultipart part : container.getParts()) {
+            if (part.getType().equals(oldType)) {
+                oldPart = part;
+                break;
             }
-
-            return world.getBlockState(pos).getBlock().isReplaceable(world, pos);
         }
         return container.canReplacePart(oldPart, newPart);
     }
