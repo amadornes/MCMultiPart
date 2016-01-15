@@ -45,6 +45,31 @@ public class MultipartHelper {
     }
 
     /**
+     * Checks whether or not the specified part can be replaced by another part to the world.
+     */
+    public static boolean canAddPart(World world, BlockPos pos, IMultipart oldPart, IMultipart newPart) {
+
+        IMultipartContainer container = getPartContainer(world, pos);
+        if (container == null) {
+            List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
+            newPart.addCollisionBoxes(new AxisAlignedBB(0, 0, 0, 1, 1, 1), list, null);
+            for (AxisAlignedBB bb : list)
+                if (!world.checkNoEntityCollision(bb.offset(pos.getX(), pos.getY(), pos.getZ()))) return false;
+
+            Collection<? extends IMultipart> parts = MultipartRegistry.convert(world, pos, true);
+            if (parts != null && !parts.isEmpty()) {
+                TileMultipart tmp = new TileMultipart();
+                for (IMultipart p : parts)
+                    tmp.getPartContainer().addPart(p, false, false, false, false, UUID.randomUUID());
+                return tmp.canReplacePart(oldPart, newPart);
+            }
+
+            return world.getBlockState(pos).getBlock().isReplaceable(world, pos);
+        }
+        return container.canReplacePart(oldPart, newPart);
+    }
+
+    /**
      * Adds a part at the specified location in the world.
      */
     public static void addPart(World world, BlockPos pos, IMultipart part) {
