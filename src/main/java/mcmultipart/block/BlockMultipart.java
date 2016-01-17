@@ -142,14 +142,17 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public boolean removedByPlayer(World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
 
-        return ((TileMultipart) world.getTileEntity(pos)).getPartContainer().harvest(player, reTrace(world, pos, player)) ? super
-                .removedByPlayer(world, pos, player, willHarvest) : false;
+        TileMultipart tile = getMultipartTile(world, pos);
+        if (tile == null) return false;
+        PartMOP hit = reTrace(world, pos, player);
+        if (hit == null) return false;
+        return tile.getPartContainer().harvest(player, hit) ? super.removedByPlayer(world, pos, player, willHarvest) : false;
     }
 
     @Override
     public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, BlockPos pos) {
 
-        TileMultipart tile = ((TileMultipart) world.getTileEntity(pos));
+        TileMultipart tile = getMultipartTile(world, pos);
         if (tile == null) return 0;
         PartMOP hit = reTrace(world, pos, player);
         if (hit == null) return 0;

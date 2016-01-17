@@ -78,11 +78,17 @@ public class BlockCoverable extends BlockContainer {
         return new TileCoverable();
     }
 
+    private IMicroblockTile getMicroblockTile(IBlockAccess world, BlockPos pos) {
+
+        TileEntity tile = world.getTileEntity(pos);
+        return tile instanceof IMicroblockTile ? (IMicroblockTile) tile : null;
+    }
+
     @Override
     public final MovingObjectPosition collisionRayTrace(World world, BlockPos pos, Vec3 start, Vec3 end) {
 
-        RayTraceResultPart result = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer()
-                .collisionRayTrace(start, end);
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        RayTraceResultPart result = tile != null ? tile.getMicroblockContainer().getPartContainer().collisionRayTrace(start, end) : null;
         MovingObjectPosition hit = collisionRayTraceDefault(world, pos, start, end);
         if (result == null) return hit;
         if (hit != null && hit.hitVec.squareDistanceTo(start) < result.squareDistanceTo(start)) return hit;
@@ -111,12 +117,12 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public final void addCollisionBoxesToList(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list,
+    public final void addCollisionBoxesToList(World world, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list,
             Entity collidingEntity) {
 
-        addCollisionBoxesToListDefault(worldIn, pos, state, mask, list, collidingEntity);
-        ((IMicroblockTile) worldIn.getTileEntity(pos)).getMicroblockContainer().getPartContainer()
-                .addCollisionBoxes(mask, list, collidingEntity);
+        addCollisionBoxesToListDefault(world, pos, state, mask, list, collidingEntity);
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        if (tile != null) tile.getMicroblockContainer().getPartContainer().addCollisionBoxes(mask, list, collidingEntity);
     }
 
     public void addCollisionBoxesToListDefault(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask,
@@ -128,7 +134,7 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final int getLightValue(IBlockAccess world, BlockPos pos) {
 
-        IMicroblockTile tile = ((IMicroblockTile) world.getTileEntity(pos));
+        IMicroblockTile tile = getMicroblockTile(world, pos);
         return Math.max(tile != null ? tile.getMicroblockContainer().getPartContainer().getLightValue() : 0,
                 getLightValueDefault(world, pos));
     }
@@ -141,9 +147,10 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos, EntityPlayer player) {
 
-        if (target instanceof PartMOP)
-            return ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer()
-                    .getPickBlock(player, (PartMOP) target);
+        if (target instanceof PartMOP) {
+            IMicroblockTile tile = getMicroblockTile(world, pos);
+            return tile != null ? tile.getMicroblockContainer().getPartContainer().getPickBlock(player, (PartMOP) target) : null;
+        }
         return getPickBlockDefault(target, world, pos, player);
     }
 
@@ -153,9 +160,18 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+    public final List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
 
-        return ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer().getDrops();
+        List<ItemStack> drops = new ArrayList<ItemStack>();
+        drops.addAll(getDropsDefault(world, pos, state, fortune));
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        if (tile != null) drops.addAll(tile.getMicroblockContainer().getPartContainer().getDrops());
+        return drops;
+    }
+
+    public List<ItemStack> getDropsDefault(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+
+        return super.getDrops(world, pos, state, fortune);
     }
 
     @Override
@@ -163,9 +179,11 @@ public class BlockCoverable extends BlockContainer {
 
         MovingObjectPosition hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
-            return ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer().harvest(player, (PartMOP) hit);
+            IMicroblockTile tile = getMicroblockTile(world, pos);
+            return tile != null ? tile.getMicroblockContainer().getPartContainer().harvest(player, (PartMOP) hit) : null;
         } else {
-            MultipartContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer();
+            IMicroblockTile tile = getMicroblockTile(world, pos);
+            MultipartContainer container = tile != null ? tile.getMicroblockContainer().getPartContainer() : null;
             if (container.getParts().isEmpty()) {
                 return removedByPlayerDefault(world, pos, player, willHarvest);
             } else {
@@ -188,8 +206,8 @@ public class BlockCoverable extends BlockContainer {
 
         MovingObjectPosition hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
-            return ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer()
-                    .getHardness(player, (PartMOP) hit);
+            IMicroblockTile tile = getMicroblockTile(world, pos);
+            return tile != null ? tile.getMicroblockContainer().getPartContainer().getHardness(player, (PartMOP) hit) : 0F;
         } else {
             return getPlayerRelativeBlockHardnessDefault(player, world, pos);
         }
@@ -206,8 +224,9 @@ public class BlockCoverable extends BlockContainer {
 
         MovingObjectPosition hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
-            return ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer()
-                    .onActivated(player, player.getCurrentEquippedItem(), (PartMOP) hit);
+            IMicroblockTile tile = getMicroblockTile(world, pos);
+            return tile != null ? tile.getMicroblockContainer().getPartContainer()
+                    .onActivated(player, player.getCurrentEquippedItem(), (PartMOP) hit) : false;
         } else {
             return onBlockActivatedDefault(world, pos, state, player, side, hitX, hitY, hitZ);
         }
@@ -224,8 +243,9 @@ public class BlockCoverable extends BlockContainer {
 
         MovingObjectPosition hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
-            ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer()
-                    .onClicked(player, player.getCurrentEquippedItem(), (PartMOP) hit);
+            IMicroblockTile tile = getMicroblockTile(world, pos);
+            if (tile != null)
+                tile.getMicroblockContainer().getPartContainer().onClicked(player, player.getCurrentEquippedItem(), (PartMOP) hit);
         } else {
             onBlockClickedDefault(world, pos, player);
         }
@@ -239,7 +259,8 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
 
-        ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer().getPartContainer().onNeighborBlockChange(neighborBlock);
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        if (tile != null) tile.getMicroblockContainer().getPartContainer().onNeighborBlockChange(neighborBlock);
         onNeighborBlockChangeDefault(world, pos, state, neighborBlock);
     }
 
@@ -250,12 +271,13 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 
-        ((IMicroblockTile) world.getTileEntity(pos))
-                .getMicroblockContainer()
-                .getPartContainer()
-                .onNeighborTileChange(
-                        EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(),
-                                neighbor.getZ() - pos.getZ()));
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        if (tile != null)
+            tile.getMicroblockContainer()
+                    .getPartContainer()
+                    .onNeighborTileChange(
+                            EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ()
+                                    - pos.getZ()));
         onNeighborChangeDefault(world, pos, neighbor);
     }
 
@@ -273,7 +295,8 @@ public class BlockCoverable extends BlockContainer {
     public final boolean canConnectRedstone(IBlockAccess world, BlockPos pos, EnumFacing side) {
 
         if (side == null) return false;
-        MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
         if (container.getPartContainer().canConnectRedstone(side)) return true;
         return canConnectRedstoneDefault(world, pos, side, container);
     }
@@ -287,7 +310,9 @@ public class BlockCoverable extends BlockContainer {
     public final int getWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
 
         if (side == null) return 0;
-        MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
+        if (container == null) return getWeakPowerDefault(world, pos, state, side, null);
         return Math.max(container.getPartContainer().getWeakSignal(side), getWeakPowerDefault(world, pos, state, side, container));
     }
 
@@ -300,7 +325,9 @@ public class BlockCoverable extends BlockContainer {
     public final int getStrongPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
 
         if (side == null) return 0;
-        MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
+        if (container == null) return getStrongPowerDefault(world, pos, state, side, null);
         return Math.max(container.getPartContainer().getStrongSignal(side), getStrongPowerDefault(world, pos, state, side, container));
     }
 
@@ -312,7 +339,8 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
 
-        MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
         if (container == null) return false;
         return container.getPartContainer().isSideSolid(side) || isSideSolidDefault(world, pos, side);
     }
@@ -325,7 +353,8 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final boolean canPlaceTorchOnTop(IBlockAccess world, BlockPos pos) {
 
-        MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
         if (container == null) return false;
         return container.getPartContainer().canPlaceTorchOnTop() || canPlaceTorchOnTopDefault(world, pos);
     }
@@ -340,7 +369,8 @@ public class BlockCoverable extends BlockContainer {
     public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand) {
 
         randomDisplayTickDefault(world, pos, state, rand);
-        MicroblockContainer container = ((IMicroblockTile) world.getTileEntity(pos)).getMicroblockContainer();
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
         if (container != null) container.getPartContainer().randomDisplayTick(rand);
     }
 
@@ -437,7 +467,7 @@ public class BlockCoverable extends BlockContainer {
 
     private PartMOP reTrace(World world, BlockPos pos, EntityPlayer player) {
 
-        IMicroblockTile tile = ((IMicroblockTile) world.getTileEntity(pos));
+        IMicroblockTile tile = getMicroblockTile(world, pos);
         if (tile == null) return null;
         Vec3 start = RayTraceUtils.getStart(player);
         Vec3 end = RayTraceUtils.getEnd(player);
@@ -497,7 +527,7 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 
-        IMicroblockTile tile = ((IMicroblockTile) world.getTileEntity(pos));
+        IMicroblockTile tile = getMicroblockTile(world, pos);
         return ((IExtendedBlockState) state).withProperty(BlockMultipart.properties[0], tile != null ? tile.getMicroblockContainer()
                 .getPartContainer().getExtendedStates(world, pos) : new ArrayList<PartState>());
     }
