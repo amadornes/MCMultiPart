@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
 
+import mcmultipart.capabilities.CapabilityWrapperRegistry;
 import mcmultipart.capabilities.ISlottedCapabilityProvider;
 import mcmultipart.client.multipart.IRandomDisplayTickPart;
 import mcmultipart.event.PartEvent;
@@ -492,7 +493,7 @@ public class MultipartContainer implements IMultipartContainer {
 
             if (implementations.isEmpty()) return null;
             else if (implementations.size() == 1) return implementations.get(0);
-            else return null;// TODO: Implement wrappers
+            else return CapabilityWrapperRegistry.wrap(capability, implementations);
         }
 
         IMultipart part = getPartInSlot(slot);

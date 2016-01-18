@@ -35,7 +35,7 @@ public class MultipartCapabilityHelper {
         }
         if (implementations.isEmpty()) return null;
         else if (implementations.size() == 1) return implementations.get(0);
-        else return null;// TODO: Implement wrappers
+        else return CapabilityWrapperRegistry.wrap(capability, implementations);
     }
 
     public static boolean hasCapability(IMultipartContainer container, Capability<?> capability, EnumFacing side, EnumFacing face) {
@@ -56,10 +56,13 @@ public class MultipartCapabilityHelper {
             return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).hasCapability(capability, slot, side)
                     : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).hasCapability(capability, side) : null;
 
-        part = container.getPartInSlot(PartSlot.CENTER);
-        if (part != null && (part instanceof ISlottedCapabilityProvider || part instanceof ICapabilityProvider))
-            return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).hasCapability(capability, slot, side)
-                    : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).hasCapability(capability, side) : null;
+        if (face == null) {
+            part = container.getPartInSlot(PartSlot.CENTER);
+            if (part != null && (part instanceof ISlottedCapabilityProvider || part instanceof ICapabilityProvider))
+                return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).hasCapability(capability, slot,
+                        side) : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).hasCapability(capability, side) : null;
+        }
+
         for (IMultipart p : container.getParts())
             if (!(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty())
                 if (p instanceof ICapabilityProvider) return ((ICapabilityProvider) part).hasCapability(capability, side);
@@ -85,10 +88,12 @@ public class MultipartCapabilityHelper {
             return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).getCapability(capability, slot, side)
                     : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).getCapability(capability, side) : null;
 
-        part = container.getPartInSlot(PartSlot.CENTER);
-        if (part instanceof IRedstonePart)
-            return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).getCapability(capability, slot, side)
-                    : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).getCapability(capability, side) : null;
+        if (face == null) {
+            part = container.getPartInSlot(PartSlot.CENTER);
+            if (part instanceof IRedstonePart)
+                return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).getCapability(capability, slot,
+                        side) : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).getCapability(capability, side) : null;
+        }
 
         List<T> implementations = new ArrayList<T>();
         for (IMultipart p : container.getParts()) {
@@ -102,7 +107,7 @@ public class MultipartCapabilityHelper {
 
         if (implementations.isEmpty()) return null;
         else if (implementations.size() == 1) return implementations.get(0);
-        else return null;// TODO: Implement wrappers
+        else return CapabilityWrapperRegistry.wrap(capability, implementations);
     }
 
 }
