@@ -179,7 +179,10 @@ public class MultipartContainer implements IMultipartContainer {
         if (postEvent) MinecraftForge.EVENT_BUS.post(new PartEvent.Add(part));
 
         if (notifyPart) part.onAdded();
-        if (notifyNeighbors) notifyPartChanged(part);
+        if (notifyNeighbors) {
+            notifyPartChanged(part);
+            getWorldIn().checkLight(getPosIn());
+        }
 
         if (getWorldIn() != null && !getWorldIn().isRemote && (!canTurnIntoBlock || !tryConvert || !MultipartRegistry.convertToBlock(this)))
             MessageMultipartChange.newPacket(getWorldIn(), getPosIn(), part, Type.ADD).send(getWorldIn());
@@ -223,7 +226,10 @@ public class MultipartContainer implements IMultipartContainer {
         }
 
         if (notifyPart) part.onRemoved();
-        if (notifyNeighbors) notifyPartChanged(part);
+        if (notifyNeighbors) {
+            notifyPartChanged(part);
+            getWorldIn().checkLight(getPosIn());
+        }
 
         part.setContainer(null);
     }
