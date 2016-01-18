@@ -1,5 +1,7 @@
 package mcmultipart.client.multipart;
 
+import java.lang.ref.WeakReference;
+
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.raytrace.PartMOP;
 import net.minecraft.block.state.IBlockState;
@@ -40,22 +42,22 @@ public interface IHitEffectsPart extends IMultipart {
                 return instance = new AdvancedEffectRenderer(Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().renderEngine,
                         effectRenderer);
             instance.worldObj = Minecraft.getMinecraft().theWorld;
-            instance.parent = effectRenderer;
+            instance.parent = new WeakReference<EffectRenderer>(effectRenderer);
             return instance;
         }
 
-        private EffectRenderer parent;
+        private WeakReference<EffectRenderer> parent;
 
-        public AdvancedEffectRenderer(World worldIn, TextureManager rendererIn, EffectRenderer parent) {
+        private AdvancedEffectRenderer(World worldIn, TextureManager rendererIn, EffectRenderer parent) {
 
             super(worldIn, rendererIn);
-            this.parent = parent;
+            this.parent = new WeakReference<EffectRenderer>(parent);
         }
 
         @Override
         public void addBlockDestroyEffects(BlockPos pos, IBlockState state) {
 
-            parent.addBlockDestroyEffects(pos, state);
+            if (parent.get() != null) parent.get().addBlockDestroyEffects(pos, state);
         }
 
         public void addBlockDestroyEffects(BlockPos pos, TextureAtlasSprite icon) {
@@ -77,7 +79,7 @@ public interface IHitEffectsPart extends IMultipart {
         @Override
         public void addBlockHitEffects(BlockPos pos, EnumFacing side) {
 
-            parent.addBlockHitEffects(pos, side);
+            if (parent.get() != null) parent.get().addBlockHitEffects(pos, side);
         }
 
         public void addBlockHitEffects(BlockPos pos, EnumFacing side, AxisAlignedBB box, TextureAtlasSprite icon) {
@@ -104,7 +106,7 @@ public interface IHitEffectsPart extends IMultipart {
         @Override
         public void addBlockHitEffects(BlockPos pos, MovingObjectPosition target) {
 
-            parent.addBlockHitEffects(pos, target);
+            if (parent.get() != null) parent.get().addBlockHitEffects(pos, target);
         }
 
         public void addBlockHitEffects(BlockPos pos, MovingObjectPosition target, AxisAlignedBB box, TextureAtlasSprite icon) {
@@ -115,37 +117,38 @@ public interface IHitEffectsPart extends IMultipart {
         @Override
         public void addEffect(EntityFX effect) {
 
-            parent.addEffect(effect);
+            if (parent.get() != null) parent.get().addEffect(effect);
         }
 
         @Override
         public void clearEffects(World worldIn) {
 
-            parent.clearEffects(worldIn);
+            if (parent.get() != null) parent.get().clearEffects(worldIn);
         }
 
         @Override
         public void emitParticleAtEntity(Entity entityIn, EnumParticleTypes particleTypes) {
 
-            parent.emitParticleAtEntity(entityIn, particleTypes);
+            if (parent.get() != null) parent.get().emitParticleAtEntity(entityIn, particleTypes);
         }
 
         @Override
         public String getStatistics() {
 
-            return parent.getStatistics();
+            if (parent.get() != null) return parent.get().getStatistics();
+            return null;
         }
 
         @Override
         public void moveToAlphaLayer(EntityFX effect) {
 
-            parent.moveToAlphaLayer(effect);
+            if (parent.get() != null) parent.get().moveToAlphaLayer(effect);
         }
 
         @Override
         public void moveToNoAlphaLayer(EntityFX effect) {
 
-            parent.moveToNoAlphaLayer(effect);
+            if (parent.get() != null) parent.get().moveToNoAlphaLayer(effect);
         }
 
         @Override
@@ -156,29 +159,30 @@ public interface IHitEffectsPart extends IMultipart {
         @Override
         public void renderLitParticles(Entity entityIn, float p_78872_2_) {
 
-            parent.renderLitParticles(entityIn, p_78872_2_);
+            if (parent.get() != null) parent.get().renderLitParticles(entityIn, p_78872_2_);
         }
 
         @Override
         public void renderParticles(Entity entityIn, float partialTicks) {
 
-            parent.renderParticles(entityIn, partialTicks);
+            if (parent.get() != null) parent.get().renderParticles(entityIn, partialTicks);
         }
 
         @Override
         public EntityFX spawnEffectParticle(int particleId, double p_178927_2_, double p_178927_4_, double p_178927_6_, double p_178927_8_,
                 double p_178927_10_, double p_178927_12_, int... p_178927_14_) {
 
-            return parent.spawnEffectParticle(particleId, p_178927_2_, p_178927_4_, p_178927_6_, p_178927_8_, p_178927_10_, p_178927_12_,
-                    p_178927_14_);
+            if (parent.get() != null)
+                return parent.get().spawnEffectParticle(particleId, p_178927_2_, p_178927_4_, p_178927_6_, p_178927_8_, p_178927_10_,
+                        p_178927_12_, p_178927_14_);
+            return null;
         }
 
         @Override
         public void updateEffects() {
 
-            parent.updateEffects();
+            if (parent.get() != null) parent.get().updateEffects();
         }
-
     }
 
     public static class AdvancedEntityDiggingFX extends EntityDiggingFX {
