@@ -104,6 +104,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
     private static boolean handlePacket(MessageMultipartChange message) {
 
         EntityPlayer player = MCMultiPartMod.proxy.getPlayer();
+        if (player == null || player.worldObj == null || message.pos == null || message.type == null) return false;
 
         if (message.type == Type.ADD) {
             message.part = MultipartRegistry.createPart(message.partType, new PacketBuffer(Unpooled.copiedBuffer(message.data)));
