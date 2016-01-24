@@ -56,7 +56,7 @@ public class MicroblockContainer implements IMultipartContainer {
     @Override
     public boolean canAddPart(IMultipart part) {
 
-        if (!(part instanceof IMicroblock)) throw new IllegalArgumentException("Attemtped to add a part that's not a microblock!");
+        if (!(part instanceof IMicroblock)) return false;
         IMicroblock mb = (IMicroblock) part;
         if (!microTile.canAddMicroblock(mb)) return false;
         return container.canAddPart(part);
@@ -65,8 +65,8 @@ public class MicroblockContainer implements IMultipartContainer {
     @Override
     public boolean canReplacePart(IMultipart oldPart, IMultipart newPart) {
 
-        if (!(oldPart instanceof IMicroblock)) throw new IllegalArgumentException("Attemtped to add a part that's not a microblock!");
-        if (!(newPart instanceof IMicroblock)) throw new IllegalArgumentException("Attemtped to add a part that's not a microblock!");
+        if (!(oldPart instanceof IMicroblock)) return false;
+        if (!(newPart instanceof IMicroblock)) return false;
         IMicroblock mb = (IMicroblock) newPart;
         if (!microTile.canAddMicroblock(mb)) return false;
         return container.canReplacePart(oldPart, newPart);
