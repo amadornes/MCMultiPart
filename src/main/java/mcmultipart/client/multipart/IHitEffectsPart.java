@@ -57,7 +57,8 @@ public interface IHitEffectsPart extends IMultipart {
         @Override
         public void addBlockDestroyEffects(BlockPos pos, IBlockState state) {
 
-            if (parent.get() != null) parent.get().addBlockDestroyEffects(pos, state);
+            EffectRenderer p = parent.get();
+            if (p != null) p.addBlockDestroyEffects(pos, state);
         }
 
         public void addBlockDestroyEffects(BlockPos pos, TextureAtlasSprite icon) {
@@ -79,7 +80,8 @@ public interface IHitEffectsPart extends IMultipart {
         @Override
         public void addBlockHitEffects(BlockPos pos, EnumFacing side) {
 
-            if (parent.get() != null) parent.get().addBlockHitEffects(pos, side);
+            EffectRenderer p = parent.get();
+            if (p != null) p.addBlockHitEffects(pos, side);
         }
 
         public void addBlockHitEffects(BlockPos pos, EnumFacing side, AxisAlignedBB box, TextureAtlasSprite icon) {
@@ -106,7 +108,8 @@ public interface IHitEffectsPart extends IMultipart {
         @Override
         public void addBlockHitEffects(BlockPos pos, MovingObjectPosition target) {
 
-            if (parent.get() != null) parent.get().addBlockHitEffects(pos, target);
+            EffectRenderer p = parent.get();
+            if (p != null) p.addBlockHitEffects(pos, target);
         }
 
         public void addBlockHitEffects(BlockPos pos, MovingObjectPosition target, AxisAlignedBB box, TextureAtlasSprite icon) {
@@ -117,19 +120,22 @@ public interface IHitEffectsPart extends IMultipart {
         @Override
         public void addEffect(EntityFX effect) {
 
-            if (parent.get() != null) parent.get().addEffect(effect);
+            EffectRenderer p = parent.get();
+            if (p != null) p.addEffect(effect);
         }
 
         @Override
         public void clearEffects(World worldIn) {
 
-            if (parent.get() != null) parent.get().clearEffects(worldIn);
+            EffectRenderer p = parent.get();
+            if (p != null) p.clearEffects(worldIn);
         }
 
         @Override
         public void emitParticleAtEntity(Entity entityIn, EnumParticleTypes particleTypes) {
 
-            if (parent.get() != null) parent.get().emitParticleAtEntity(entityIn, particleTypes);
+            EffectRenderer p = parent.get();
+            if (p != null) p.emitParticleAtEntity(entityIn, particleTypes);
         }
 
         @Override
@@ -142,13 +148,15 @@ public interface IHitEffectsPart extends IMultipart {
         @Override
         public void moveToAlphaLayer(EntityFX effect) {
 
-            if (parent.get() != null) parent.get().moveToAlphaLayer(effect);
+            EffectRenderer p = parent.get();
+            if (p != null) p.moveToAlphaLayer(effect);
         }
 
         @Override
         public void moveToNoAlphaLayer(EntityFX effect) {
 
-            if (parent.get() != null) parent.get().moveToNoAlphaLayer(effect);
+            EffectRenderer p = parent.get();
+            if (p != null) p.moveToNoAlphaLayer(effect);
         }
 
         @Override
@@ -159,13 +167,15 @@ public interface IHitEffectsPart extends IMultipart {
         @Override
         public void renderLitParticles(Entity entityIn, float p_78872_2_) {
 
-            if (parent.get() != null) parent.get().renderLitParticles(entityIn, p_78872_2_);
+            EffectRenderer p = parent.get();
+            if (p != null) p.renderLitParticles(entityIn, p_78872_2_);
         }
 
         @Override
         public void renderParticles(Entity entityIn, float partialTicks) {
 
-            if (parent.get() != null) parent.get().renderParticles(entityIn, partialTicks);
+            EffectRenderer p = parent.get();
+            if (p != null) p.renderParticles(entityIn, partialTicks);
         }
 
         @Override
@@ -181,7 +191,8 @@ public interface IHitEffectsPart extends IMultipart {
         @Override
         public void updateEffects() {
 
-            if (parent.get() != null) parent.get().updateEffects();
+            EffectRenderer p = parent.get();
+            if (p != null) p.updateEffects();
         }
     }
 
