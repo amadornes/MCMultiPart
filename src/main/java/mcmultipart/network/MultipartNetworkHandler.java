@@ -19,6 +19,7 @@ public class MultipartNetworkHandler {
     public static void init() {
 
         wrapper.registerMessage(MessageMultipartChange.class, MessageMultipartChange.class, 0, Side.CLIENT);
+        wrapper.registerMessage(MessageWrappedPartPlacement.class, MessageWrappedPartPlacement.class, 1, Side.SERVER);
     }
 
     public static void sendToAllWatching(IMessage message, World world, BlockPos pos) {
@@ -27,6 +28,11 @@ public class MultipartNetworkHandler {
         for (EntityPlayer player : world.playerEntities)
             if (manager.isPlayerWatchingChunk((EntityPlayerMP) player, pos.getX() >> 4, pos.getZ() >> 4))
                 wrapper.sendTo(message, (EntityPlayerMP) player);
+    }
+
+    public static void sendToServer(IMessage message) {
+
+        wrapper.sendToServer(message);
     }
 
 }
