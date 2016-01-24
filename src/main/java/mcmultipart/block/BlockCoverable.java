@@ -304,7 +304,7 @@ public class BlockCoverable extends BlockContainer {
 
     public boolean canConnectRedstoneDefault(IBlockAccess world, BlockPos pos, EnumFacing side, MicroblockContainer partContainer) {
 
-        return super.canConnectRedstone(world, pos, side);
+        return false;
     }
 
     @Override
