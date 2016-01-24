@@ -180,7 +180,7 @@ public class BlockCoverable extends BlockContainer {
         MovingObjectPosition hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
             IMicroblockTile tile = getMicroblockTile(world, pos);
-            return tile != null ? tile.getMicroblockContainer().getPartContainer().harvest(player, (PartMOP) hit) : null;
+            return tile != null ? tile.getMicroblockContainer().getPartContainer().harvest(player, (PartMOP) hit) : false;
         } else {
             IMicroblockTile tile = getMicroblockTile(world, pos);
             MultipartContainer container = tile != null ? tile.getMicroblockContainer().getPartContainer() : null;
