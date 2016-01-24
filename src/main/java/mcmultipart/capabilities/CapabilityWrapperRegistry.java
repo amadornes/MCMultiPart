@@ -25,4 +25,8 @@ public class CapabilityWrapperRegistry {
         return wrapper.wrapImplementations(implementations);
     }
 
+    static {
+        registerCapabilityWrapper(new CapabilityWrapperItemHandler());
+    }
+
 }
