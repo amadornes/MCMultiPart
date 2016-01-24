@@ -1,16 +1,18 @@
 package mcmultipart.capabilities;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+
+import net.minecraft.util.EnumFacing;
+
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.IRedstonePart;
 import mcmultipart.multipart.ISlottedPart;
 import mcmultipart.multipart.PartSlot;
-import net.minecraft.util.EnumFacing;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
 /**
  * A general use multipart capability helper.
@@ -26,7 +28,7 @@ public class MultipartCapabilityHelper {
 
     public static <T> T getCapability(IMultipartContainer container, Capability<T> capability, EnumFacing side) {
 
-        List<T> implementations = new ArrayList<T>();
+        Set<T> implementations = new HashSet<T>();
         for (EnumFacing face : EnumFacing.VALUES) {
             if (face != side && face != side.getOpposite()) {
                 T impl = getCapability(container, capability, side, face);
@@ -34,7 +36,7 @@ public class MultipartCapabilityHelper {
             }
         }
         if (implementations.isEmpty()) return null;
-        else if (implementations.size() == 1) return implementations.get(0);
+        else if (implementations.size() == 1) return implementations.iterator().next();
         else return CapabilityWrapperRegistry.wrap(capability, implementations);
     }
 
@@ -95,7 +97,7 @@ public class MultipartCapabilityHelper {
                         side) : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).getCapability(capability, side) : null;
         }
 
-        List<T> implementations = new ArrayList<T>();
+        Set<T> implementations = new HashSet<T>();
         for (IMultipart p : container.getParts()) {
             if (!(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty()) {
                 if (p instanceof ICapabilityProvider) {
@@ -106,7 +108,7 @@ public class MultipartCapabilityHelper {
         }
 
         if (implementations.isEmpty()) return null;
-        else if (implementations.size() == 1) return implementations.get(0);
+        else if (implementations.size() == 1) return implementations.iterator().next();
         else return CapabilityWrapperRegistry.wrap(capability, implementations);
     }
 
