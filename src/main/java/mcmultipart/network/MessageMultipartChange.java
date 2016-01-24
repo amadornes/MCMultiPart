@@ -84,7 +84,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
     @Override
     public MessageMultipartChange onMessage(MessageMultipartChange message, MessageContext ctx) {
 
-        if (ctx.side == Side.CLIENT) if (!handlePacket(message)) schedulePacketHandling(message);
+        if (ctx.side == Side.CLIENT) schedulePacketHandling(message);
         return null;
     }
 
@@ -101,10 +101,10 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
         });
     }
 
-    private static boolean handlePacket(MessageMultipartChange message) {
+    private static void handlePacket(MessageMultipartChange message) {
 
         EntityPlayer player = MCMultiPartMod.proxy.getPlayer();
-        if (player == null || player.worldObj == null || message.pos == null || message.type == null) return false;
+        if (player == null || player.worldObj == null || message.pos == null || message.type == null) return;
 
         if (message.type == Type.ADD) {
             message.part = MultipartRegistry.createPart(message.partType, new PacketBuffer(Unpooled.copiedBuffer(message.data)));
@@ -116,30 +116,23 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
             IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
             if (container != null) {
                 message.part = container.getPartFromID(message.partID);
-
                 if (message.part != null) container.removePart(message.part);
-            } else {
-                return false;
-            }
 
-            if (message.part == null || message.part.getModelPath() != null)
-                player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
-            player.worldObj.checkLight(message.pos);
+                if (message.part == null || message.part.getModelPath() != null)
+                    player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
+                player.worldObj.checkLight(message.pos);
+            }
         } else if (message.type == Type.UPDATE || message.type == Type.UPDATE_RERENDER) {
             IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
-            if (container == null) return false;
+            if (container == null) return;
             message.part = container.getPartFromID(message.partID);
 
             if (message.part != null) {
                 message.part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(message.data)));
 
                 if (message.type == Type.UPDATE_RERENDER) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
-            } else {
-                return false;
             }
         }
-
-        return true;
     }
 
     public void send(World world) {
