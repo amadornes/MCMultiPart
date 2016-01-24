@@ -4,6 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import mcmultipart.MCMultiPartMod;
+import mcmultipart.client.multipart.ICustomHighlightPart;
+import mcmultipart.client.multipart.IHitEffectsPart;
+import mcmultipart.client.multipart.IHitEffectsPart.AdvancedEffectRenderer;
+import mcmultipart.client.multipart.ISmartMultipartModel;
+import mcmultipart.client.multipart.MultipartStateMapper;
+import mcmultipart.microblock.IMicroblockTile;
+import mcmultipart.microblock.MicroblockContainer;
+import mcmultipart.multipart.IMultipart;
+import mcmultipart.multipart.Multipart;
+import mcmultipart.multipart.MultipartContainer;
+import mcmultipart.multipart.MultipartRegistry;
+import mcmultipart.multipart.PartState;
+import mcmultipart.raytrace.PartMOP;
+import mcmultipart.raytrace.RayTraceUtils;
+import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -30,7 +46,6 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.property.ExtendedBlockState;
@@ -39,23 +54,6 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import mcmultipart.MCMultiPartMod;
-import mcmultipart.client.multipart.ICustomHighlightPart;
-import mcmultipart.client.multipart.IHitEffectsPart;
-import mcmultipart.client.multipart.IHitEffectsPart.AdvancedEffectRenderer;
-import mcmultipart.client.multipart.ISmartMultipartModel;
-import mcmultipart.client.multipart.MultipartStateMapper;
-import mcmultipart.microblock.IMicroblockTile;
-import mcmultipart.microblock.MicroblockContainer;
-import mcmultipart.multipart.IMultipart;
-import mcmultipart.multipart.Multipart;
-import mcmultipart.multipart.MultipartContainer;
-import mcmultipart.multipart.MultipartRegistry;
-import mcmultipart.multipart.PartState;
-import mcmultipart.raytrace.PartMOP;
-import mcmultipart.raytrace.RayTraceUtils;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 
 /**
  * An implementation of {@link BlockContainer} that allows your block to act as a microblock container.<br/>
@@ -192,6 +190,7 @@ public class BlockCoverable extends BlockContainer {
                 if (!removedByPlayerDefault(world, pos, player, willHarvest)) return false;
                 world.removeTileEntity(pos);
                 if (!world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState(), 3)) return false;
+                world.removeTileEntity(pos);
                 world.setTileEntity(pos, new TileMultipart(container));
                 return true;
             }
@@ -539,7 +538,7 @@ public class BlockCoverable extends BlockContainer {
 
         return 0;
     }
-    
+
     @Override
     protected BlockState createBlockState() {
 
