@@ -16,11 +16,13 @@ import net.minecraft.world.World;
  * Implement {@link ItemMultiPart#place(World, BlockPos, EnumFacing, Vec3, ItemStack, EntityPlayer)} and optionally override
  * {@link ItemMultiPart#consumeItem(ItemStack)} and {@link ItemMultiPart#getPlacementSound(ItemStack)} to place your part in the world.
  */
-public abstract class ItemMultiPart extends Item {
+public abstract class ItemMultiPart extends Item implements IItemMultipartFactory {
 
     public abstract IMultipart createPart(World world, BlockPos pos, EnumFacing side, Vec3 hit, ItemStack stack, EntityPlayer player);
 
     public boolean place(World world, BlockPos pos, EnumFacing side, Vec3 hit, ItemStack stack, EntityPlayer player) {
+
+        if (!player.canPlayerEdit(pos, side, stack)) return false;
 
         IMultipart mb = createPart(world, pos, side, hit, stack, player);
 
