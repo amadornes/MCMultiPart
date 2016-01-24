@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+// TODO: Check if we really need this or if we can just use the normal event or make a new one
 public interface ICustomHighlightPart extends IMultipart {
 
     @SideOnly(Side.CLIENT)

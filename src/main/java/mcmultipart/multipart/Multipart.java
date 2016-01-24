@@ -3,9 +3,11 @@ package mcmultipart.multipart;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import mcmultipart.MCMultiPartMod;
 import mcmultipart.capabilities.PartAttachCapabilitiesEvent;
+import mcmultipart.client.multipart.AdvancedEffectRenderer;
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import mcmultipart.network.MessageMultipartChange;
 import mcmultipart.raytrace.PartMOP;
@@ -34,6 +36,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityDispatcher;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * A default abstract implementation of {@link IMultipart}.<br/>
@@ -319,10 +323,31 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
         return new BlockState(MCMultiPartMod.multipart);
     }
 
+    @SideOnly(Side.CLIENT)
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
 
         return DEFAULT_RENDER_BOUNDS;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public void randomDisplayTick(Random rand) {
+
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public boolean addDestroyEffects(AdvancedEffectRenderer effectRenderer) {
+
+        return false;
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public boolean addHitEffects(PartMOP hit, AdvancedEffectRenderer effectRenderer) {
+
+        return false;
     }
 
     protected void markRenderUpdate() {

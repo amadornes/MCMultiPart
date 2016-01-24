@@ -20,7 +20,7 @@ public class MicroblockRegistryClient {
 
         IMicroModelProvider provider = materialModelProviders.get(material);
         if (provider != null) return provider;
-        return DefaultMicroModelProvider.instance;
+        return null;
     }
 
 }

@@ -57,4 +57,10 @@ public interface IMultipartContainer extends IWorldLocation, ISlottedCapabilityP
      */
     public void addPart(UUID id, IMultipart part);
 
+    /**
+     * Performs an occlusion test against all the parts in this container except for the specified ones, and possibly tests against the
+     * container itself.
+     */
+    public boolean occlusionTest(IMultipart part, IMultipart... ignored);
+
 }

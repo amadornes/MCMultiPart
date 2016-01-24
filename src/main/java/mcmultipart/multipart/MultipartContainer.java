@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,7 +16,6 @@ import java.util.UUID;
 
 import mcmultipart.capabilities.CapabilityWrapperRegistry;
 import mcmultipart.capabilities.ISlottedCapabilityProvider;
-import mcmultipart.client.multipart.IRandomDisplayTickPart;
 import mcmultipart.event.PartEvent;
 import mcmultipart.multipart.ISolidPart.ISolidTopPart;
 import mcmultipart.network.MessageMultipartChange;
@@ -114,8 +114,7 @@ public class MultipartContainer implements IMultipartContainer {
                 if (getPartInSlot(s) != null) return false;
         }
 
-        for (IMultipart p : getParts())
-            if (!p.occlusionTest(part) || !part.occlusionTest(p)) return false;
+        if (!occlusionTest(part)) return false;
 
         List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
         part.addCollisionBoxes(new AxisAlignedBB(0, 0, 0, 1, 1, 1), list, null);
@@ -138,8 +137,7 @@ public class MultipartContainer implements IMultipartContainer {
             }
         }
 
-        for (IMultipart p : getParts())
-            if (p != oldPart && (!p.occlusionTest(newPart) || !newPart.occlusionTest(p))) return false;
+        if (!occlusionTest(newPart, oldPart)) return false;
 
         List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
         newPart.addCollisionBoxes(new AxisAlignedBB(0, 0, 0, 1, 1, 1), list, null);
@@ -250,6 +248,17 @@ public class MultipartContainer implements IMultipartContainer {
     public void addPart(UUID id, IMultipart part) {
 
         addPart(part, true, true, true, true, id);
+    }
+
+    @Override
+    public boolean occlusionTest(IMultipart part, IMultipart... ignored) {
+
+        List<IMultipart> ignoredList = Arrays.asList(ignored);
+
+        for (IMultipart p : getParts())
+            if (!ignoredList.contains(p) && (!p.occlusionTest(part) || !part.occlusionTest(p))) return false;
+
+        return true;
     }
 
     public void notifyPartChanged(IMultipart part) {
@@ -396,7 +405,7 @@ public class MultipartContainer implements IMultipartContainer {
     public void randomDisplayTick(Random rand) {
 
         for (IMultipart p : getParts())
-            if (p instanceof IRandomDisplayTickPart) ((IRandomDisplayTickPart) p).randomDisplayTick(rand);
+            p.randomDisplayTick(rand);
     }
 
     public void writeToNBT(NBTTagCompound tag) {

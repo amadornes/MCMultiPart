@@ -5,9 +5,8 @@ import java.util.List;
 import java.util.Random;
 
 import mcmultipart.MCMultiPartMod;
+import mcmultipart.client.multipart.AdvancedEffectRenderer;
 import mcmultipart.client.multipart.ICustomHighlightPart;
-import mcmultipart.client.multipart.IHitEffectsPart;
-import mcmultipart.client.multipart.IHitEffectsPart.AdvancedEffectRenderer;
 import mcmultipart.client.multipart.ISmartMultipartModel;
 import mcmultipart.client.multipart.MultipartStateMapper;
 import mcmultipart.microblock.IMicroblockTile;
@@ -387,8 +386,7 @@ public class BlockCoverable extends BlockContainer {
 
         PartMOP hit = reTrace(world, pos, MCMultiPartMod.proxy.getPlayer());
         if (hit != null) {
-            if (hit.partHit instanceof IHitEffectsPart)
-                if (((IHitEffectsPart) hit.partHit).addDestroyEffects(AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
+            if (hit.partHit.addDestroyEffects(AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
 
             String path = hit.partHit.getModelPath();
             IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
@@ -423,8 +421,7 @@ public class BlockCoverable extends BlockContainer {
 
         PartMOP hit = target instanceof PartMOP ? (PartMOP) target : null;
         if (hit != null) {
-            if (hit.partHit instanceof IHitEffectsPart)
-                if (((IHitEffectsPart) hit.partHit).addHitEffects(hit, AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
+            if (hit.partHit.addHitEffects(hit, AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
 
             String path = hit.partHit.getModelPath();
             IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());

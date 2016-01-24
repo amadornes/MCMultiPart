@@ -5,6 +5,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import mcmultipart.MCMultiPartMod;
+import mcmultipart.client.multipart.AdvancedEffectRenderer;
+import mcmultipart.client.multipart.ICustomHighlightPart;
+import mcmultipart.client.multipart.ISmartMultipartModel;
+import mcmultipart.client.multipart.MultipartStateMapper;
+import mcmultipart.multipart.IMultipart;
+import mcmultipart.multipart.Multipart;
+import mcmultipart.multipart.MultipartRegistry;
+import mcmultipart.multipart.PartState;
+import mcmultipart.property.PropertyMultipartStates;
+import mcmultipart.raytrace.PartMOP;
+import mcmultipart.raytrace.RayTraceUtils;
+import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -31,7 +44,6 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.property.ExtendedBlockState;
@@ -41,21 +53,6 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import mcmultipart.MCMultiPartMod;
-import mcmultipart.client.multipart.ICustomHighlightPart;
-import mcmultipart.client.multipart.IHitEffectsPart;
-import mcmultipart.client.multipart.IHitEffectsPart.AdvancedEffectRenderer;
-import mcmultipart.client.multipart.ISmartMultipartModel;
-import mcmultipart.client.multipart.MultipartStateMapper;
-import mcmultipart.multipart.IMultipart;
-import mcmultipart.multipart.Multipart;
-import mcmultipart.multipart.MultipartRegistry;
-import mcmultipart.multipart.PartState;
-import mcmultipart.property.PropertyMultipartStates;
-import mcmultipart.raytrace.PartMOP;
-import mcmultipart.raytrace.RayTraceUtils;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 
 /**
  * A final class that extends {@link BlockContainer} and represents a block which can contain any kind of multipart.<br/>
@@ -258,8 +255,7 @@ public final class BlockMultipart extends BlockContainer {
 
         PartMOP hit = reTrace(world, pos, MCMultiPartMod.proxy.getPlayer());
         if (hit != null) {
-            if (hit.partHit instanceof IHitEffectsPart)
-                if (((IHitEffectsPart) hit.partHit).addDestroyEffects(AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
+            if (hit.partHit.addDestroyEffects(AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
 
             String path = hit.partHit.getModelPath();
             IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
@@ -284,8 +280,7 @@ public final class BlockMultipart extends BlockContainer {
 
         PartMOP hit = target instanceof PartMOP ? (PartMOP) target : null;
         if (hit != null) {
-            if (hit.partHit instanceof IHitEffectsPart)
-                if (((IHitEffectsPart) hit.partHit).addHitEffects(hit, AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
+            if (hit.partHit.addHitEffects(hit, AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
 
             String path = hit.partHit.getModelPath();
             IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());

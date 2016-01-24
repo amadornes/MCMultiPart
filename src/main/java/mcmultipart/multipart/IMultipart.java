@@ -1,7 +1,9 @@
 package mcmultipart.multipart;
 
 import java.util.List;
+import java.util.Random;
 
+import mcmultipart.client.multipart.AdvancedEffectRenderer;
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
@@ -219,5 +221,14 @@ public interface IMultipart {
      */
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox();
+
+    @SideOnly(Side.CLIENT)
+    public void randomDisplayTick(Random rand);
+
+    @SideOnly(Side.CLIENT)
+    public boolean addDestroyEffects(AdvancedEffectRenderer effectRenderer);
+
+    @SideOnly(Side.CLIENT)
+    public boolean addHitEffects(PartMOP hit, AdvancedEffectRenderer effectRenderer);
 
 }

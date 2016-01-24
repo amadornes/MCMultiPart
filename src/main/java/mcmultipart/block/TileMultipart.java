@@ -114,6 +114,12 @@ public final class TileMultipart extends TileEntity implements IMultipartContain
     }
 
     @Override
+    public boolean occlusionTest(IMultipart part, IMultipart... ignored) {
+
+        return false;
+    }
+
+    @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 
         if (super.hasCapability(capability, facing)) return true;
