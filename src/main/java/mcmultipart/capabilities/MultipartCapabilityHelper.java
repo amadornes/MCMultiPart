@@ -66,7 +66,7 @@ public class MultipartCapabilityHelper {
 
         for (IMultipart p : container.getParts())
             if (!(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty())
-                if (p instanceof ICapabilityProvider) return ((ICapabilityProvider) part).hasCapability(capability, side);
+                if (p instanceof ICapabilityProvider) return ((ICapabilityProvider) p).hasCapability(capability, side);
 
         return false;
     }
