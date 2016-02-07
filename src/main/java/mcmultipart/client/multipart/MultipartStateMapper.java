@@ -11,6 +11,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.statemap.DefaultStateMapper;
 import net.minecraft.client.renderer.block.statemap.IStateMapper;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 public class MultipartStateMapper extends DefaultStateMapper {
 
@@ -26,13 +27,13 @@ public class MultipartStateMapper extends DefaultStateMapper {
         mappings.put(blockIn.getDefaultState(), this.getModelResourceLocation(blockIn.getDefaultState()));
         replaceNormal = true;
 
-        for (String part : MultipartRegistry.getRegisteredParts()) {
+        for (ResourceLocation part : MultipartRegistry.getRegisteredParts()) {
             IStateMapper mapper = MultipartRegistryClient.getSpecialPartStateMapper(part);
             if (mapper != null) {
                 mappings.putAll(mapper.putStateModelLocations(blockIn));
             } else {
                 BlockState state = MultipartRegistry.getDefaultState(part);
-                String modelPath = MultipartRegistry.getStateLocation(state);
+                ResourceLocation modelPath = MultipartRegistry.getStateLocation(state);
                 for (IBlockState istate : state.getValidStates())
                     mappings.put(istate, new ModelResourceLocation(modelPath, this.getPropertyString(istate.getProperties())));
             }

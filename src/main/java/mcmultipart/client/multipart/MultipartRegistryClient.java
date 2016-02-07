@@ -9,18 +9,19 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.statemap.IStateMapper;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.util.ResourceLocation;
 
 public class MultipartRegistryClient {
 
-    private static Map<String, IStateMapper> specialMappers = new HashMap<String, IStateMapper>();
+    private static Map<ResourceLocation, IStateMapper> specialMappers = new HashMap<ResourceLocation, IStateMapper>();
     private static Map<Class<?>, MultipartSpecialRenderer<?>> specialRenderers = new HashMap<Class<?>, MultipartSpecialRenderer<?>>();
 
-    public static void registerSpecialPartStateMapper(String part, IStateMapper mapper) {
+    public static void registerSpecialPartStateMapper(ResourceLocation part, IStateMapper mapper) {
 
         specialMappers.put(part, mapper);
     }
 
-    public static void registerEmptySpecialPartStateMapper(String part) {
+    public static void registerEmptySpecialPartStateMapper(ResourceLocation part) {
 
         registerSpecialPartStateMapper(part, new IStateMapper() {
 
@@ -43,7 +44,7 @@ public class MultipartRegistryClient {
         return (MultipartSpecialRenderer<T>) specialRenderers.get(multipart.getClass());
     }
 
-    public static IStateMapper getSpecialPartStateMapper(String part) {
+    public static IStateMapper getSpecialPartStateMapper(ResourceLocation part) {
 
         return specialMappers.get(part);
     }

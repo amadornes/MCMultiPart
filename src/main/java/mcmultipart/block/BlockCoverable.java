@@ -41,6 +41,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -388,7 +389,7 @@ public class BlockCoverable extends BlockContainer {
         if (hit != null) {
             if (hit.partHit.addDestroyEffects(AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
 
-            String path = hit.partHit.getModelPath();
+            ResourceLocation path = hit.partHit.getModelPath();
             IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
             IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
                     .getModelManager()
@@ -423,7 +424,7 @@ public class BlockCoverable extends BlockContainer {
         if (hit != null) {
             if (hit.partHit.addHitEffects(hit, AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
 
-            String path = hit.partHit.getModelPath();
+            ResourceLocation path = hit.partHit.getModelPath();
             IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
             IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
                     .getModelManager()

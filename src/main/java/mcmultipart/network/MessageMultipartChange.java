@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -26,12 +27,12 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
 
     private Type type;
     private UUID partID;
-    private String partType;
+    private ResourceLocation partType;
     private IMultipart part;
     private BlockPos pos;
     private byte[] data;
 
-    private MessageMultipartChange(Type type, UUID partID, String partType, IMultipart part, BlockPos pos) {
+    private MessageMultipartChange(Type type, UUID partID, ResourceLocation partType, IMultipart part, BlockPos pos) {
 
         this.type = type;
         this.partID = partID;
@@ -50,7 +51,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
         buf.writeInt(type.ordinal());
         buf.writeLong(partID.getMostSignificantBits());
         buf.writeLong(partID.getLeastSignificantBits());
-        ByteBufUtils.writeUTF8String(buf, part.getType());
+        ByteBufUtils.writeUTF8String(buf, part.getType().toString());
         buf.writeInt(pos.getX()).writeInt(pos.getY()).writeInt(pos.getZ());
 
         if (type == Type.ADD || type == Type.UPDATE || type == Type.UPDATE_RERENDER) {
@@ -72,7 +73,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
         long lsb = buf.readLong();
         partID = new UUID(msb, lsb);
 
-        partType = ByteBufUtils.readUTF8String(buf);
+        partType = new ResourceLocation(ByteBufUtils.readUTF8String(buf));
         pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
 
         if (type == Type.ADD || type == Type.UPDATE || type == Type.UPDATE_RERENDER) {
@@ -104,33 +105,35 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
     private static void handlePacket(MessageMultipartChange message) {
 
         EntityPlayer player = MCMultiPartMod.proxy.getPlayer();
-        if (player == null || player.worldObj == null || message.pos == null || message.type == null) return;
+        if (player == null || message.pos == null || message.type == null) return;
+        World world = player.worldObj;
+        if (world == null) return;
 
         if (message.type == Type.ADD) {
             message.part = MultipartRegistry.createPart(message.partType, new PacketBuffer(Unpooled.copiedBuffer(message.data)));
-            MultipartHelper.addPart(player.worldObj, message.pos, message.part, message.partID);
+            MultipartHelper.addPart(world, message.pos, message.part, message.partID);
 
-            if (message.part.getModelPath() != null) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
-            player.worldObj.checkLight(message.pos);
+            if (message.part.getModelPath() != null) world.markBlockRangeForRenderUpdate(message.pos, message.pos);
+            world.checkLight(message.pos);
         } else if (message.type == Type.REMOVE) {
-            IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
+            IMultipartContainer container = MultipartHelper.getPartContainer(world, message.pos);
             if (container != null) {
                 message.part = container.getPartFromID(message.partID);
-                if (message.part != null) container.removePart(message.part);
-
-                if (message.part == null || message.part.getModelPath() != null)
-                    player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
-                player.worldObj.checkLight(message.pos);
+                if (message.part != null) {
+                    container.removePart(message.part);
+                    if (message.part.getModelPath() != null) world.markBlockRangeForRenderUpdate(message.pos, message.pos);
+                }
+                world.checkLight(message.pos);
             }
         } else if (message.type == Type.UPDATE || message.type == Type.UPDATE_RERENDER) {
-            IMultipartContainer container = MultipartHelper.getPartContainer(player.worldObj, message.pos);
+            IMultipartContainer container = MultipartHelper.getPartContainer(world, message.pos);
             if (container == null) return;
             message.part = container.getPartFromID(message.partID);
 
             if (message.part != null) {
                 message.part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(message.data)));
 
-                if (message.type == Type.UPDATE_RERENDER) player.worldObj.markBlockRangeForRenderUpdate(message.pos, message.pos);
+                if (message.type == Type.UPDATE_RERENDER) world.markBlockRangeForRenderUpdate(message.pos, message.pos);
             }
         }
     }

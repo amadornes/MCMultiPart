@@ -24,6 +24,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
@@ -101,9 +102,9 @@ public abstract class Microblock extends Multipart implements IMicroblock, IReds
     }
 
     @Override
-    public String getType() {
+    public ResourceLocation getType() {
 
-        return getMicroClass().getType();
+        return getMicroClass().getFullQualifiedType();
     }
 
     @Override

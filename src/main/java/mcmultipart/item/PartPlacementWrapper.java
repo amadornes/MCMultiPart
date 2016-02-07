@@ -65,10 +65,11 @@ public class PartPlacementWrapper {
 
         if (!player.canPlayerEdit(pos, side, stack)) return false;
 
-        IMultipart mb = factory.createPart(world, pos, side, hit, stack, player);
+        IMultipart part = factory.createPart(world, pos, side, hit, stack, player);
+        if (part == null) return false;
 
-        if (MultipartHelper.canAddPart(world, pos, mb)) {
-            if (!world.isRemote) MultipartHelper.addPart(world, pos, mb);
+        if (MultipartHelper.canAddPart(world, pos, part)) {
+            if (!world.isRemote) MultipartHelper.addPart(world, pos, part);
             if (!player.capabilities.isCreativeMode) consumeItem(stack);
 
             playPlacementSound(world, pos, stack);

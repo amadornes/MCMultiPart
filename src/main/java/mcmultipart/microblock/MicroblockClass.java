@@ -8,7 +8,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Loader;
 
 public abstract class MicroblockClass implements IAdvancedPartFactory {
 
@@ -25,8 +27,15 @@ public abstract class MicroblockClass implements IAdvancedPartFactory {
 
     public abstract IMultipart create(boolean client);
 
+    private final ResourceLocation fullQualifiedType = new ResourceLocation(Loader.instance().activeModContainer().getModId(), getType());
+
+    public final ResourceLocation getFullQualifiedType() {
+
+        return fullQualifiedType;
+    }
+
     @Override
-    public IMultipart createPart(String type, PacketBuffer buf) {
+    public IMultipart createPart(ResourceLocation type, PacketBuffer buf) {
 
         IMultipart part = type.equals(getType()) ? create(true) : null;
         if (part != null) part.readUpdatePacket(buf);
@@ -34,7 +43,7 @@ public abstract class MicroblockClass implements IAdvancedPartFactory {
     }
 
     @Override
-    public IMultipart createPart(String type, NBTTagCompound tag) {
+    public IMultipart createPart(ResourceLocation type, NBTTagCompound tag) {
 
         IMultipart part = type.equals(getType()) ? create(false) : null;
         if (part != null) part.readFromNBT(tag);

@@ -34,6 +34,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -414,7 +415,7 @@ public class MultipartContainer implements IMultipartContainer {
         for (Entry<UUID, IMultipart> entry : partMap.entrySet()) {
             NBTTagCompound t = new NBTTagCompound();
             t.setString("__partID", entry.getKey().toString());
-            t.setString("__partType", entry.getValue().getType());
+            t.setString("__partType", entry.getValue().getType().toString());
             entry.getValue().writeToNBT(t);
             partList.appendTag(t);
         }
@@ -430,7 +431,7 @@ public class MultipartContainer implements IMultipartContainer {
         for (int i = 0; i < partList.tagCount(); i++) {
             NBTTagCompound t = partList.getCompoundTagAt(i);
             UUID id = UUID.fromString(t.getString("__partID"));
-            IMultipart part = MultipartRegistry.createPart(t.getString("__partType"), t);
+            IMultipart part = MultipartRegistry.createPart(new ResourceLocation(t.getString("__partType")), t);
             if (part != null) addPart(part, false, false, false, false, id);
         }
     }
@@ -441,7 +442,7 @@ public class MultipartContainer implements IMultipartContainer {
         for (Entry<UUID, IMultipart> entry : partMap.entrySet()) {
             NBTTagCompound t = new NBTTagCompound();
             t.setString("__partID", entry.getKey().toString());
-            t.setString("__partType", entry.getValue().getType());
+            t.setString("__partType", entry.getValue().getType().toString());
             ByteBuf buf = Unpooled.buffer();
             entry.getValue().writeUpdatePacket(new PacketBuffer(buf));
             t.setByteArray("data", buf.array());
@@ -458,7 +459,7 @@ public class MultipartContainer implements IMultipartContainer {
             UUID id = UUID.fromString(t.getString("__partID"));
             IMultipart part = partMap.get(id);
             if (part == null) {
-                part = MultipartRegistry.createPart(t.getString("__partType"),
+                part = MultipartRegistry.createPart(new ResourceLocation(t.getString("__partType")),
                         new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
                 addPart(part, false, false, false, false, id);
             } else {

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import mcmultipart.multipart.IPartConverter.IPartConverter2;
 import mcmultipart.multipart.IPartConverter.IReversePartConverter;
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import net.minecraft.block.Block;
@@ -15,28 +14,24 @@ import net.minecraft.block.state.BlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
 public class MultipartRegistry {
 
-    private static Map<BlockState, String> stateLocations = new HashMap<BlockState, String>();
-    private static Map<String, BlockState> defaultStates = new HashMap<String, BlockState>();
+    private static Map<BlockState, ResourceLocation> stateLocations = new HashMap<BlockState, ResourceLocation>();
+    private static Map<ResourceLocation, BlockState> defaultStates = new HashMap<ResourceLocation, BlockState>();
 
-    private static Map<String, IAdvancedPartFactory> partProviders = new HashMap<String, IAdvancedPartFactory>();
-    private static BiMap<String, Class<? extends IMultipart>> partClasses = HashBiMap.create();
+    private static Map<ResourceLocation, IAdvancedPartFactory> partProviders = new HashMap<ResourceLocation, IAdvancedPartFactory>();
+    private static BiMap<ResourceLocation, Class<? extends IMultipart>> partClasses = HashBiMap.create();
 
-    private static Map<Block, IPartConverter2> converters = new HashMap<Block, IPartConverter2>();
+    private static Map<Block, IPartConverter> converters = new HashMap<Block, IPartConverter>();
     private static List<IReversePartConverter> reverseConverters = new ArrayList<IReversePartConverter>();
-
-    @Deprecated
-    public static void registerProvider(IPartFactory provider, String... parts) {
-
-        registerPartFactory(provider, parts);
-    }
 
     /**
      * Links a set of parts to an {@link IPartFactory} that can produce them.
@@ -46,12 +41,6 @@ public class MultipartRegistry {
         registerPartFactory(factory == null ? null : new AdvancedPartFactory(factory), parts);
     }
 
-    @Deprecated
-    public static void registerProvider(IAdvancedPartFactory provider, String... parts) {
-
-        registerPartFactory(provider, parts);
-    }
-
     /**
      * Links a set of parts to an {@link IAdvancedPartFactory} that can produce them.
      */
@@ -59,14 +48,15 @@ public class MultipartRegistry {
 
         if (factory == null) throw new IllegalArgumentException("Attempted to register a null multipart factory!");
         if (parts.length == 0) throw new IllegalArgumentException("Attempted to register a multipart factory without any provided parts!");
+
         for (String part : parts)
-            partProviders.put(part, factory);
+            partProviders.put(getResourceLocation(part), factory);
         try {
             for (String part : parts) {
-                IMultipart multipart = factory.createPart(part, new NBTTagCompound());
+                IMultipart multipart = factory.createPart(getResourceLocation(part), new NBTTagCompound());
                 BlockState state = multipart.createBlockState();
-                defaultStates.put(part, state);
-                stateLocations.put(state, multipart.getModelPath());
+                defaultStates.put(getResourceLocation(part), state);
+                stateLocations.put(state, getResourceLocation(part));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,23 +75,21 @@ public class MultipartRegistry {
             throw new IllegalArgumentException("Attempted to register a multipart with a class that's already in use!");
         if (partClasses.containsKey(identifier))
             throw new IllegalArgumentException("Attempted to register a multipart with an identifier that's already in use!");
-        partClasses.put(identifier, clazz);
+
+        partClasses.put(getResourceLocation(identifier), clazz);
         registerPartFactory(new SimplePartFactory(clazz), identifier);
     }
 
-    /**
-     * Registers an {@link IPartConverter}. USE {@link IPartConverter2}!
-     */
-    @Deprecated
-    public static void registerPartConverter(IPartConverter converter) {
+    private static ResourceLocation getResourceLocation(String identifier) {
 
-        registerPartConverter(new WrappedPartConverter(converter));
+        if (identifier.contains(":")) return new ResourceLocation(identifier);
+        return new ResourceLocation(Loader.instance().activeModContainer().getModId(), identifier);
     }
 
     /**
-     * Registers an {@link IPartConverter2}.
+     * Registers an {@link IPartConverter}.
      */
-    public static void registerPartConverter(IPartConverter2 converter) {
+    public static void registerPartConverter(IPartConverter converter) {
 
         for (Block block : converter.getConvertableBlocks())
             converters.put(block, converter);
@@ -119,7 +107,7 @@ public class MultipartRegistry {
      * Gets the type of a multipart.<br/>
      * Only for internal use. This will not return the type of custom multiparts!
      */
-    public static String getPartType(IMultipart part) {
+    public static ResourceLocation getPartType(IMultipart part) {
 
         return partClasses.inverse().get(part.getClass());
     }
@@ -135,7 +123,7 @@ public class MultipartRegistry {
     /**
      * Gets the {@link BlockState} that represents a specific part type.
      */
-    public static BlockState getDefaultState(String partType) {
+    public static BlockState getDefaultState(ResourceLocation partType) {
 
         return defaultStates.get(partType);
     }
@@ -143,7 +131,7 @@ public class MultipartRegistry {
     /**
      * Gets the location of a part's BlockState.
      */
-    public static String getStateLocation(BlockState state) {
+    public static ResourceLocation getStateLocation(BlockState state) {
 
         return stateLocations.get(state);
     }
@@ -151,7 +139,7 @@ public class MultipartRegistry {
     /**
      * Creates a new part from NBT.
      */
-    public static IMultipart createPart(String partType, NBTTagCompound tag) {
+    public static IMultipart createPart(ResourceLocation partType, NBTTagCompound tag) {
 
         IAdvancedPartFactory factory = partProviders.get(partType);
         return factory == null ? null : factory.createPart(partType, tag);
@@ -160,7 +148,7 @@ public class MultipartRegistry {
     /**
      * Creates a new part from an update packet.
      */
-    public static IMultipart createPart(String partType, PacketBuffer buf) {
+    public static IMultipart createPart(ResourceLocation partType, PacketBuffer buf) {
 
         IAdvancedPartFactory factory = partProviders.get(partType);
         return factory == null ? null : factory.createPart(partType, buf);
@@ -169,7 +157,7 @@ public class MultipartRegistry {
     /**
      * Gets the set of registered part types.
      */
-    public static Set<String> getRegisteredParts() {
+    public static Set<ResourceLocation> getRegisteredParts() {
 
         return partProviders.keySet();
     }
@@ -187,7 +175,7 @@ public class MultipartRegistry {
      */
     public static Collection<? extends IMultipart> convert(IBlockAccess world, BlockPos pos, boolean simulated) {
 
-        IPartConverter2 converter = converters.get(world.getBlockState(pos).getBlock());
+        IPartConverter converter = converters.get(world.getBlockState(pos).getBlock());
         if (converter != null) return converter.convertBlock(world, pos, simulated);
         return null;
     }
@@ -212,7 +200,7 @@ public class MultipartRegistry {
         }
 
         @Override
-        public IMultipart createPart(String type, boolean client) {
+        public IMultipart createPart(ResourceLocation type, boolean client) {
 
             try {
                 return partClass.newInstance();
@@ -233,7 +221,7 @@ public class MultipartRegistry {
         }
 
         @Override
-        public IMultipart createPart(String type, PacketBuffer buf) {
+        public IMultipart createPart(ResourceLocation type, PacketBuffer buf) {
 
             try {
                 IMultipart part = simpleFactory.createPart(type, true);
@@ -245,7 +233,7 @@ public class MultipartRegistry {
         }
 
         @Override
-        public IMultipart createPart(String type, NBTTagCompound tag) {
+        public IMultipart createPart(ResourceLocation type, NBTTagCompound tag) {
 
             try {
                 IMultipart part = simpleFactory.createPart(type, false);
@@ -255,30 +243,6 @@ public class MultipartRegistry {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    @SuppressWarnings("deprecation")
-    private static class WrappedPartConverter implements IPartConverter2 {
-
-        private final IPartConverter converter;
-
-        public WrappedPartConverter(IPartConverter converter) {
-
-            this.converter = converter;
-        }
-
-        @Override
-        public Collection<Block> getConvertableBlocks() {
-
-            return converter.getConvertableBlocks();
-        }
-
-        @Override
-        public Collection<? extends IMultipart> convertBlock(IBlockAccess world, BlockPos pos, boolean simulated) {
-
-            return converter.convertBlock(world, pos);
-        }
-
     }
 
 }

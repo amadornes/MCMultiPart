@@ -20,6 +20,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -55,13 +56,12 @@ public interface IMultipart {
      * Returns the identifier for this type of part. This will be passed into the {@link IPartFactory} or {@link IAdvancedPartFactory} to
      * create the part in the client, or when loaded from NBT.
      */
-    public String getType();
+    public ResourceLocation getType();
 
     /**
-     * Gets the path to the model used by this part. Due to it not being registered like a block ("modid:name"), a model path can't
-     * automatically be generated.
+     * Gets the path to the model used by this part.
      */
-    public String getModelPath();
+    public ResourceLocation getModelPath();
 
     /**
      * Ray traces through the part's collision from start vector to end vector returning a ray trace hit.

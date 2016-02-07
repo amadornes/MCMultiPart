@@ -21,6 +21,7 @@ import net.minecraft.client.resources.model.SimpleBakedModel;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
@@ -87,7 +88,7 @@ public final class MultipartContainerSpecialRenderer {
             renderer.renderMultipartAt(part, x, y, z, partialTicks, destroyStage);
         } else {
             if (MinecraftForgeClient.getRenderPass() == 1) {
-                String path = part.getModelPath();
+                ResourceLocation path = part.getModelPath();
                 IBlockState state = part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState());
                 IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
                         .getModelManager()

@@ -29,6 +29,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -51,7 +52,7 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
 
     protected static final AxisAlignedBB DEFAULT_RENDER_BOUNDS = AxisAlignedBB.fromBounds(0, 0, 0, 1, 1, 1);
 
-    private final String partType = MultipartRegistry.getPartType(this);
+    private final ResourceLocation partType = MultipartRegistry.getPartType(this);
     private IMultipartContainer container;
 
     private final CapabilityDispatcher capabilities;
@@ -88,15 +89,15 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
     }
 
     @Override
-    public String getType() {
+    public ResourceLocation getType() {
 
         return partType;
     }
 
     @Override
-    public String getModelPath() {
+    public ResourceLocation getModelPath() {
 
-        return null;
+        return getType();
     }
 
     @Override

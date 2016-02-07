@@ -6,6 +6,7 @@ import java.util.List;
 
 import mcmultipart.multipart.ISlottedPart.ISlotOccludingPart;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * A general use occlusion helper, with methods to check part-part occlusion, part-AABB occlusion, as well as slot occlusion.
@@ -119,7 +120,7 @@ public class OcclusionHelper {
         }
 
         @Override
-        public String getType() {
+        public ResourceLocation getType() {
 
             return null;
         }
