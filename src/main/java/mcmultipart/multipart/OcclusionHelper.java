@@ -3,10 +3,14 @@ package mcmultipart.multipart;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import mcmultipart.multipart.ISlottedPart.ISlotOccludingPart;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
+
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * A general use occlusion helper, with methods to check part-part occlusion, part-AABB occlusion, as well as slot occlusion.
@@ -43,18 +47,43 @@ public class OcclusionHelper {
     /**
      * Performs an occlusion test between the specified part list and the part.
      */
-    public static boolean occlusionTest(Iterable<? extends IMultipart> parts, IMultipart part2) {
+    public static boolean occlusionTest(IMultipart part, IMultipart... parts) {
 
-        return occlusionTest(parts, null, part2);
+        return occlusionTest(part, Arrays.asList(parts));
     }
 
     /**
      * Performs an occlusion test between the specified part list and the part, except for one part.
      */
-    public static boolean occlusionTest(Iterable<? extends IMultipart> parts, IMultipart exception, IMultipart part2) {
+    public static boolean occlusionTest(IMultipart part, Iterable<? extends IMultipart> parts, IMultipart... ignored) {
 
-        for (IMultipart part : parts)
-            if (part != exception && !occlusionTest(part, part2)) return false;
+        final Set<IMultipart> ignoredSet = ImmutableSet.copyOf(ignored);
+        return occlusionTest(part, parts, new Predicate<IMultipart>() {
+
+            @Override
+            public boolean apply(IMultipart input) {
+
+                return ignoredSet.contains(input);
+            }
+
+        });
+    }
+
+    /**
+     * Performs an occlusion test between the specified part container and the part, except for one part.
+     */
+    public static boolean occlusionTest(IMultipart part, IMultipartContainer container, IMultipart... ignored) {
+
+        return container.occlusionTest(part, ignored);
+    }
+
+    /**
+     * Performs an occlusion test between the specified part list and the part, except for one part.
+     */
+    public static boolean occlusionTest(IMultipart part, Iterable<? extends IMultipart> parts, Predicate<IMultipart> ignored) {
+
+        for (IMultipart p : parts)
+            if (!ignored.apply(p) && !occlusionTest(part, p)) return false;
 
         return true;
     }
@@ -78,10 +107,10 @@ public class OcclusionHelper {
     /**
      * Performs an occlusion test between the specified part list and the boxes, except for one part.
      */
-    public static boolean occlusionTest(Iterable<? extends IMultipart> parts, IMultipart exception, AxisAlignedBB... boxes) {
+    public static boolean occlusionTest(Iterable<? extends IMultipart> parts, Predicate<IMultipart> ignored, AxisAlignedBB... boxes) {
 
         for (IMultipart part : parts)
-            if (part != exception && !occlusionTest(part, boxes)) return false;
+            if (!ignored.apply(part) && !occlusionTest(part, boxes)) return false;
 
         return true;
     }
@@ -91,17 +120,35 @@ public class OcclusionHelper {
      */
     public static boolean isSlotOccluded(Iterable<? extends IMultipart> parts, PartSlot slot) {
 
-        return isSlotOccluded(parts, null, slot);
+        return isSlotOccluded(parts, slot);
     }
 
     /**
      * Checks if a part in the list, except for one, is occluding a slot. This means that either it's occupied by that part, or it's covered
      * by it.
      */
-    public static boolean isSlotOccluded(Iterable<? extends IMultipart> parts, IMultipart except, PartSlot slot) {
+    public static boolean isSlotOccluded(Iterable<? extends IMultipart> parts, PartSlot slot, IMultipart... ignored) {
+
+        final Set<IMultipart> ignoredSet = ImmutableSet.copyOf(ignored);
+        return isSlotOccluded(parts, slot, new Predicate<IMultipart>() {
+
+            @Override
+            public boolean apply(IMultipart input) {
+
+                return ignoredSet.contains(input);
+            }
+
+        });
+    }
+
+    /**
+     * Checks if a part in the list, except for one, is occluding a slot. This means that either it's occupied by that part, or it's covered
+     * by it.
+     */
+    public static boolean isSlotOccluded(Iterable<? extends IMultipart> parts, PartSlot slot, Predicate<IMultipart> ignored) {
 
         for (IMultipart part : parts)
-            if (part != except
+            if (!ignored.apply(part)
                     && ((part instanceof ISlottedPart && ((ISlottedPart) part).getSlotMask().contains(slot)) || part instanceof ISlotOccludingPart
                             && ((ISlotOccludingPart) part).getOccludedSlots().contains(slot))) return true;
         return false;
