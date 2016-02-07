@@ -3,7 +3,7 @@ package mcmultipart.client;
 import mcmultipart.MCMPCommonProxy;
 import mcmultipart.MCMultiPartMod;
 import mcmultipart.block.TileCoverable;
-import mcmultipart.block.TileMultipart;
+import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.client.multipart.ModelMultipartContainer;
 import mcmultipart.client.multipart.MultipartContainerSpecialRenderer.TileCoverableSpecialRenderer;
 import mcmultipart.client.multipart.MultipartContainerSpecialRenderer.TileMultipartSpecialRenderer;
@@ -35,7 +35,7 @@ public class MCMPClientProxy extends MCMPCommonProxy {
         super.init();
 
         // Register tile entity renderers, for breaking animations and dynamic rendering
-        ClientRegistry.bindTileEntitySpecialRenderer(TileMultipart.class, new TileMultipartSpecialRenderer());
+        ClientRegistry.bindTileEntitySpecialRenderer(TileMultipartContainer.class, new TileMultipartSpecialRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TileCoverable.class, new TileCoverableSpecialRenderer<TileCoverable>());
 
         // Sets up the proxy as an event handler so it can listen to model bake events

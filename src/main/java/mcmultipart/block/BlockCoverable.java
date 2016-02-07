@@ -191,7 +191,7 @@ public class BlockCoverable extends BlockContainer {
                 world.removeTileEntity(pos);
                 if (!world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState(), 3)) return false;
                 world.removeTileEntity(pos);
-                world.setTileEntity(pos, new TileMultipart(container));
+                world.setTileEntity(pos, new TileMultipartContainer(container));
                 return true;
             }
         }
@@ -527,7 +527,7 @@ public class BlockCoverable extends BlockContainer {
     public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 
         IMicroblockTile tile = getMicroblockTile(world, pos);
-        return ((IExtendedBlockState) state).withProperty(BlockMultipart.properties[0], tile != null ? tile.getMicroblockContainer()
+        return ((IExtendedBlockState) state).withProperty(BlockMultipartContainer.properties[0], tile != null ? tile.getMicroblockContainer()
                 .getPartContainer().getExtendedStates(world, pos) : new ArrayList<PartState>());
     }
 
@@ -540,7 +540,7 @@ public class BlockCoverable extends BlockContainer {
     @Override
     protected BlockState createBlockState() {
 
-        return new ExtendedBlockState(this, new IProperty[0], BlockMultipart.properties);
+        return new ExtendedBlockState(this, new IProperty[0], BlockMultipartContainer.properties);
     }
 
     @Override

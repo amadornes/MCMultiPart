@@ -18,7 +18,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 
 /**
- * An implementation of {@link TileMultipart} and {@link IMicroblockTile} that acts as a microblock container.<br/>
+ * An implementation of {@link TileMultipartContainer} and {@link IMicroblockTile} that acts as a microblock container.<br/>
  * Extend this class if you want a custom TileEntity for your {@link BlockCoverable}.
  */
 public class TileCoverable extends TileEntity implements IMicroblockTile, ISlottedCapabilityProvider {

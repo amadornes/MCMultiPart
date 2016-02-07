@@ -3,11 +3,11 @@ package mcmultipart.property;
 import mcmultipart.multipart.PartSlot;
 import net.minecraftforge.common.property.IUnlistedProperty;
 
-public class PropertySlot implements IUnlistedProperty<PartSlot> {
+public class PropertyPartSlot implements IUnlistedProperty<PartSlot> {
 
     private final String name;
 
-    public PropertySlot(String name) {
+    public PropertyPartSlot(String name) {
 
         this.name = name;
     }

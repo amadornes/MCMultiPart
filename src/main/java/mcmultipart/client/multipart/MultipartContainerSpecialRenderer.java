@@ -1,7 +1,7 @@
 package mcmultipart.client.multipart;
 
 import mcmultipart.block.TileCoverable;
-import mcmultipart.block.TileMultipart;
+import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.MultipartRegistry;
@@ -140,10 +140,10 @@ public final class MultipartContainerSpecialRenderer {
         GlStateManager.popMatrix();
     }
 
-    public static final class TileMultipartSpecialRenderer extends TileEntitySpecialRenderer<TileMultipart> {
+    public static final class TileMultipartSpecialRenderer extends TileEntitySpecialRenderer<TileMultipartContainer> {
 
         @Override
-        public void renderTileEntityAt(TileMultipart te, double x, double y, double z, float partialTicks, int destroyStage) {
+        public void renderTileEntityAt(TileMultipartContainer te, double x, double y, double z, float partialTicks, int destroyStage) {
 
             renderMultipartContainerAt(te, x, y, z, partialTicks, destroyStage, rendererDispatcher);
         }

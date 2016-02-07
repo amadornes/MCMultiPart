@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import mcmultipart.MCMultiPartMod;
-import mcmultipart.block.TileMultipart;
+import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.microblock.IMicroblockTile;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
@@ -33,7 +33,7 @@ public class MultipartHelper {
 
             Collection<? extends IMultipart> parts = MultipartRegistry.convert(world, pos, true);
             if (parts != null && !parts.isEmpty()) {
-                TileMultipart tmp = new TileMultipart();
+                TileMultipartContainer tmp = new TileMultipartContainer();
                 for (IMultipart p : parts)
                     tmp.getPartContainer().addPart(p, false, false, false, false, UUID.randomUUID());
                 return tmp.canAddPart(part);
@@ -89,8 +89,8 @@ public class MultipartHelper {
         if (newContainer) {
             world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState());
             TileEntity te = world.getTileEntity(pos);
-            if (te instanceof TileMultipart) container = (IMultipartContainer) te;
-            if (container == null) world.setTileEntity(pos, (TileEntity) (container = new TileMultipart()));
+            if (te instanceof TileMultipartContainer) container = (IMultipartContainer) te;
+            if (container == null) world.setTileEntity(pos, (TileEntity) (container = new TileMultipartContainer()));
         }
         if (container.getPartFromID(id) != null) return;
         part.setContainer(container);
@@ -137,9 +137,9 @@ public class MultipartHelper {
             TileEntity oldTile = world.getTileEntity(pos);
             world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState());
             TileEntity tile = world.getTileEntity(pos);
-            TileMultipart te = null;
-            if (tile == null || !(tile instanceof TileMultipart)) world.setTileEntity(pos, te = new TileMultipart());
-            else te = (TileMultipart) tile;
+            TileMultipartContainer te = null;
+            if (tile == null || !(tile instanceof TileMultipartContainer)) world.setTileEntity(pos, te = new TileMultipartContainer());
+            else te = (TileMultipartContainer) tile;
 
             for (IMultipart part : parts)
                 te.getPartContainer().addPart(part, false, false, false, false, UUID.randomUUID());
@@ -148,7 +148,7 @@ public class MultipartHelper {
 
             return te;
         } else {
-            TileMultipart te = new TileMultipart();
+            TileMultipartContainer te = new TileMultipartContainer();
 
             for (IMultipart part : parts)
                 te.getPartContainer().addPart(part, false, false, false, false, UUID.randomUUID());

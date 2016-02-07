@@ -12,7 +12,7 @@ import mcmultipart.multipart.Multipart;
 import mcmultipart.multipart.PartSlot;
 import mcmultipart.property.PropertyBlockState;
 import mcmultipart.property.PropertyMicroMaterial;
-import mcmultipart.property.PropertySlot;
+import mcmultipart.property.PropertyPartSlot;
 import mcmultipart.raytrace.PartMOP;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
@@ -45,7 +45,7 @@ public abstract class Microblock extends Multipart implements IMicroblock, IReds
         PROPERTIES[0] = PROPERTY_MATERIAL = new PropertyMicroMaterial("material");
         PROPERTIES[1] = PROPERTY_MATERIAL_STATE = new PropertyBlockState("material_state");
         PROPERTIES[2] = PROPERTY_SIZE = new PropertyAdapter<Integer>(PropertyInteger.create("size", 0, 7));
-        PROPERTIES[3] = PROPERTY_SLOT = new PropertySlot("slot");
+        PROPERTIES[3] = PROPERTY_SLOT = new PropertyPartSlot("slot");
     }
 
     protected IMicroMaterial material;

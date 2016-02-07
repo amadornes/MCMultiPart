@@ -28,16 +28,16 @@ import net.minecraftforge.common.capabilities.Capability;
  * You do NOT need to extend this class for your multiparts to work. I repeat, you do NOT. You need to either extend {@link Multipart} or
  * implement {@link IMultipart}. If you only need microblock support, look into {@link BlockCoverable}.
  */
-public final class TileMultipart extends TileEntity implements IMultipartContainer, ITickable {
+public final class TileMultipartContainer extends TileEntity implements IMultipartContainer, ITickable {
 
     private MultipartContainer container;
 
-    public TileMultipart(MultipartContainer container) {
+    public TileMultipartContainer(MultipartContainer container) {
 
         this.container = new MultipartContainer(this, container.canTurnIntoBlock(), container);
     }
 
-    public TileMultipart() {
+    public TileMultipartContainer() {
 
         this.container = new MultipartContainer(this, true);
     }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mcmultipart.block.BlockCoverable;
-import mcmultipart.block.BlockMultipart;
+import mcmultipart.block.BlockMultipartContainer;
 import mcmultipart.multipart.PartState;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -118,7 +118,7 @@ public class ModelMultipartContainer implements ISmartBlockModel {
     @Override
     public IBakedModel handleBlockState(IBlockState state) {
 
-        return new ModelMultipartContainer(((IExtendedBlockState) state).getValue(BlockMultipart.properties[0]), state.getBlock(),
+        return new ModelMultipartContainer(((IExtendedBlockState) state).getValue(BlockMultipartContainer.properties[0]), state.getBlock(),
                 (model instanceof ISmartBlockModel ? ((ISmartBlockModel) model).handleBlockState(state) : model));
     }
 

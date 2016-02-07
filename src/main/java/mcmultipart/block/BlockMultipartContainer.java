@@ -60,31 +60,31 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * You do NOT need to extend this class for your multiparts to work. I repeat, you do NOT. You need to either extend {@link Multipart} or
  * implement {@link IMultipart}. If you only need microblock support, look into {@link BlockCoverable}.
  */
-public final class BlockMultipart extends BlockContainer {
+public final class BlockMultipartContainer extends BlockContainer {
 
-    public BlockMultipart() {
+    public BlockMultipartContainer() {
 
         super(Material.ground);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    private TileMultipart getMultipartTile(IBlockAccess world, BlockPos pos) {
+    private TileMultipartContainer getMultipartTile(IBlockAccess world, BlockPos pos) {
 
         TileEntity tile = world.getTileEntity(pos);
-        return tile instanceof TileMultipart ? (TileMultipart) tile : null;
+        return tile instanceof TileMultipartContainer ? (TileMultipartContainer) tile : null;
     }
 
     @Override
     public TileEntity createNewTileEntity(World worldIn, int meta) {
 
-        return new TileMultipart();
+        return new TileMultipartContainer();
     }
 
     @Override
     public MovingObjectPosition collisionRayTrace(World world, BlockPos pos, Vec3 start, Vec3 end) {
 
         if (world == null || pos == null || start == null || end == null) return null;
-        TileMultipart tile = getMultipartTile(world, pos);
+        TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return null;
         RayTraceResultPart result = tile.getPartContainer().collisionRayTrace(start, end);
         if (result == null) return null;
@@ -96,7 +96,7 @@ public final class BlockMultipart extends BlockContainer {
     public void addCollisionBoxesToList(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list,
             Entity collidingEntity) {
 
-        TileMultipart tile = getMultipartTile(worldIn, pos);
+        TileMultipartContainer tile = getMultipartTile(worldIn, pos);
         if (tile == null) return;
         tile.getPartContainer().addCollisionBoxes(mask, list, collidingEntity);
     }
@@ -104,7 +104,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public int getLightValue(IBlockAccess world, BlockPos pos) {
 
-        TileMultipart tile = getMultipartTile(world, pos);
+        TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return 0;
         return tile.getPartContainer().getLightValue();
     }
@@ -113,19 +113,19 @@ public final class BlockMultipart extends BlockContainer {
     public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos, EntityPlayer player) {
 
         if (target instanceof PartMOP) {
-            TileMultipart tile = getMultipartTile(world, pos);
+            TileMultipartContainer tile = getMultipartTile(world, pos);
             if (tile == null) return null;
             return tile.getPartContainer().getPickBlock(player, (PartMOP) target);
         }
         return null;
     }
 
-    private TileMultipart brokenTile = null;
+    private TileMultipartContainer brokenTile = null;
 
     @Override
     public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te) {
 
-        brokenTile = te instanceof TileMultipart ? (TileMultipart) te : null;
+        brokenTile = te instanceof TileMultipartContainer ? (TileMultipartContainer) te : null;
         super.harvestBlock(worldIn, player, pos, state, te);
         brokenTile = null;
     }
@@ -133,7 +133,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
 
-        TileMultipart brokenTile = (TileMultipart) world.getTileEntity(pos);
+        TileMultipartContainer brokenTile = (TileMultipartContainer) world.getTileEntity(pos);
         if (brokenTile == null) brokenTile = this.brokenTile;
         if (brokenTile == null) return Collections.emptyList();
         return brokenTile.getPartContainer().getDrops();
@@ -142,7 +142,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public boolean removedByPlayer(World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
 
-        TileMultipart tile = getMultipartTile(world, pos);
+        TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return false;
         PartMOP hit = reTrace(world, pos, player);
         if (hit == null) return false;
@@ -152,7 +152,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, BlockPos pos) {
 
-        TileMultipart tile = getMultipartTile(world, pos);
+        TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return 0;
         PartMOP hit = reTrace(world, pos, player);
         if (hit == null) return 0;
@@ -163,7 +163,7 @@ public final class BlockMultipart extends BlockContainer {
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX,
             float hitY, float hitZ) {
 
-        TileMultipart tile = getMultipartTile(world, pos);
+        TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return false;
         return tile.getPartContainer().onActivated(player, player.getCurrentEquippedItem(), reTrace(world, pos, player));
     }
@@ -171,7 +171,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public void onBlockClicked(World world, BlockPos pos, EntityPlayer player) {
 
-        TileMultipart tile = getMultipartTile(world, pos);
+        TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return;
         tile.getPartContainer().onClicked(player, player.getCurrentEquippedItem(), reTrace(world, pos, player));
     }
@@ -179,7 +179,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
 
-        TileMultipart tile = getMultipartTile(worldIn, pos);
+        TileMultipartContainer tile = getMultipartTile(worldIn, pos);
         if (tile == null) return;
         tile.getPartContainer().onNeighborBlockChange(neighborBlock);
     }
@@ -187,7 +187,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 
-        TileMultipart tile = ((TileMultipart) world.getTileEntity(pos));
+        TileMultipartContainer tile = ((TileMultipartContainer) world.getTileEntity(pos));
         if (tile == null) return;
         tile.getPartContainer().onNeighborTileChange(
                 EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ() - pos.getZ()));
@@ -203,7 +203,7 @@ public final class BlockMultipart extends BlockContainer {
     public boolean canConnectRedstone(IBlockAccess world, BlockPos pos, EnumFacing side) {
 
         if (side == null) return false;
-        TileMultipart tile = getMultipartTile(world, pos);
+        TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return false;
         return tile.getPartContainer().canConnectRedstone(side.getOpposite());
     }
@@ -212,7 +212,7 @@ public final class BlockMultipart extends BlockContainer {
     public int getWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
 
         if (side == null) return 0;
-        TileMultipart tile = getMultipartTile(world, pos);
+        TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return 0;
         return tile.getPartContainer().getWeakSignal(side.getOpposite());
     }
@@ -221,7 +221,7 @@ public final class BlockMultipart extends BlockContainer {
     public int getStrongPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
 
         if (side == null) return 0;
-        TileMultipart tile = getMultipartTile(world, pos);
+        TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return 0;
         return tile.getPartContainer().getStrongSignal(side.getOpposite());
     }
@@ -229,7 +229,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
 
-        TileMultipart tile = getMultipartTile(world, pos);
+        TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return false;
         return tile.getPartContainer().isSideSolid(side);
     }
@@ -237,7 +237,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public boolean canPlaceTorchOnTop(IBlockAccess world, BlockPos pos) {
 
-        TileMultipart tile = getMultipartTile(world, pos);
+        TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return false;
         return tile.getPartContainer().canPlaceTorchOnTop();
     }
@@ -246,7 +246,7 @@ public final class BlockMultipart extends BlockContainer {
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand) {
 
-        TileMultipart tile = getMultipartTile(world, pos);
+        TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile != null) tile.getPartContainer().randomDisplayTick(rand);
     }
 
@@ -318,7 +318,7 @@ public final class BlockMultipart extends BlockContainer {
 
         Vec3 start = RayTraceUtils.getStart(player);
         Vec3 end = RayTraceUtils.getEnd(player);
-        RayTraceResultPart result = ((TileMultipart) world.getTileEntity(pos)).getPartContainer().collisionRayTrace(start, end);
+        RayTraceResultPart result = ((TileMultipartContainer) world.getTileEntity(pos)).getPartContainer().collisionRayTrace(start, end);
         return result == null ? null : result.hit;
     }
 
@@ -362,7 +362,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 
-        TileMultipart tile = (TileMultipart) world.getTileEntity(pos);
+        TileMultipartContainer tile = (TileMultipartContainer) world.getTileEntity(pos);
         return ((IExtendedBlockState) state).withProperty(properties[0],
                 tile != null ? tile.getPartContainer().getExtendedStates(world, pos) : new ArrayList<PartState>());
     }
