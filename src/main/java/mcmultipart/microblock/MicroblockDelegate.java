@@ -84,7 +84,7 @@ public class MicroblockDelegate {
 
     }
 
-    public void sendUpdatePacket() {
+    public final void sendUpdatePacket() {
 
         delegated.sendUpdatePacket();
     }

@@ -1,8 +1,8 @@
 package mcmultipart;
 
-import mcmultipart.block.BlockMultipart;
+import mcmultipart.block.BlockMultipartContainer;
 import mcmultipart.block.TileCoverable;
-import mcmultipart.block.TileMultipart;
+import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.network.MultipartNetworkHandler;
 import mcmultipart.util.MCMPEventHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -23,14 +23,14 @@ public class MCMultiPartMod {
     @SidedProxy(serverSide = MODID + ".MCMPCommonProxy", clientSide = MODID + ".client.MCMPClientProxy")
     public static MCMPCommonProxy proxy;
 
-    public static BlockMultipart multipart;
+    public static BlockMultipartContainer multipart;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
 
         // Register the multipart container Block and TileEntity
-        GameRegistry.registerBlock(multipart = new BlockMultipart(), null, "multipart");
-        GameRegistry.registerTileEntity(TileMultipart.class, "mcmultipart:multipart");
+        GameRegistry.registerBlock(multipart = new BlockMultipartContainer(), null, "multipart");
+        GameRegistry.registerTileEntity(TileMultipartContainer.class, "mcmultipart:multipart");
         // Register the default coverable tile for use with blocks that want to host covers, but don't require a TE
         GameRegistry.registerTileEntity(TileCoverable.class, "mcmultipart:coverable");
 

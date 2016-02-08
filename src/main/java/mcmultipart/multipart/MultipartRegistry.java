@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import mcmultipart.multipart.IPartConverter.IReversePartConverter;
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.BlockState;

@@ -27,6 +27,8 @@ public interface IMicroMaterial {
 
     public boolean canRenderInLayer(EnumWorldBlockLayer layer);
 
+    public IBlockState getDefaultMaterialState();
+
     public IBlockState getMaterialState(IBlockAccess world, BlockPos pos, IMicroblock microblock);
 
     public static interface IDelegatedMicroMaterial extends IMicroMaterial {

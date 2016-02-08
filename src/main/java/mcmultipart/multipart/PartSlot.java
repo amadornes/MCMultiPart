@@ -28,14 +28,14 @@ public enum PartSlot {
     EDGE_NPZ(EnumFacing.WEST, EnumFacing.UP),
     EDGE_PNZ(EnumFacing.EAST, EnumFacing.DOWN),
     EDGE_PPZ(EnumFacing.EAST, EnumFacing.UP),
-    CORNER_NNN(EnumFacing.NORTH, EnumFacing.DOWN, EnumFacing.WEST),
-    CORNER_NNP(EnumFacing.NORTH, EnumFacing.DOWN, EnumFacing.EAST),
-    CORNER_NPN(EnumFacing.NORTH, EnumFacing.UP, EnumFacing.WEST),
-    CORNER_NPP(EnumFacing.NORTH, EnumFacing.UP, EnumFacing.EAST),
-    CORNER_PNN(EnumFacing.SOUTH, EnumFacing.DOWN, EnumFacing.WEST),
-    CORNER_PNP(EnumFacing.SOUTH, EnumFacing.DOWN, EnumFacing.EAST),
-    CORNER_PPN(EnumFacing.SOUTH, EnumFacing.UP, EnumFacing.WEST),
-    CORNER_PPP(EnumFacing.SOUTH, EnumFacing.UP, EnumFacing.EAST);
+    CORNER_NNN(EnumFacing.WEST, EnumFacing.DOWN, EnumFacing.NORTH),
+    CORNER_NNP(EnumFacing.WEST, EnumFacing.DOWN, EnumFacing.SOUTH),
+    CORNER_NPN(EnumFacing.WEST, EnumFacing.UP, EnumFacing.NORTH),
+    CORNER_NPP(EnumFacing.WEST, EnumFacing.UP, EnumFacing.SOUTH),
+    CORNER_PNN(EnumFacing.EAST, EnumFacing.DOWN, EnumFacing.NORTH),
+    CORNER_PNP(EnumFacing.EAST, EnumFacing.DOWN, EnumFacing.SOUTH),
+    CORNER_PPN(EnumFacing.EAST, EnumFacing.UP, EnumFacing.NORTH),
+    CORNER_PPP(EnumFacing.EAST, EnumFacing.UP, EnumFacing.SOUTH);
 
     public static final PartSlot[] VALUES = values();
     public static final PartSlot[] FACES = { DOWN, UP, NORTH, SOUTH, WEST, EAST };
@@ -46,7 +46,7 @@ public enum PartSlot {
 
     public static PartSlot getFaceSlot(EnumFacing facing) {
 
-        if (facing == null) return null;
+        if (facing == null) return CENTER;
         return VALUES[facing.ordinal()];
     }
 
@@ -77,9 +77,9 @@ public enum PartSlot {
         if (facing1 == facing3 || facing1.getOpposite() == facing3)
             throw new IllegalArgumentException("Tried to form an illegal corner between " + facing1 + " and " + facing2 + " " + facing3);
 
-        int z = facing1.getFrontOffsetX() + facing2.getFrontOffsetX() + facing3.getFrontOffsetX();
-        int y = facing1.getFrontOffsetY() + facing2.getFrontOffsetY() + facing3.getFrontOffsetY();
-        int x = facing1.getFrontOffsetZ() + facing2.getFrontOffsetZ() + facing3.getFrontOffsetZ();
+        int x = (facing1.getFrontOffsetX() + facing2.getFrontOffsetX() + facing3.getFrontOffsetX() + 1) / 2;
+        int y = (facing1.getFrontOffsetY() + facing2.getFrontOffsetY() + facing3.getFrontOffsetY() + 1) / 2;
+        int z = (facing1.getFrontOffsetZ() + facing2.getFrontOffsetZ() + facing3.getFrontOffsetZ() + 1) / 2;
 
         int corner = (x << 2) | (y << 1) | (z << 0);
 

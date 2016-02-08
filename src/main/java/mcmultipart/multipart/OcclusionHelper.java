@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import mcmultipart.multipart.ISlottedPart.ISlotOccludingPart;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
 
@@ -22,11 +21,11 @@ public class OcclusionHelper {
      */
     public static boolean defaultOcclusionTest(IMultipart part1, IMultipart part2) {
 
-        if (part1 instanceof IOccludingPart && part2 instanceof IOccludingPart) {
+        if (part1 instanceof INormallyOccludingPart && part2 instanceof INormallyOccludingPart) {
             List<AxisAlignedBB> boxes1 = new ArrayList<AxisAlignedBB>();
             List<AxisAlignedBB> boxes2 = new ArrayList<AxisAlignedBB>();
-            ((IOccludingPart) part1).addOcclusionBoxes(boxes1);
-            ((IOccludingPart) part2).addOcclusionBoxes(boxes2);
+            ((INormallyOccludingPart) part1).addOcclusionBoxes(boxes1);
+            ((INormallyOccludingPart) part2).addOcclusionBoxes(boxes2);
 
             for (AxisAlignedBB a : boxes1)
                 for (AxisAlignedBB b : boxes2)
@@ -116,11 +115,12 @@ public class OcclusionHelper {
     }
 
     /**
-     * Checks if a part in the list is occluding a slot. This means that either it's occupied by that part, or it's covered by it.
+     * Checks if a part in the container, except for one, is occluding a slot. This means that either it's occupied by that part, or it's
+     * covered by it.
      */
-    public static boolean isSlotOccluded(Iterable<? extends IMultipart> parts, PartSlot slot) {
+    public static boolean isSlotOccluded(IMultipartContainer container, PartSlot slot, IMultipart... ignored) {
 
-        return isSlotOccluded(parts, slot);
+        return isSlotOccluded(container.getParts(), slot, ignored);
     }
 
     /**
@@ -157,7 +157,7 @@ public class OcclusionHelper {
     /**
      * A part that just has occlusion boxes. Used for occlusion testing.
      */
-    public static class NormallyOccludingPart extends Multipart implements IOccludingPart {
+    public static class NormallyOccludingPart extends Multipart implements INormallyOccludingPart {
 
         private Iterable<AxisAlignedBB> boxes;
 

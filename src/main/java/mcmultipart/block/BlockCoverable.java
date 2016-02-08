@@ -9,7 +9,7 @@ import mcmultipart.client.multipart.AdvancedEffectRenderer;
 import mcmultipart.client.multipart.ICustomHighlightPart;
 import mcmultipart.client.multipart.ISmartMultipartModel;
 import mcmultipart.client.multipart.MultipartStateMapper;
-import mcmultipart.microblock.IMicroblockTile;
+import mcmultipart.microblock.IMicroblockContainerTile;
 import mcmultipart.microblock.MicroblockContainer;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.Multipart;
@@ -61,8 +61,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * {@link Multipart} or make a custom implementation of {@link IMultipart}.<br/>
  * All the overriden methods have a "default" counterpart that allows you to handle interactions with your block if the player isn't
  * interacting with a multipart.<br/>
- * Extend {@link TileCoverable} or implement {@link IMicroblockTile} and return it in {@link BlockCoverable#createNewTileEntity(World, int)}
- * if you want a custom tile entity for your block.
+ * Extend {@link TileCoverable} or implement {@link IMicroblockContainerTile} and return it in
+ * {@link BlockCoverable#createNewTileEntity(World, int)} if you want a custom tile entity for your block.
  */
 public class BlockCoverable extends BlockContainer {
 
@@ -78,16 +78,16 @@ public class BlockCoverable extends BlockContainer {
         return new TileCoverable();
     }
 
-    private IMicroblockTile getMicroblockTile(IBlockAccess world, BlockPos pos) {
+    protected IMicroblockContainerTile getMicroblockTile(IBlockAccess world, BlockPos pos) {
 
         TileEntity tile = world.getTileEntity(pos);
-        return tile instanceof IMicroblockTile ? (IMicroblockTile) tile : null;
+        return tile instanceof IMicroblockContainerTile ? (IMicroblockContainerTile) tile : null;
     }
 
     @Override
     public final MovingObjectPosition collisionRayTrace(World world, BlockPos pos, Vec3 start, Vec3 end) {
 
-        IMicroblockTile tile = getMicroblockTile(world, pos);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         RayTraceResultPart result = tile != null ? tile.getMicroblockContainer().getPartContainer().collisionRayTrace(start, end) : null;
         MovingObjectPosition hit = collisionRayTraceDefault(world, pos, start, end);
         if (result == null) return hit;
@@ -121,7 +121,7 @@ public class BlockCoverable extends BlockContainer {
             Entity collidingEntity) {
 
         addCollisionBoxesToListDefault(world, pos, state, mask, list, collidingEntity);
-        IMicroblockTile tile = getMicroblockTile(world, pos);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         if (tile != null) tile.getMicroblockContainer().getPartContainer().addCollisionBoxes(mask, list, collidingEntity);
     }
 
@@ -134,7 +134,7 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final int getLightValue(IBlockAccess world, BlockPos pos) {
 
-        IMicroblockTile tile = getMicroblockTile(world, pos);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         return Math.max(tile != null ? tile.getMicroblockContainer().getPartContainer().getLightValue() : 0,
                 getLightValueDefault(world, pos));
     }
@@ -148,7 +148,7 @@ public class BlockCoverable extends BlockContainer {
     public final ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos, EntityPlayer player) {
 
         if (target instanceof PartMOP) {
-            IMicroblockTile tile = getMicroblockTile(world, pos);
+            IMicroblockContainerTile tile = getMicroblockTile(world, pos);
             return tile != null ? tile.getMicroblockContainer().getPartContainer().getPickBlock(player, (PartMOP) target) : null;
         }
         return getPickBlockDefault(target, world, pos, player);
@@ -164,7 +164,7 @@ public class BlockCoverable extends BlockContainer {
 
         List<ItemStack> drops = new ArrayList<ItemStack>();
         drops.addAll(getDropsDefault(world, pos, state, fortune));
-        IMicroblockTile tile = getMicroblockTile(world, pos);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         if (tile != null) drops.addAll(tile.getMicroblockContainer().getPartContainer().getDrops());
         return drops;
     }
@@ -179,10 +179,10 @@ public class BlockCoverable extends BlockContainer {
 
         MovingObjectPosition hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
-            IMicroblockTile tile = getMicroblockTile(world, pos);
+            IMicroblockContainerTile tile = getMicroblockTile(world, pos);
             return tile != null ? tile.getMicroblockContainer().getPartContainer().harvest(player, (PartMOP) hit) : false;
         } else {
-            IMicroblockTile tile = getMicroblockTile(world, pos);
+            IMicroblockContainerTile tile = getMicroblockTile(world, pos);
             MultipartContainer container = tile != null ? tile.getMicroblockContainer().getPartContainer() : null;
             if (container.getParts().isEmpty()) {
                 return removedByPlayerDefault(world, pos, player, willHarvest);
@@ -207,7 +207,7 @@ public class BlockCoverable extends BlockContainer {
 
         MovingObjectPosition hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
-            IMicroblockTile tile = getMicroblockTile(world, pos);
+            IMicroblockContainerTile tile = getMicroblockTile(world, pos);
             return tile != null ? tile.getMicroblockContainer().getPartContainer().getHardness(player, (PartMOP) hit) : 0F;
         } else {
             return getPlayerRelativeBlockHardnessDefault(player, world, pos);
@@ -225,7 +225,7 @@ public class BlockCoverable extends BlockContainer {
 
         MovingObjectPosition hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
-            IMicroblockTile tile = getMicroblockTile(world, pos);
+            IMicroblockContainerTile tile = getMicroblockTile(world, pos);
             return tile != null ? tile.getMicroblockContainer().getPartContainer()
                     .onActivated(player, player.getCurrentEquippedItem(), (PartMOP) hit) : false;
         } else {
@@ -244,7 +244,7 @@ public class BlockCoverable extends BlockContainer {
 
         MovingObjectPosition hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
-            IMicroblockTile tile = getMicroblockTile(world, pos);
+            IMicroblockContainerTile tile = getMicroblockTile(world, pos);
             if (tile != null)
                 tile.getMicroblockContainer().getPartContainer().onClicked(player, player.getCurrentEquippedItem(), (PartMOP) hit);
         } else {
@@ -260,7 +260,7 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
 
-        IMicroblockTile tile = getMicroblockTile(world, pos);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         if (tile != null) tile.getMicroblockContainer().getPartContainer().onNeighborBlockChange(neighborBlock);
         onNeighborBlockChangeDefault(world, pos, state, neighborBlock);
     }
@@ -272,7 +272,7 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 
-        IMicroblockTile tile = getMicroblockTile(world, pos);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         if (tile != null)
             tile.getMicroblockContainer()
                     .getPartContainer()
@@ -296,7 +296,7 @@ public class BlockCoverable extends BlockContainer {
     public final boolean canConnectRedstone(IBlockAccess world, BlockPos pos, EnumFacing side) {
 
         if (side == null) return false;
-        IMicroblockTile tile = getMicroblockTile(world, pos);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
         if (container.getPartContainer().canConnectRedstone(side)) return true;
         return canConnectRedstoneDefault(world, pos, side, container);
@@ -311,7 +311,7 @@ public class BlockCoverable extends BlockContainer {
     public final int getWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
 
         if (side == null) return 0;
-        IMicroblockTile tile = getMicroblockTile(world, pos);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
         if (container == null) return getWeakPowerDefault(world, pos, state, side, null);
         return Math.max(container.getPartContainer().getWeakSignal(side), getWeakPowerDefault(world, pos, state, side, container));
@@ -326,7 +326,7 @@ public class BlockCoverable extends BlockContainer {
     public final int getStrongPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
 
         if (side == null) return 0;
-        IMicroblockTile tile = getMicroblockTile(world, pos);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
         if (container == null) return getStrongPowerDefault(world, pos, state, side, null);
         return Math.max(container.getPartContainer().getStrongSignal(side), getStrongPowerDefault(world, pos, state, side, container));
@@ -340,7 +340,7 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
 
-        IMicroblockTile tile = getMicroblockTile(world, pos);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
         if (container == null) return false;
         return container.getPartContainer().isSideSolid(side) || isSideSolidDefault(world, pos, side);
@@ -354,7 +354,7 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public final boolean canPlaceTorchOnTop(IBlockAccess world, BlockPos pos) {
 
-        IMicroblockTile tile = getMicroblockTile(world, pos);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
         if (container == null) return false;
         return container.getPartContainer().canPlaceTorchOnTop() || canPlaceTorchOnTopDefault(world, pos);
@@ -370,7 +370,7 @@ public class BlockCoverable extends BlockContainer {
     public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand) {
 
         randomDisplayTickDefault(world, pos, state, rand);
-        IMicroblockTile tile = getMicroblockTile(world, pos);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
         if (container != null) container.getPartContainer().randomDisplayTick(rand);
     }
@@ -466,7 +466,7 @@ public class BlockCoverable extends BlockContainer {
 
     private PartMOP reTrace(World world, BlockPos pos, EntityPlayer player) {
 
-        IMicroblockTile tile = getMicroblockTile(world, pos);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         if (tile == null) return null;
         Vec3 start = RayTraceUtils.getStart(player);
         Vec3 end = RayTraceUtils.getEnd(player);
@@ -526,9 +526,9 @@ public class BlockCoverable extends BlockContainer {
     @Override
     public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 
-        IMicroblockTile tile = getMicroblockTile(world, pos);
-        return ((IExtendedBlockState) state).withProperty(BlockMultipartContainer.properties[0], tile != null ? tile.getMicroblockContainer()
-                .getPartContainer().getExtendedStates(world, pos) : new ArrayList<PartState>());
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
+        return ((IExtendedBlockState) state).withProperty(BlockMultipartContainer.properties[0], tile != null ? tile
+                .getMicroblockContainer().getPartContainer().getExtendedStates(world, pos) : new ArrayList<PartState>());
     }
 
     @Override

@@ -3,8 +3,8 @@ package mcmultipart.microblock;
 import mcmultipart.multipart.IMultipart;
 import net.minecraft.util.EnumFacing;
 
-public interface ISideHollowConnect extends IMultipart {
+public interface ICenterConnectablePart extends IMultipart {
 
-    public int getHollowSize(EnumFacing side);
+    public int getHoleRadius(EnumFacing side);
 
 }

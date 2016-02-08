@@ -14,10 +14,10 @@ import net.minecraftforge.common.capabilities.Capability;
 
 public class MicroblockContainer implements IMultipartContainer {
 
-    private IMicroblockTile microTile;
+    private IMicroblockContainerTile microTile;
     private MultipartContainer container;
 
-    public MicroblockContainer(IMicroblockTile microTile) {
+    public MicroblockContainer(IMicroblockContainerTile microTile) {
 
         this.microTile = microTile;
         this.container = new MultipartContainer(microTile, false);

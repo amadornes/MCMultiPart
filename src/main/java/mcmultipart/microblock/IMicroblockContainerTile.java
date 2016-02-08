@@ -5,7 +5,7 @@ import mcmultipart.util.IWorldLocation;
 /**
  * Interface implemented by TileEntities which want to act as microblock containers.
  */
-public interface IMicroblockTile extends IWorldLocation {
+public interface IMicroblockContainerTile extends IWorldLocation {
 
     /**
      * Gets the microblock container for this tile.
@@ -18,7 +18,7 @@ public interface IMicroblockTile extends IWorldLocation {
     public boolean canAddMicroblock(IMicroblock microblock);
 
     /**
-     * Called whenever a microblock changes.
+     * Called whenever a microblock in this tile changes.
      */
     public void onMicroblocksChanged();
 

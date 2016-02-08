@@ -9,6 +9,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
@@ -53,6 +54,13 @@ public class BlockMicroMaterial implements IMicroMaterial {
         this.blockState = blockState;
         this.hardness = hardness;
         this.name = genName();
+    }
+
+    private BlockMicroMaterial(BlockMicroMaterial material) {
+
+        this.blockState = material.blockState;
+        this.hardness = material.hardness;
+        this.name = material.name;
     }
 
     private final String genName() {
@@ -122,9 +130,38 @@ public class BlockMicroMaterial implements IMicroMaterial {
     }
 
     @Override
+    public IBlockState getDefaultMaterialState() {
+
+        return blockState;
+    }
+
+    @Override
     public IBlockState getMaterialState(IBlockAccess world, BlockPos pos, IMicroblock microblock) {
 
         return blockState;
+    }
+
+    public DelegatedBlockMicroMaterial withDelegate(Function<Tuple<IMicroblock, Boolean>, MicroblockDelegate> delegateFactory) {
+
+        return new DelegatedBlockMicroMaterial(this, delegateFactory);
+    }
+
+    public static class DelegatedBlockMicroMaterial extends BlockMicroMaterial implements IDelegatedMicroMaterial {
+
+        private final Function<Tuple<IMicroblock, Boolean>, MicroblockDelegate> delegateFactory;
+
+        private DelegatedBlockMicroMaterial(BlockMicroMaterial material,
+                Function<Tuple<IMicroblock, Boolean>, MicroblockDelegate> delegateFactory) {
+
+            super(material);
+            this.delegateFactory = delegateFactory;
+        }
+
+        @Override
+        public MicroblockDelegate provideDelegate(IMicroblock microblock, boolean isRemote) {
+
+            return delegateFactory.apply(new Tuple<IMicroblock, Boolean>(microblock, isRemote));
+        }
     }
 
 }

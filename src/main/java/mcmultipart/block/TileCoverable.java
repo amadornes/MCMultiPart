@@ -3,7 +3,7 @@ package mcmultipart.block;
 import mcmultipart.capabilities.ISlottedCapabilityProvider;
 import mcmultipart.capabilities.MultipartCapabilityHelper;
 import mcmultipart.microblock.IMicroblock;
-import mcmultipart.microblock.IMicroblockTile;
+import mcmultipart.microblock.IMicroblockContainerTile;
 import mcmultipart.microblock.MicroblockContainer;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.PartSlot;
@@ -18,10 +18,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 
 /**
- * An implementation of {@link TileMultipartContainer} and {@link IMicroblockTile} that acts as a microblock container.<br/>
+ * An implementation of {@link TileMultipartContainer} and {@link IMicroblockContainerTile} that acts as a microblock container.<br/>
  * Extend this class if you want a custom TileEntity for your {@link BlockCoverable}.
  */
-public class TileCoverable extends TileEntity implements IMicroblockTile, ISlottedCapabilityProvider {
+public class TileCoverable extends TileEntity implements IMicroblockContainerTile, ISlottedCapabilityProvider {
 
     private MicroblockContainer container;
 

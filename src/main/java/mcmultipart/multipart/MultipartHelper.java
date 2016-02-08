@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import mcmultipart.MCMultiPartMod;
 import mcmultipart.block.TileMultipartContainer;
-import mcmultipart.microblock.IMicroblockTile;
+import mcmultipart.microblock.IMicroblockContainerTile;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
@@ -117,7 +117,7 @@ public class MultipartHelper {
         TileEntity te = world.getTileEntity(pos);
         if (te == null) return null;
         if (te instanceof IMultipartContainer) return (IMultipartContainer) te;
-        if (te instanceof IMicroblockTile) return ((IMicroblockTile) te).getMicroblockContainer();
+        if (te instanceof IMicroblockContainerTile) return ((IMicroblockContainerTile) te).getMicroblockContainer();
         return null;
     }
 

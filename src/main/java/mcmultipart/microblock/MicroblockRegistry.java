@@ -8,9 +8,24 @@ import java.util.Map;
 import java.util.Set;
 
 import mcmultipart.multipart.MultipartRegistry;
+import mcmultipart.raytrace.PartMOP;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.ContainerWorkbench;
+import net.minecraft.item.ItemStack;
+import net.minecraft.stats.StatList;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.IChatComponent;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.IInteractionObject;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 
 public class MicroblockRegistry {
 
@@ -33,30 +48,30 @@ public class MicroblockRegistry {
         return material;
     }
 
-    public static IMicroMaterial registerMaterial(IBlockState blockState, float hardness) {
+    public static BlockMicroMaterial registerMaterial(IBlockState blockState, float hardness) {
 
         return registerMaterial(new BlockMicroMaterial(blockState, hardness));
     }
 
-    public static IMicroMaterial registerMaterial(IBlockState blockState) {
+    public static BlockMicroMaterial registerMaterial(IBlockState blockState) {
 
         return registerMaterial(new BlockMicroMaterial(blockState));
     }
 
-    public static IMicroMaterial registerMaterial(Block block, int meta) {
+    public static BlockMicroMaterial registerMaterial(Block block, int meta) {
 
         return registerMaterial(block.getStateFromMeta(meta));
     }
 
-    public static IMicroMaterial[] registerMaterial(Block block, int fromMeta, int toMeta) {
+    public static BlockMicroMaterial[] registerMaterial(Block block, int fromMeta, int toMeta) {
 
-        IMicroMaterial[] materials = new IMicroMaterial[toMeta - fromMeta + 1];
+        BlockMicroMaterial[] materials = new BlockMicroMaterial[toMeta - fromMeta + 1];
         for (int i = fromMeta; i <= toMeta; i++)
             materials[i - fromMeta] = registerMaterial(block, i);
         return materials;
     }
 
-    public static IMicroMaterial registerMaterial(Block block) {
+    public static BlockMicroMaterial registerMaterial(Block block) {
 
         return registerMaterial(block.getDefaultState());
     }
@@ -85,7 +100,6 @@ public class MicroblockRegistry {
         registerMaterial(Blocks.mossy_cobblestone);
         registerMaterial(Blocks.obsidian);
         registerMaterial(Blocks.diamond_block);
-        // registerMaterial(Blocks.crafting_table);
         registerMaterial(Blocks.pumpkin);
         registerMaterial(Blocks.netherrack);
         registerMaterial(Blocks.soul_sand);
@@ -108,6 +122,90 @@ public class MicroblockRegistry {
         registerMaterial(Blocks.glowstone);
         registerMaterial(Blocks.sea_lantern);
         registerMaterial(Blocks.redstone_block);
+
+        registerMaterial(new BlockMicroMaterial(Blocks.crafting_table.getDefaultState())
+                .withDelegate(new Function<Tuple<IMicroblock, Boolean>, MicroblockDelegate>() {
+
+                    @Override
+                    public MicroblockDelegate apply(Tuple<IMicroblock, Boolean> input) {
+
+                        return new CraftingTableMicroblockDelegate(input.getFirst());
+                    }
+                }));
+    }
+
+    private static final class CraftingTableMicroblockDelegate extends MicroblockDelegate {
+
+        public CraftingTableMicroblockDelegate(IMicroblock delegated) {
+
+            super(delegated);
+        }
+
+        @Override
+        public Optional<Boolean> onActivated(EntityPlayer player, ItemStack stack, PartMOP hit) {
+
+            if (!delegated.getWorld().isRemote) {
+                player.displayGui(new InterfaceMicroCraftingTable(delegated));
+                player.triggerAchievement(StatList.field_181742_Z);
+            }
+
+            return Optional.of(true);
+        }
+
+        @Override
+        public void onRemoved() {
+
+        }
+
+    }
+
+    private static class InterfaceMicroCraftingTable implements IInteractionObject {
+
+        private final IMicroblock microblock;
+
+        public InterfaceMicroCraftingTable(IMicroblock microblock) {
+
+            this.microblock = microblock;
+        }
+
+        @Override
+        public String getName() {
+
+            return null;
+        }
+
+        @Override
+        public boolean hasCustomName() {
+
+            return false;
+        }
+
+        @Override
+        public IChatComponent getDisplayName() {
+
+            return new ChatComponentTranslation(Blocks.crafting_table.getUnlocalizedName() + ".name");
+        }
+
+        @Override
+        public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn) {
+
+            return new ContainerWorkbench(playerInventory, microblock.getWorld(), microblock.getPos()) {
+
+                @Override
+                public boolean canInteractWith(EntityPlayer player) {
+
+                    BlockPos pos = microblock.getPos();
+                    return microblock.getContainer() == null ? false : player.getDistanceSq(pos.getX() + 0.5D, pos.getY() + 0.5D,
+                            pos.getZ() + 0.5D) <= 64.0D;
+                }
+            };
+        }
+
+        @Override
+        public String getGuiID() {
+
+            return "minecraft:crafting_table";
+        }
     }
 
 }

@@ -27,7 +27,12 @@ public abstract class MicroblockClass implements IAdvancedPartFactory {
 
     public abstract IMultipart create(boolean client);
 
-    private final ResourceLocation fullQualifiedType = new ResourceLocation(Loader.instance().activeModContainer().getModId(), getType());
+    private final ResourceLocation fullQualifiedType;
+    {
+        String type = getType();
+        if (type.contains(":")) fullQualifiedType = new ResourceLocation(type);
+        else fullQualifiedType = new ResourceLocation(Loader.instance().activeModContainer().getModId(), type);
+    }
 
     public final ResourceLocation getFullQualifiedType() {
 
