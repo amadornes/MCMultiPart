@@ -287,6 +287,42 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
+    public Boolean isAABBInsideMaterial(World world, BlockPos pos, AxisAlignedBB aabb, Material material) {
+
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        Boolean def = isAABBInsideMaterialDefault(world, pos, aabb, material);
+        if (tile == null) return def;
+        Boolean is = tile.getMicroblockContainer().getPartContainer().isAABBInsideMaterial(aabb, material);
+        if ((def != null && def == true) || (is != null && is == true)) return true;
+        if ((def != null && def == false) || (is != null && is == false)) return true;
+        return null;
+    }
+
+    public Boolean isAABBInsideMaterialDefault(World world, BlockPos pos, AxisAlignedBB boundingBox, Material materialIn) {
+
+        return super.isAABBInsideMaterial(world, pos, boundingBox, materialIn);
+    }
+
+    @Override
+    public Boolean isEntityInsideMaterial(World world, BlockPos pos, IBlockState state, Entity entity, double yToTest, Material material,
+            boolean testingHead) {
+
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        Boolean def = isEntityInsideMaterialDefault(world, pos, state, entity, yToTest, material, testingHead);
+        if (tile == null) return def;
+        Boolean is = tile.getMicroblockContainer().getPartContainer().isEntityInsideMaterial(entity, yToTest, material, testingHead);
+        if ((def != null && def == true) || (is != null && is == true)) return true;
+        if ((def != null && def == false) || (is != null && is == false)) return true;
+        return null;
+    }
+
+    public Boolean isEntityInsideMaterialDefault(World world, BlockPos blockpos, IBlockState iblockstate, Entity entity, double yToTest,
+            Material materialIn, boolean testingHead) {
+
+        return super.isEntityInsideMaterial(world, blockpos, iblockstate, entity, yToTest, materialIn, testingHead);
+    }
+
+    @Override
     public boolean canProvidePower() {
 
         return true;

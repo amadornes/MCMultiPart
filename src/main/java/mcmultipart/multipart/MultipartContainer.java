@@ -24,6 +24,7 @@ import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 import mcmultipart.util.IWorldLocation;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -505,6 +506,36 @@ public class MultipartContainer implements IMultipartContainer {
         IMultipart part = getPartInSlot(slot);
         return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).getCapability(capability, slot, facing)
                 : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).getCapability(capability, facing) : null;
+    }
+
+    public Boolean isAABBInsideMaterial(AxisAlignedBB aabb, Material material) {
+
+        Boolean def = null;
+        for (IMultipart part : getParts()) {
+            if (part instanceof IMaterialPart) {
+                Boolean is = ((IMaterialPart) part).isAABBInsideMaterial(aabb, material);
+                if (is != null) {
+                    if (is == true) return true;
+                    else def = false;
+                }
+            }
+        }
+        return def;
+    }
+
+    public Boolean isEntityInsideMaterial(Entity entity, double yToTest, Material material, boolean testingHead) {
+
+        Boolean def = null;
+        for (IMultipart part : getParts()) {
+            if (part instanceof IMaterialPart) {
+                Boolean is = ((IMaterialPart) part).isEntityInsideMaterial(entity, yToTest, material, testingHead);
+                if (is != null) {
+                    if (is == true) return true;
+                    else def = false;
+                }
+            }
+        }
+        return def;
     }
 
 }
