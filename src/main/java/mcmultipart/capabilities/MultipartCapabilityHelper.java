@@ -19,7 +19,7 @@ public class MultipartCapabilityHelper {
     public static boolean hasCapability(IMultipartContainer container, Capability<?> capability, EnumFacing side) {
 
         for (EnumFacing face : EnumFacing.VALUES)
-            if (face != side && face != side.getOpposite() && hasCapability(container, capability, side, face)) return true;
+            if (face != side && face.getOpposite() != side && hasCapability(container, capability, side, face)) return true;
         return false;
     }
 
