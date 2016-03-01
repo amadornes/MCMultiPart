@@ -42,7 +42,7 @@ public abstract class MicroblockClass implements IAdvancedPartFactory {
     @Override
     public IMultipart createPart(ResourceLocation type, PacketBuffer buf) {
 
-        IMultipart part = type.equals(getType()) ? create(true) : null;
+        IMultipart part = type.equals(getFullQualifiedType()) ? create(true) : null;
         if (part != null) part.readUpdatePacket(buf);
         return part;
     }
@@ -50,7 +50,7 @@ public abstract class MicroblockClass implements IAdvancedPartFactory {
     @Override
     public IMultipart createPart(ResourceLocation type, NBTTagCompound tag) {
 
-        IMultipart part = type.equals(getType()) ? create(false) : null;
+        IMultipart part = type.equals(getFullQualifiedType()) ? create(false) : null;
         if (part != null) part.readFromNBT(tag);
         return part;
     }
