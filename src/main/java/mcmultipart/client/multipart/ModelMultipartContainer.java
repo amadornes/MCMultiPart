@@ -1,6 +1,7 @@
 package mcmultipart.client.multipart;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import mcmultipart.block.BlockCoverable;
@@ -23,7 +24,6 @@ import net.minecraftforge.common.property.IExtendedBlockState;
 public class ModelMultipartContainer implements ISmartBlockModel {
 
     public IBakedModel model;
-
     private Block block;
     private List<PartState> partStates;
 
@@ -42,10 +42,18 @@ public class ModelMultipartContainer implements ISmartBlockModel {
     @Override
     public List<BakedQuad> getFaceQuads(EnumFacing face) {
 
+        if (block == null || partStates == null) {
+            if (model != null
+                    && (!(block instanceof BlockCoverable) || ((BlockCoverable) block).canRenderInLayerDefault(MinecraftForgeClient
+                            .getRenderLayer()))) return model.getFaceQuads(face);
+            return Collections.emptyList();
+        }
+
         List<BakedQuad> quads = new ArrayList<BakedQuad>();
         if (model != null
                 && (!(block instanceof BlockCoverable) || ((BlockCoverable) block).canRenderInLayerDefault(MinecraftForgeClient
                         .getRenderLayer()))) quads.addAll(model.getFaceQuads(face));
+
         for (PartState partState : partStates) {
             if (!partState.renderLayers.contains(MinecraftForgeClient.getRenderLayer())) continue;
 
@@ -63,6 +71,13 @@ public class ModelMultipartContainer implements ISmartBlockModel {
 
     @Override
     public List<BakedQuad> getGeneralQuads() {
+
+        if (block == null || partStates == null) {
+            if (model != null
+                    && (!(block instanceof BlockCoverable) || ((BlockCoverable) block).canRenderInLayerDefault(MinecraftForgeClient
+                            .getRenderLayer()))) return model.getGeneralQuads();
+            return Collections.emptyList();
+        }
 
         List<BakedQuad> quads = new ArrayList<BakedQuad>();
         if (model != null
