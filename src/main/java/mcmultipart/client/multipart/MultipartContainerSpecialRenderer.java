@@ -21,6 +21,7 @@ import net.minecraft.client.resources.model.SimpleBakedModel;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
@@ -158,7 +159,8 @@ public final class MultipartContainerSpecialRenderer {
                 if (MinecraftForgeClient.getRenderPass() != 1) return;
 
                 MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
-                if (mop != null && mop.getBlockPos().equals(te.getPosIn()) && !(mop instanceof PartMOP)) {
+                if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK && mop.getBlockPos() != null
+                        && mop.getBlockPos().equals(te.getPosIn()) && !(mop instanceof PartMOP)) {
                     IVertexConsumer consumer = new WorldRendererConsumer(Tessellator.getInstance().getWorldRenderer());
                     startBreaking(rendererDispatcher);
                     if (canRenderBreaking()) {
