@@ -196,7 +196,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public Boolean isAABBInsideMaterial(World world, BlockPos pos, AxisAlignedBB aabb, Material material) {
 
-        TileMultipart tile = ((TileMultipart) world.getTileEntity(pos));
+        TileMultipart tile = getMultipartTile(world, pos);
         if (tile == null) return null;
         return tile.getPartContainer().isAABBInsideMaterial(aabb, material);
     }
@@ -205,7 +205,7 @@ public final class BlockMultipart extends BlockContainer {
     public Boolean isEntityInsideMaterial(World world, BlockPos pos, IBlockState state, Entity entity, double yToTest, Material material,
             boolean testingHead) {
 
-        TileMultipart tile = ((TileMultipart) world.getTileEntity(pos));
+        TileMultipart tile = getMultipartTile(world, pos);
         if (tile == null) return null;
         return tile.getPartContainer().isEntityInsideMaterial(entity, yToTest, material, testingHead);
     }
