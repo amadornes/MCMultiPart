@@ -159,13 +159,32 @@ public class BlockCoverable extends BlockContainer {
         return super.getPickBlock(target, world, pos, player);
     }
 
-    @Override
-    public final List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+    private IMicroblockTile brokenTile = null;
+    private boolean harvestingWrapper = false;
 
+    @Override
+    public final void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te) {
+
+        brokenTile = te instanceof IMicroblockTile ? (IMicroblockTile) te : null;
+        defaultHarvestBlock(world, player, pos, state, te);
+        brokenTile = null;
+    }
+
+    public void defaultHarvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te) {
+
+        super.harvestBlock(worldIn, player, pos, state, te);
+    }
+
+    @Override
+    public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+
+        if (harvestingWrapper) return getDropsDefault(world, pos, state, fortune);
+        IMicroblockTile brokenTile = getMicroblockTile(world, pos);
+        if (brokenTile == null) brokenTile = this.brokenTile;
+        if (brokenTile == null) return getDropsDefault(world, pos, state, fortune);
         List<ItemStack> drops = new ArrayList<ItemStack>();
         drops.addAll(getDropsDefault(world, pos, state, fortune));
-        IMicroblockTile tile = getMicroblockTile(world, pos);
-        if (tile != null) drops.addAll(tile.getMicroblockContainer().getPartContainer().getDrops());
+        drops.addAll(brokenTile.getMicroblockContainer().getPartContainer().getDrops());
         return drops;
     }
 
@@ -180,7 +199,8 @@ public class BlockCoverable extends BlockContainer {
         MovingObjectPosition hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
             IMicroblockTile tile = getMicroblockTile(world, pos);
-            return tile != null ? tile.getMicroblockContainer().getPartContainer().harvest(player, (PartMOP) hit) : false;
+            if (tile != null) tile.getMicroblockContainer().getPartContainer().harvest(player, (PartMOP) hit);
+            return false;
         } else {
             IMicroblockTile tile = getMicroblockTile(world, pos);
             MultipartContainer container = tile != null ? tile.getMicroblockContainer().getPartContainer() : null;
@@ -189,10 +209,14 @@ public class BlockCoverable extends BlockContainer {
             } else {
                 if (!removedByPlayerDefault(world, pos, player, willHarvest)) return false;
                 world.removeTileEntity(pos);
-                if (!world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState(), 3)) return false;
+                if (!world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState(), 0)) return false;
                 world.removeTileEntity(pos);
                 world.setTileEntity(pos, new TileMultipart(container));
-                return true;
+                world.markBlockForUpdate(pos);
+                harvestingWrapper = true;
+                harvestBlock(world, player, pos, world.getBlockState(pos), world.getTileEntity(pos));
+                harvestingWrapper = false;
+                return false;
             }
         }
     }
