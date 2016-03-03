@@ -29,7 +29,7 @@ import net.minecraftforge.client.model.pipeline.WorldRendererConsumer;
 
 public final class MultipartContainerSpecialRenderer {
 
-    public static boolean renderMultipartContainerAt(IMultipartContainer te, double x, double y, double z, float partialTicks,
+    public static boolean renderMultipartContainerAt(IMultipartContainer container, double x, double y, double z, float partialTicks,
             int destroyStage, TileEntityRendererDispatcher rendererDispatcher) {
 
         if (destroyStage >= 0) {
@@ -37,11 +37,11 @@ public final class MultipartContainerSpecialRenderer {
             startBreaking(rendererDispatcher);
 
             MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
-            if (mop != null && mop.getBlockPos().equals(te.getPosIn()) && mop instanceof PartMOP
-                    && te.getParts().contains(((PartMOP) mop).partHit)) {
+            if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK && mop.getBlockPos() != null
+                    && mop.getBlockPos().equals(container.getPosIn()) && !(mop instanceof PartMOP)) {
                 renderBreaking(((PartMOP) mop).partHit, consumer, x, y, z, partialTicks, destroyStage, rendererDispatcher);
             } else {
-                for (IMultipart part : te.getParts())
+                for (IMultipart part : container.getParts())
                     renderBreaking(part, consumer, x, y, z, partialTicks, destroyStage, rendererDispatcher);
             }
 
@@ -49,7 +49,7 @@ public final class MultipartContainerSpecialRenderer {
             return true;
         }
 
-        for (IMultipart part : te.getParts()) {
+        for (IMultipart part : container.getParts()) {
             MultipartSpecialRenderer<IMultipart> renderer = MultipartRegistryClient.getSpecialRenderer(part);
             if (renderer != null && renderer.shouldRenderInPass(part, MinecraftForgeClient.getRenderPass())) {
                 renderer.setRendererDispatcher(rendererDispatcher);
