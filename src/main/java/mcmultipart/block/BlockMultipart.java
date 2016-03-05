@@ -187,7 +187,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 
-        TileMultipart tile = ((TileMultipart) world.getTileEntity(pos));
+        TileMultipart tile = getMultipartTile(world, pos);
         if (tile == null) return;
         tile.getPartContainer().onNeighborTileChange(
                 EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ() - pos.getZ()));
