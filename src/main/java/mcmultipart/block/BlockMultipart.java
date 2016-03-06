@@ -133,7 +133,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
 
-        TileMultipart brokenTile = (TileMultipart) world.getTileEntity(pos);
+        TileMultipart brokenTile = getMultipartTile(world, pos);
         if (brokenTile == null) brokenTile = this.brokenTile;
         if (brokenTile == null) return Collections.emptyList();
         return brokenTile.getPartContainer().getDrops();
@@ -337,7 +337,7 @@ public final class BlockMultipart extends BlockContainer {
 
         Vec3 start = RayTraceUtils.getStart(player);
         Vec3 end = RayTraceUtils.getEnd(player);
-        RayTraceResultPart result = ((TileMultipart) world.getTileEntity(pos)).getPartContainer().collisionRayTrace(start, end);
+        RayTraceResultPart result = getMultipartTile(world, pos).getPartContainer().collisionRayTrace(start, end);
         return result == null ? null : result.hit;
     }
 
@@ -381,7 +381,7 @@ public final class BlockMultipart extends BlockContainer {
     @Override
     public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 
-        TileMultipart tile = (TileMultipart) world.getTileEntity(pos);
+        TileMultipart tile = getMultipartTile(world, pos);
         return ((IExtendedBlockState) state).withProperty(properties[0],
                 tile != null ? tile.getPartContainer().getExtendedStates(world, pos) : new ArrayList<PartState>());
     }
