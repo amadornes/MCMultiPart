@@ -77,9 +77,9 @@ public enum PartSlot {
         if (facing1 == facing3 || facing1.getOpposite() == facing3)
             throw new IllegalArgumentException("Tried to form an illegal corner between " + facing1 + " and " + facing2 + " " + facing3);
 
-        int z = facing1.getFrontOffsetX() + facing2.getFrontOffsetX() + facing3.getFrontOffsetX();
-        int y = facing1.getFrontOffsetY() + facing2.getFrontOffsetY() + facing3.getFrontOffsetY();
-        int x = facing1.getFrontOffsetZ() + facing2.getFrontOffsetZ() + facing3.getFrontOffsetZ();
+        int z = (facing1.getFrontOffsetX()+1)/2 + (facing2.getFrontOffsetX()+1)/2  + (facing3.getFrontOffsetX()+1)/2;
+        int y = (facing1.getFrontOffsetY()+1)/2 + (facing2.getFrontOffsetY()+1)/2  + (facing3.getFrontOffsetY()+1)/2;
+        int x = (facing1.getFrontOffsetZ()+1)/2 + (facing2.getFrontOffsetZ()+1)/2  + (facing3.getFrontOffsetZ()+1)/2;
 
         int corner = (x << 2) | (y << 1) | (z << 0);
 
