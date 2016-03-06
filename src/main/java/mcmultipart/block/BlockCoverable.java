@@ -311,6 +311,34 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
+    public final void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity) {
+
+        onEntityCollidedWithBlockDefault(world, pos, entity);
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        if (tile == null) return;
+        tile.getMicroblockContainer().getPartContainer().onEntityStanding(entity);
+    }
+
+    public void onEntityCollidedWithBlockDefault(World worldIn, BlockPos pos, Entity entityIn) {
+
+        super.onEntityCollidedWithBlock(worldIn, pos, entityIn);
+    }
+
+    @Override
+    public final void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity) {
+
+        onEntityCollidedWithBlockDefault(world, pos, state, entity);
+        IMicroblockTile tile = getMicroblockTile(world, pos);
+        if (tile == null) return;
+        tile.getMicroblockContainer().getPartContainer().onEntityCollided(entity);
+    }
+
+    public void onEntityCollidedWithBlockDefault(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
+
+        super.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
+    }
+
+    @Override
     public Boolean isAABBInsideMaterial(World world, BlockPos pos, AxisAlignedBB aabb, Material material) {
 
         IMicroblockTile tile = getMicroblockTile(world, pos);

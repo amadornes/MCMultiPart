@@ -538,4 +538,16 @@ public class MultipartContainer implements IMultipartContainer {
         return def;
     }
 
+    public void onEntityStanding(Entity entity) {
+
+        for (IMultipart part : getParts())
+            if (part instanceof ICollidableMultipart) ((ICollidableMultipart) part).onEntityStanding(entity);
+    }
+
+    public void onEntityCollided(Entity entity) {
+
+        for (IMultipart part : getParts())
+            if (part instanceof ICollidableMultipart) ((ICollidableMultipart) part).onEntityCollided(entity);
+    }
+
 }

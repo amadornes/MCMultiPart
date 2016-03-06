@@ -194,6 +194,22 @@ public final class BlockMultipart extends BlockContainer {
     }
 
     @Override
+    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity) {
+
+        TileMultipart tile = getMultipartTile(world, pos);
+        if (tile == null) return;
+        tile.getPartContainer().onEntityStanding(entity);
+    }
+
+    @Override
+    public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity) {
+
+        TileMultipart tile = getMultipartTile(world, pos);
+        if (tile == null) return;
+        tile.getPartContainer().onEntityCollided(entity);
+    }
+
+    @Override
     public Boolean isAABBInsideMaterial(World world, BlockPos pos, AxisAlignedBB aabb, Material material) {
 
         TileMultipart tile = getMultipartTile(world, pos);
