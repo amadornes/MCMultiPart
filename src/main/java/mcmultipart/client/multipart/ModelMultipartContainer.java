@@ -102,19 +102,19 @@ public class ModelMultipartContainer implements ISmartBlockModel {
     @Override
     public boolean isAmbientOcclusion() {
 
-        return true;
+        return model != null ? model.isAmbientOcclusion() : true;
     }
 
     @Override
     public boolean isGui3d() {
 
-        return false;
+        return model != null ? model.isGui3d() : false;
     }
 
     @Override
     public boolean isBuiltInRenderer() {
 
-        return false;
+        return model != null ? model.isBuiltInRenderer() : false;
     }
 
     @Override
@@ -127,7 +127,7 @@ public class ModelMultipartContainer implements ISmartBlockModel {
     @Override
     public ItemCameraTransforms getItemCameraTransforms() {
 
-        return ItemCameraTransforms.DEFAULT;
+        return model != null ? model.getItemCameraTransforms() : ItemCameraTransforms.DEFAULT;
     }
 
     @Override
