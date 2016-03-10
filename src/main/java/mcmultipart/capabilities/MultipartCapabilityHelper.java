@@ -27,7 +27,7 @@ public class MultipartCapabilityHelper {
 
         Set<T> implementations = new HashSet<T>();
         for (EnumFacing face : EnumFacing.VALUES) {
-            if (face != side && face != side.getOpposite()) {
+            if (face != side && face.getOpposite() != side) {
                 T impl = getCapability(container, capability, side, face);
                 if (impl != null) implementations.add(impl);
             }
@@ -41,31 +41,33 @@ public class MultipartCapabilityHelper {
 
         if (container == null) return false;
 
-        PartSlot slot;
-        IMultipart part = container.getPartInSlot(slot = PartSlot.getFaceSlot(side));
-        if (part != null)
-            return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).hasCapability(capability, slot, side)
-                    : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).hasCapability(capability, side) : false;
-        part = container.getPartInSlot(slot = PartSlot.getEdgeSlot(side, face));
-        if (part != null)
-            return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).hasCapability(capability, slot, side)
-                    : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).hasCapability(capability, side) : false;
-        part = container.getPartInSlot(slot = PartSlot.getFaceSlot(face));
-        if (part != null)
-            return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).hasCapability(capability, slot, side)
-                    : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).hasCapability(capability, side) : false;
+        if (side != null) {
+            PartSlot slot;
+            IMultipart part = container.getPartInSlot(slot = PartSlot.getFaceSlot(side));
+            if (part != null)
+                return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).hasCapability(capability, slot,
+                        side) : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).hasCapability(capability, side) : false;
+            part = container.getPartInSlot(slot = PartSlot.getEdgeSlot(side, face));
+            if (part != null)
+                return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).hasCapability(capability, slot,
+                        side) : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).hasCapability(capability, side) : false;
+            part = container.getPartInSlot(slot = PartSlot.getFaceSlot(face));
+            if (part != null)
+                return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).hasCapability(capability, slot,
+                        side) : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).hasCapability(capability, side) : false;
 
-        if (face == null) {
-            part = container.getPartInSlot(PartSlot.CENTER);
-            if (part != null
-                    && (part instanceof ISlottedCapabilityProvider || part instanceof ICapabilityProvider)
-                    && (part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).hasCapability(capability, slot,
-                            side) : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).hasCapability(capability, side)
-                            : false)) return true;
+            if (face == null) {
+                part = container.getPartInSlot(PartSlot.CENTER);
+                if (part != null
+                        && (part instanceof ISlottedCapabilityProvider || part instanceof ICapabilityProvider)
+                        && (part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).hasCapability(capability,
+                                slot, side) : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).hasCapability(capability,
+                                side) : false)) return true;
+            }
         }
 
         for (IMultipart p : container.getParts())
-            if (!(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty())
+            if (side == null || !(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty())
                 if (p instanceof ICapabilityProvider) return ((ICapabilityProvider) p).hasCapability(capability, side);
 
         return false;
@@ -75,34 +77,37 @@ public class MultipartCapabilityHelper {
 
         if (container == null) return null;
 
-        PartSlot slot;
-        IMultipart part = container.getPartInSlot(slot = PartSlot.getFaceSlot(side));
-        if (part != null)
-            return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).getCapability(capability, slot, side)
-                    : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).getCapability(capability, side) : null;
-        part = container.getPartInSlot(slot = PartSlot.getEdgeSlot(side, face));
-        if (part != null)
-            return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).getCapability(capability, slot, side)
-                    : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).getCapability(capability, side) : null;
-        part = container.getPartInSlot(slot = PartSlot.getFaceSlot(face));
-        if (part != null)
-            return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).getCapability(capability, slot, side)
-                    : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).getCapability(capability, side) : null;
+        if (side != null) {
+            PartSlot slot;
+            IMultipart part = container.getPartInSlot(slot = PartSlot.getFaceSlot(side));
+            if (part != null)
+                return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).getCapability(capability, slot,
+                        side) : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).getCapability(capability, side) : null;
+            part = container.getPartInSlot(slot = PartSlot.getEdgeSlot(side, face));
+            if (part != null)
+                return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).getCapability(capability, slot,
+                        side) : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).getCapability(capability, side) : null;
+            part = container.getPartInSlot(slot = PartSlot.getFaceSlot(face));
+            if (part != null)
+                return part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).getCapability(capability, slot,
+                        side) : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).getCapability(capability, side) : null;
+        }
 
         Set<T> implementations = new HashSet<T>();
 
-        if (face == null) {
-            part = container.getPartInSlot(PartSlot.CENTER);
+        if (face == null && side != null) {
+            IMultipart part = container.getPartInSlot(PartSlot.CENTER);
             if (part != null) {
-                T impl = part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).getCapability(capability, slot,
-                        side) : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).getCapability(capability, side) : null;
+                T impl = part instanceof ISlottedCapabilityProvider ? ((ISlottedCapabilityProvider) part).getCapability(capability,
+                        PartSlot.CENTER, side) : part instanceof ICapabilityProvider ? ((ICapabilityProvider) part).getCapability(
+                        capability, side) : null;
                 if (impl != null) implementations.add(impl);
             }
         }
 
         for (IMultipart p : container.getParts()) {
-            if (!(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty()) {
-                if (p instanceof ICapabilityProvider) {
+            if (side == null || !(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty()) {
+                if (p instanceof ICapabilityProvider && ((ICapabilityProvider) p).hasCapability(capability, side)) {
                     T impl = ((ICapabilityProvider) p).getCapability(capability, side);
                     if (impl != null) implementations.add(impl);
                 }
