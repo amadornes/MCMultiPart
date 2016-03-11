@@ -133,7 +133,7 @@ public final class BlockMultipartContainer extends BlockContainer {
     @Override
     public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
 
-        TileMultipartContainer brokenTile = (TileMultipartContainer) world.getTileEntity(pos);
+        TileMultipartContainer brokenTile = getMultipartTile(world, pos);
         if (brokenTile == null) brokenTile = this.brokenTile;
         if (brokenTile == null) return Collections.emptyList();
         return brokenTile.getPartContainer().getDrops();
@@ -187,10 +187,43 @@ public final class BlockMultipartContainer extends BlockContainer {
     @Override
     public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 
-        TileMultipartContainer tile = ((TileMultipartContainer) world.getTileEntity(pos));
+TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return;
         tile.getPartContainer().onNeighborTileChange(
                 EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ() - pos.getZ()));
+    }
+
+    @Override
+    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity) {
+
+        TileMultipartContainer tile = getMultipartTile(world, pos);
+        if (tile == null) return;
+        tile.getPartContainer().onEntityStanding(entity);
+    }
+
+    @Override
+    public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity) {
+
+        TileMultipartContainer tile = getMultipartTile(world, pos);
+        if (tile == null) return;
+        tile.getPartContainer().onEntityCollided(entity);
+    }
+
+    @Override
+    public Boolean isAABBInsideMaterial(World world, BlockPos pos, AxisAlignedBB aabb, Material material) {
+
+        TileMultipartContainer tile = getMultipartTile(world, pos);
+        if (tile == null) return null;
+        return tile.getPartContainer().isAABBInsideMaterial(aabb, material);
+    }
+
+    @Override
+    public Boolean isEntityInsideMaterial(World world, BlockPos pos, IBlockState state, Entity entity, double yToTest, Material material,
+            boolean testingHead) {
+
+        TileMultipartContainer tile = getMultipartTile(world, pos);
+        if (tile == null) return null;
+        return tile.getPartContainer().isEntityInsideMaterial(entity, yToTest, material, testingHead);
     }
 
     @Override
@@ -318,7 +351,7 @@ public final class BlockMultipartContainer extends BlockContainer {
 
         Vec3 start = RayTraceUtils.getStart(player);
         Vec3 end = RayTraceUtils.getEnd(player);
-        RayTraceResultPart result = ((TileMultipartContainer) world.getTileEntity(pos)).getPartContainer().collisionRayTrace(start, end);
+        RayTraceResultPart result = getMultipartTile(world, pos).getPartContainer().collisionRayTrace(start, end);
         return result == null ? null : result.hit;
     }
 
@@ -362,7 +395,7 @@ public final class BlockMultipartContainer extends BlockContainer {
     @Override
     public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 
-        TileMultipartContainer tile = (TileMultipartContainer) world.getTileEntity(pos);
+        TileMultipartContainer tile = getMultipartTile(world, pos);
         return ((IExtendedBlockState) state).withProperty(properties[0],
                 tile != null ? tile.getPartContainer().getExtendedStates(world, pos) : new ArrayList<PartState>());
     }

@@ -159,13 +159,31 @@ public class BlockCoverable extends BlockContainer {
         return super.getPickBlock(target, world, pos, player);
     }
 
-    @Override
-    public final List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+    private IMicroblockContainerTile brokenTile = null;
+    private boolean harvestingWrapper = false;
 
+    @Override
+    public final void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te) {
+
+        brokenTile = te instanceof IMicroblockContainerTile ? (IMicroblockContainerTile) te : null;
+        defaultHarvestBlock(world, player, pos, state, te);
+        brokenTile = null;
+    }
+
+    public void defaultHarvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te) {
+
+        super.harvestBlock(worldIn, player, pos, state, te);
+    }
+
+    @Override
+    public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+
+        if (harvestingWrapper) return getDropsDefault(world, pos, state, fortune);
+        IMicroblockContainerTile brokenTile = getMicroblockTile(world, pos);
+        if (brokenTile == null) brokenTile = this.brokenTile;
+        if (brokenTile == null) return getDropsDefault(world, pos, state, fortune);
         List<ItemStack> drops = new ArrayList<ItemStack>();
         drops.addAll(getDropsDefault(world, pos, state, fortune));
-        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-        if (tile != null) drops.addAll(tile.getMicroblockContainer().getPartContainer().getDrops());
         return drops;
     }
 
@@ -180,7 +198,8 @@ public class BlockCoverable extends BlockContainer {
         MovingObjectPosition hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
             IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-            return tile != null ? tile.getMicroblockContainer().getPartContainer().harvest(player, (PartMOP) hit) : false;
+            if (tile != null) tile.getMicroblockContainer().getPartContainer().harvest(player, (PartMOP) hit);
+            return false;
         } else {
             IMicroblockContainerTile tile = getMicroblockTile(world, pos);
             MultipartContainer container = tile != null ? tile.getMicroblockContainer().getPartContainer() : null;
@@ -189,10 +208,14 @@ public class BlockCoverable extends BlockContainer {
             } else {
                 if (!removedByPlayerDefault(world, pos, player, willHarvest)) return false;
                 world.removeTileEntity(pos);
-                if (!world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState(), 3)) return false;
+                if (!world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState(), 0)) return false;
                 world.removeTileEntity(pos);
                 world.setTileEntity(pos, new TileMultipartContainer(container));
-                return true;
+                world.markBlockForUpdate(pos);
+                harvestingWrapper = true;
+                harvestBlock(world, player, pos, world.getBlockState(pos), world.getTileEntity(pos));
+                harvestingWrapper = false;
+                return false;
             }
         }
     }
@@ -284,6 +307,70 @@ public class BlockCoverable extends BlockContainer {
 
     public void onNeighborChangeDefault(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 
+    }
+
+    @Override
+    public final void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity) {
+
+        onEntityCollidedWithBlockDefault(world, pos, entity);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
+        if (tile == null) return;
+        tile.getMicroblockContainer().getPartContainer().onEntityStanding(entity);
+    }
+
+    public void onEntityCollidedWithBlockDefault(World worldIn, BlockPos pos, Entity entityIn) {
+
+        super.onEntityCollidedWithBlock(worldIn, pos, entityIn);
+    }
+
+    @Override
+    public final void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity) {
+
+        onEntityCollidedWithBlockDefault(world, pos, state, entity);
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
+        if (tile == null) return;
+        tile.getMicroblockContainer().getPartContainer().onEntityCollided(entity);
+    }
+
+    public void onEntityCollidedWithBlockDefault(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
+
+        super.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
+    }
+
+    @Override
+    public Boolean isAABBInsideMaterial(World world, BlockPos pos, AxisAlignedBB aabb, Material material) {
+
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
+        Boolean def = isAABBInsideMaterialDefault(world, pos, aabb, material);
+        if (tile == null) return def;
+        Boolean is = tile.getMicroblockContainer().getPartContainer().isAABBInsideMaterial(aabb, material);
+        if ((def != null && def == true) || (is != null && is == true)) return true;
+        if ((def != null && def == false) || (is != null && is == false)) return true;
+        return null;
+    }
+
+    public Boolean isAABBInsideMaterialDefault(World world, BlockPos pos, AxisAlignedBB boundingBox, Material materialIn) {
+
+        return super.isAABBInsideMaterial(world, pos, boundingBox, materialIn);
+    }
+
+    @Override
+    public Boolean isEntityInsideMaterial(World world, BlockPos pos, IBlockState state, Entity entity, double yToTest, Material material,
+            boolean testingHead) {
+
+        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
+        Boolean def = isEntityInsideMaterialDefault(world, pos, state, entity, yToTest, material, testingHead);
+        if (tile == null) return def;
+        Boolean is = tile.getMicroblockContainer().getPartContainer().isEntityInsideMaterial(entity, yToTest, material, testingHead);
+        if ((def != null && def == true) || (is != null && is == true)) return true;
+        if ((def != null && def == false) || (is != null && is == false)) return true;
+        return null;
+    }
+
+    public Boolean isEntityInsideMaterialDefault(World world, BlockPos blockpos, IBlockState iblockstate, Entity entity, double yToTest,
+            Material materialIn, boolean testingHead) {
+
+        return super.isEntityInsideMaterial(world, blockpos, iblockstate, entity, yToTest, materialIn, testingHead);
     }
 
     @Override
