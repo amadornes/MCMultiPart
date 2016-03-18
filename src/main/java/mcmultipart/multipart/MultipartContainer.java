@@ -398,8 +398,7 @@ public class MultipartContainer implements IMultipartContainer {
         IMultipart slotPart = getPartInSlot(PartSlot.getFaceSlot(EnumFacing.UP));
         if (slotPart != null && slotPart instanceof ISolidTopPart) return ((ISolidTopPart) slotPart).canPlaceTorchOnTop();
         for (IMultipart p : getParts())
-            if ((!(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty()) && p instanceof ISolidTopPart)
-                if (((ISolidTopPart) p).canPlaceTorchOnTop()) return true;
+            if (p instanceof ISolidTopPart) if (((ISolidTopPart) p).canPlaceTorchOnTop()) return true;
         return false;
     }
 
