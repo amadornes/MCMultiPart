@@ -2,20 +2,20 @@ package mcmultipart.microblock;
 
 import java.util.Map.Entry;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Block.SoundType;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumWorldBlockLayer;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.Tuple;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 /**
  * A simple implementation of {@link IMicroMaterial} that's defined based on an {@link IBlockState}.
@@ -24,11 +24,11 @@ public class BlockMicroMaterial implements IMicroMaterial {
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
     @SuppressWarnings("rawtypes")
-    private static final Function<Entry<IProperty, Comparable>, String> MAP_ENTRY_TO_STRING = new Function<Entry<IProperty, Comparable>, String>() {
+    private static final Function<Entry<IProperty<?>, Comparable<?>>, String> MAP_ENTRY_TO_STRING = new Function<Entry<IProperty<?>, Comparable<?>>, String>() {
 
         @SuppressWarnings("unchecked")
         @Override
-        public String apply(Entry<IProperty, Comparable> entry) {
+        public String apply(Entry<IProperty<?>, Comparable<?>> entry) {
 
             if (entry == null) {
                 return "<NULL>";
@@ -90,13 +90,13 @@ public class BlockMicroMaterial implements IMicroMaterial {
     @Override
     public boolean isSolid() {
 
-        return blockState.getBlock().isFullCube();
+        return blockState.getBlock().isFullCube(blockState);
     }
 
     @Override
     public int getLightValue() {
 
-        return blockState.getBlock().getLightValue();
+        return blockState.getBlock().getLightValue(blockState);
     }
 
     @Override
@@ -120,11 +120,11 @@ public class BlockMicroMaterial implements IMicroMaterial {
     @Override
     public SoundType getSound() {
 
-        return blockState.getBlock().stepSound;
+        return blockState.getBlock().getSoundType();
     }
 
     @Override
-    public boolean canRenderInLayer(EnumWorldBlockLayer layer) {
+    public boolean canRenderInLayer(BlockRenderLayer layer) {
 
         return blockState.getBlock().canRenderInLayer(layer);
     }

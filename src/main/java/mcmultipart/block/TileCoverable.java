@@ -9,11 +9,11 @@ import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.PartSlot;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 
@@ -114,20 +114,23 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
 
         return container.getCapability(capability, slot, facing);
     }
+    
+    
 
     @Override
-    public S35PacketUpdateTileEntity getDescriptionPacket() {
+    public SPacketUpdateTileEntity getDescriptionPacket() {
 
         NBTTagCompound tag = new NBTTagCompound();
         getMicroblockContainer().getPartContainer().writeDescription(tag);
-        return new S35PacketUpdateTileEntity(getPosIn(), getBlockMetadata(), tag);
+        return new SPacketUpdateTileEntity(getPosIn(), getBlockMetadata(), tag);
     }
-
+    
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 
         getMicroblockContainer().getPartContainer().readDescription(pkt.getNbtCompound());
     }
+
 
     @Override
     public boolean canRenderBreaking() {

@@ -5,11 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ResourceLocation;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
+
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 
 /**
  * A general use occlusion helper, with methods to check part-part occlusion, part-AABB occlusion, as well as slot occlusion.

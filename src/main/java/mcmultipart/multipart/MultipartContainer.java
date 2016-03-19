@@ -1,8 +1,5 @@
 package mcmultipart.multipart;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,6 +11,11 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import mcmultipart.capabilities.CapabilityWrapperRegistry;
 import mcmultipart.capabilities.ISlottedCapabilityProvider;
 import mcmultipart.event.PartEvent;
@@ -21,7 +23,7 @@ import mcmultipart.multipart.ISolidPart.ISolidTopPart;
 import mcmultipart.network.MessageMultipartChange;
 import mcmultipart.network.MessageMultipartChange.Type;
 import mcmultipart.raytrace.PartMOP;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
+import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResultPart;
 import mcmultipart.util.IWorldLocation;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -32,11 +34,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -44,9 +47,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 
 /**
  * Helper class that contains all the logic required for an {@link IMultipartContainer} to work, as well as methods that are forwarded to
@@ -270,13 +270,13 @@ public class MultipartContainer implements IMultipartContainer {
         getWorldIn().notifyNeighborsOfStateChange(getPosIn(), getWorldIn().getBlockState(getPosIn()).getBlock());
     }
 
-    public RayTraceResultPart collisionRayTrace(Vec3 start, Vec3 end) {
+    public AdvancedRayTraceResultPart collisionRayTrace(Vec3d start, Vec3d end) {
 
         double dist = Double.POSITIVE_INFINITY;
-        RayTraceResultPart current = null;
+        AdvancedRayTraceResultPart current = null;
 
         for (IMultipart p : getParts()) {
-            RayTraceResultPart result = p.collisionRayTrace(start, end);
+            AdvancedRayTraceResultPart result = p.collisionRayTrace(start, end);
             if (result == null) continue;
             double d = result.squareDistanceTo(start);
             if (d <= dist) {
@@ -288,17 +288,10 @@ public class MultipartContainer implements IMultipartContainer {
         return current;
     }
 
-    public void addCollisionBoxes(AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity) {
+    public void addCollisionBoxes(AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity collidingEntity) {
 
-        List<AxisAlignedBB> collisionBoxes = new ArrayList<AxisAlignedBB>();
-        AxisAlignedBB offsetMask = mask.offset(-getPosIn().getX(), -getPosIn().getY(), -getPosIn().getZ());
         for (IMultipart p : getParts())
-            p.addCollisionBoxes(offsetMask, collisionBoxes, collidingEntity);
-        Iterator<AxisAlignedBB> it = collisionBoxes.iterator();
-        while (it.hasNext()) {
-            list.add(it.next().offset(getPosIn().getX(), getPosIn().getY(), getPosIn().getZ()));
-            it.remove();
-        }
+            p.addCollisionBoxes(entityBox, collidingBoxes, collidingEntity);
     }
 
     public int getLightValue() {
@@ -354,18 +347,18 @@ public class MultipartContainer implements IMultipartContainer {
             part.onNeighborTileChange(facing);
     }
 
-    public boolean onActivated(EntityPlayer playerIn, ItemStack stack, PartMOP hit) {
+    public boolean onActivated(EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, PartMOP hit) {
 
         if (hit == null) return false;
         if (!partMap.values().contains(hit.partHit)) return false;
-        return hit.partHit.onActivated(playerIn, stack, hit);
+        return hit.partHit.onActivated(playerIn, hand, heldItem, hit);
     }
 
-    public void onClicked(EntityPlayer playerIn, ItemStack stack, PartMOP hit) {
+    public void onClicked(EntityPlayer playerIn, PartMOP hit) {
 
         if (hit == null) return;
         if (!partMap.values().contains(hit.partHit)) return;
-        hit.partHit.onClicked(playerIn, stack, hit);
+        hit.partHit.onClicked(playerIn, hit);
     }
 
     public boolean canConnectRedstone(EnumFacing side) {

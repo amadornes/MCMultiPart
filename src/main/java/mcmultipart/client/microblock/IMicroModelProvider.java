@@ -3,9 +3,9 @@ package mcmultipart.client.microblock;
 import java.util.EnumSet;
 
 import mcmultipart.microblock.IMicroMaterial;
-import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
 
 public interface IMicroModelProvider {
 

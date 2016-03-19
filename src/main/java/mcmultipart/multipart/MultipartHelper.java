@@ -9,8 +9,8 @@ import mcmultipart.MCMultiPartMod;
 import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.microblock.IMicroblockContainerTile;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 

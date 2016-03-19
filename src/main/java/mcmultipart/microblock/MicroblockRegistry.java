@@ -7,6 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.raytrace.PartMOP;
 import net.minecraft.block.Block;
@@ -18,14 +21,12 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.StatList;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.Tuple;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IInteractionObject;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
 
 public class MicroblockRegistry {
 
@@ -140,17 +141,18 @@ public class MicroblockRegistry {
 
             super(delegated);
         }
-
+        
         @Override
-        public Optional<Boolean> onActivated(EntityPlayer player, ItemStack stack, PartMOP hit) {
-
+        public Optional<Boolean> onActivated(EntityPlayer player, EnumHand hand, ItemStack heldItem, PartMOP hit) {
+            
             if (!delegated.getWorld().isRemote) {
                 player.displayGui(new InterfaceMicroCraftingTable(delegated));
-                player.triggerAchievement(StatList.field_181742_Z);
+                player.addStat(StatList.craftingTableInteraction);
             }
 
             return Optional.of(true);
         }
+
 
         @Override
         public void onRemoved() {
@@ -181,9 +183,9 @@ public class MicroblockRegistry {
         }
 
         @Override
-        public IChatComponent getDisplayName() {
+        public ITextComponent getDisplayName() {
 
-            return new ChatComponentTranslation(Blocks.crafting_table.getUnlocalizedName() + ".name");
+            return new TextComponentTranslation(Blocks.crafting_table.getUnlocalizedName() + ".name");
         }
 
         @Override

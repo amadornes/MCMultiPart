@@ -3,7 +3,7 @@ package mcmultipart.multipart;
 import java.util.Collection;
 
 import net.minecraft.block.Block;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 /**

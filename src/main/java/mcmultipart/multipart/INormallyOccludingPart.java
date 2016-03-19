@@ -2,7 +2,7 @@ package mcmultipart.multipart;
 
 import java.util.List;
 
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.AxisAlignedBB;
 
 /**
  * Interface that represents an {@link IMultipart} with {@link AxisAlignedBB} occlusion boxes.

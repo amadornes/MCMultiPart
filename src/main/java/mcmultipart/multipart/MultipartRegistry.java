@@ -7,24 +7,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-
 public class MultipartRegistry {
 
-    private static Map<BlockState, ResourceLocation> stateLocations = new HashMap<BlockState, ResourceLocation>();
-    private static Map<ResourceLocation, BlockState> defaultStates = new HashMap<ResourceLocation, BlockState>();
+    private static Map<BlockStateContainer, ResourceLocation> stateLocations = new HashMap<BlockStateContainer, ResourceLocation>();
+    private static Map<ResourceLocation, BlockStateContainer> defaultStates = new HashMap<ResourceLocation, BlockStateContainer>();
 
     private static Map<ResourceLocation, IAdvancedPartFactory> partProviders = new HashMap<ResourceLocation, IAdvancedPartFactory>();
     private static BiMap<ResourceLocation, Class<? extends IMultipart>> partClasses = HashBiMap.create();
@@ -53,7 +53,7 @@ public class MultipartRegistry {
         try {
             for (String part : parts) {
                 IMultipart multipart = factory.createPart(getResourceLocation(part), new NBTTagCompound());
-                BlockState state = multipart.createBlockState();
+                BlockStateContainer state = multipart.createBlockState();
                 defaultStates.put(getResourceLocation(part), state);
                 stateLocations.put(state, getResourceLocation(part));
             }
@@ -114,23 +114,23 @@ public class MultipartRegistry {
     /**
      * Gets the {@link BlockState} that represents a specific part.
      */
-    public static BlockState getDefaultState(IMultipart part) {
+    public static BlockStateContainer getDefaultState(IMultipart part) {
 
         return defaultStates.get(part.getType());
     }
 
     /**
-     * Gets the {@link BlockState} that represents a specific part type.
+     * Gets the {@link BlockStateContainer} that represents a specific part type.
      */
-    public static BlockState getDefaultState(ResourceLocation partType) {
+    public static BlockStateContainer getDefaultState(ResourceLocation partType) {
 
         return defaultStates.get(partType);
     }
 
     /**
-     * Gets the location of a part's BlockState.
+     * Gets the location of a part's {@link BlockStateContainer}.
      */
-    public static ResourceLocation getStateLocation(BlockState state) {
+    public static ResourceLocation getStateLocation(BlockStateContainer state) {
 
         return stateLocations.get(state);
     }

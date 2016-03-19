@@ -4,56 +4,50 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import mcmultipart.block.BlockCoverable;
+import com.google.common.base.Predicate;
+
 import mcmultipart.block.BlockMultipartContainer;
 import mcmultipart.multipart.PartState;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
 @SuppressWarnings("deprecation")
-public class ModelMultipartContainer implements ISmartBlockModel {
+public class ModelMultipartContainer implements IBakedModel {
 
-    public IBakedModel model;
-    private Block block;
-    private List<PartState> partStates;
+    final IBakedModel model;
+    private final Predicate<BlockRenderLayer> layerFilter;
 
-    public ModelMultipartContainer(IBakedModel model) {
+    public ModelMultipartContainer(IBakedModel model, Predicate<BlockRenderLayer> layerFilter) {
 
         this.model = model;
-    }
-
-    private ModelMultipartContainer(List<PartState> partStates, Block block, IBakedModel model) {
-
-        this.partStates = partStates;
-        this.block = block;
-        this.model = model;
+        this.layerFilter = layerFilter;
     }
 
     @Override
-    public List<BakedQuad> getFaceQuads(EnumFacing face) {
+    public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand) {
 
-        if (block == null || partStates == null) {
-            if (model != null
-                    && (!(block instanceof BlockCoverable) || ((BlockCoverable) block).canRenderInLayerDefault(MinecraftForgeClient
-                            .getRenderLayer()))) return model.getFaceQuads(face);
+        BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
+        // TODO Make the property a static variable
+        if (!(state instanceof IExtendedBlockState)
+                || !((IExtendedBlockState) state).getUnlistedProperties().containsKey(BlockMultipartContainer.properties[0])) {
+            if (model != null && layerFilter.apply(layer)) return model.getQuads(state, side, rand);
             return Collections.emptyList();
         }
-
+        List<PartState> partStates = ((IExtendedBlockState) state).getValue(BlockMultipartContainer.properties[0]);
         List<BakedQuad> quads = new ArrayList<BakedQuad>();
-        if (model != null
-                && (!(block instanceof BlockCoverable) || ((BlockCoverable) block).canRenderInLayerDefault(MinecraftForgeClient
-                        .getRenderLayer()))) quads.addAll(model.getFaceQuads(face));
 
+        if (model != null && layerFilter.apply(layer)) quads.addAll(model.getQuads(state, side, rand));
+        
         for (PartState partState : partStates) {
             if (!partState.renderLayers.contains(MinecraftForgeClient.getRenderLayer())) continue;
 
@@ -61,41 +55,9 @@ public class ModelMultipartContainer implements ISmartBlockModel {
                     MultipartStateMapper.instance.getPropertyString(partState.state.getProperties()));
             IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager()
                     .getModel(modelLocation);
-            if (model != null) {
-                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(partState.state) : model;
-                quads.addAll(model.getFaceQuads(face));
-            }
-        }
-        return quads;
-    }
-
-    @Override
-    public List<BakedQuad> getGeneralQuads() {
-
-        if (block == null || partStates == null) {
-            if (model != null
-                    && (!(block instanceof BlockCoverable) || ((BlockCoverable) block).canRenderInLayerDefault(MinecraftForgeClient
-                            .getRenderLayer()))) return model.getGeneralQuads();
-            return Collections.emptyList();
+            if (model != null) quads.addAll(model.getQuads(partState.state, side, rand));
         }
 
-        List<BakedQuad> quads = new ArrayList<BakedQuad>();
-        if (model != null
-                && (!(block instanceof BlockCoverable) || ((BlockCoverable) block).canRenderInLayerDefault(MinecraftForgeClient
-                        .getRenderLayer()))) quads.addAll(model.getGeneralQuads());
-
-        for (PartState partState : partStates) {
-            if (!partState.renderLayers.contains(MinecraftForgeClient.getRenderLayer())) continue;
-
-            ModelResourceLocation modelLocation = new ModelResourceLocation(partState.modelPath,
-                    MultipartStateMapper.instance.getPropertyString(partState.state.getProperties()));
-            IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager()
-                    .getModel(modelLocation);
-            if (model != null) {
-                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(partState.state) : model;
-                quads.addAll(model.getGeneralQuads());
-            }
-        }
         return quads;
     }
 
@@ -120,8 +82,8 @@ public class ModelMultipartContainer implements ISmartBlockModel {
     @Override
     public TextureAtlasSprite getParticleTexture() {
 
-        return model != null ? model.getParticleTexture() : Minecraft.getMinecraft().getTextureMapBlocks()
-                .getAtlasSprite("minecraft:blocks/stone");
+        return model != null ? model.getParticleTexture()
+                : Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite("minecraft:blocks/stone");
     }
 
     @Override
@@ -131,10 +93,9 @@ public class ModelMultipartContainer implements ISmartBlockModel {
     }
 
     @Override
-    public IBakedModel handleBlockState(IBlockState state) {
+    public ItemOverrideList getOverrides() {
 
-        return new ModelMultipartContainer(((IExtendedBlockState) state).getValue(BlockMultipartContainer.properties[0]), state.getBlock(),
-                (model instanceof ISmartBlockModel ? ((ISmartBlockModel) model).handleBlockState(state) : model));
+        return ItemOverrideList.NONE;
     }
 
 }

@@ -3,7 +3,7 @@ package mcmultipart.multipart;
 import java.util.EnumSet;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
 import scala.collection.mutable.StringBuilder;
 
@@ -13,10 +13,10 @@ import scala.collection.mutable.StringBuilder;
 public class PartState {
 
     public final IBlockState state;
-    public final EnumSet<EnumWorldBlockLayer> renderLayers;
+    public final EnumSet<BlockRenderLayer> renderLayers;
     public final ResourceLocation modelPath;
 
-    public PartState(IBlockState state, EnumSet<EnumWorldBlockLayer> renderLayers, ResourceLocation modelPath) {
+    public PartState(IBlockState state, EnumSet<BlockRenderLayer> renderLayers, ResourceLocation modelPath) {
 
         this.state = state;
         this.renderLayers = renderLayers;
@@ -28,8 +28,8 @@ public class PartState {
         ResourceLocation path = part.getModelPath();
         if (path == null) return null;
 
-        EnumSet<EnumWorldBlockLayer> renderLayers = EnumSet.noneOf(EnumWorldBlockLayer.class);
-        for (EnumWorldBlockLayer layer : EnumWorldBlockLayer.values())
+        EnumSet<BlockRenderLayer> renderLayers = EnumSet.noneOf(BlockRenderLayer.class);
+        for (BlockRenderLayer layer : BlockRenderLayer.values())
             if (part.canRenderInLayer(layer)) renderLayers.add(layer);
 
         IBlockState state = part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState());

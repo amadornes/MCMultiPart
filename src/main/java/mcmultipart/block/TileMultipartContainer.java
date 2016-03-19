@@ -13,12 +13,12 @@ import mcmultipart.multipart.PartSlot;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 
@@ -189,15 +189,15 @@ public final class TileMultipartContainer extends TileEntity implements IMultipa
     }
 
     @Override
-    public S35PacketUpdateTileEntity getDescriptionPacket() {
+    public SPacketUpdateTileEntity getDescriptionPacket() {
 
         NBTTagCompound tag = new NBTTagCompound();
         container.writeDescription(tag);
-        return new S35PacketUpdateTileEntity(getPosIn(), getBlockMetadata(), tag);
+        return new SPacketUpdateTileEntity(getPosIn(), getBlockMetadata(), tag);
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 
         container.readDescription(pkt.getNbtCompound());
     }
@@ -225,7 +225,7 @@ public final class TileMultipartContainer extends TileEntity implements IMultipa
                 else bounds = bounds.union(bb);
             }
         }
-        if (bounds == null) bounds = AxisAlignedBB.fromBounds(0, 0, 0, 1, 1, 1);
+        if (bounds == null) bounds = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
         return bounds.offset(getPosIn().getX(), getPosIn().getY(), getPosIn().getZ());
     }
 

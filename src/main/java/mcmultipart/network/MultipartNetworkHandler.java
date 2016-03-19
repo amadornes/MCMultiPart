@@ -4,7 +4,7 @@ import mcmultipart.MCMultiPartMod;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.management.PlayerManager;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -24,7 +24,7 @@ public class MultipartNetworkHandler {
 
     public static void sendToAllWatching(IMessage message, World world, BlockPos pos) {
 
-        PlayerManager manager = ((WorldServer) world).getPlayerManager();
+        PlayerManager manager = ((WorldServer) world).getPlayerChunkManager();
         for (EntityPlayer player : world.playerEntities)
             if (manager.isPlayerWatchingChunk((EntityPlayerMP) player, pos.getX() >> 4, pos.getZ() >> 4))
                 wrapper.sendTo(message, (EntityPlayerMP) player);

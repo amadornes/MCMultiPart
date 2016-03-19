@@ -6,9 +6,9 @@ import java.util.Random;
 import mcmultipart.client.multipart.AdvancedEffectRenderer;
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import mcmultipart.raytrace.PartMOP;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
+import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResultPart;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -16,12 +16,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -68,7 +69,7 @@ public interface IMultipart {
      *
      * @return The closest hit to the start vector, if any.
      */
-    public RayTraceResultPart collisionRayTrace(Vec3 start, Vec3 end);
+    public AdvancedRayTraceResultPart collisionRayTrace(Vec3d start, Vec3d end);
 
     /**
      * Adds this part's collision boxes to the list for the specified entity if they intersect the mask.
@@ -167,12 +168,12 @@ public interface IMultipart {
     /**
      * Called when a player right-clicks this part. Return true to play the right-click animation.
      */
-    public boolean onActivated(EntityPlayer player, ItemStack stack, PartMOP hit);
+    public boolean onActivated(EntityPlayer player, EnumHand hand, ItemStack heldItem, PartMOP hit);
 
     /**
      * Called when a player left-clicks this part.
      */
-    public void onClicked(EntityPlayer player, ItemStack stack, PartMOP hit);
+    public void onClicked(EntityPlayer player, PartMOP hit);
 
     /**
      * Writes this part's NBT data to a tag so it can be saved.
@@ -203,7 +204,7 @@ public interface IMultipart {
     /**
      * Checks whether or not this part can be rendered in the specified world layer.
      */
-    public boolean canRenderInLayer(EnumWorldBlockLayer layer);
+    public boolean canRenderInLayer(BlockRenderLayer layer);
 
     /**
      * Gets the extended state of this part. <b>ONLY USED FOR RENDERING, THIS IS NOT WHERE YOU STORE DATA.</b>
@@ -213,7 +214,7 @@ public interface IMultipart {
     /**
      * Creates a {@link BlockState} for this part with the required properties.
      */
-    public BlockState createBlockState();
+    public BlockStateContainer createBlockState();
 
     /**
      * Gets the bounding box used to render this part dynamically. By default, all multipart containers have a bounding box that goes from

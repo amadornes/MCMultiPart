@@ -7,7 +7,6 @@ import java.util.Random;
 import mcmultipart.MCMultiPartMod;
 import mcmultipart.client.multipart.AdvancedEffectRenderer;
 import mcmultipart.client.multipart.ICustomHighlightPart;
-import mcmultipart.client.multipart.ISmartMultipartModel;
 import mcmultipart.client.multipart.MultipartStateMapper;
 import mcmultipart.microblock.IMicroblockContainerTile;
 import mcmultipart.microblock.MicroblockContainer;
@@ -18,31 +17,33 @@ import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.PartState;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
+import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResultPart;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumWorldBlockLayer;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -66,6 +67,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public class BlockCoverable extends BlockContainer {
 
+    private AxisAlignedBB bounds = FULL_BLOCK_AABB;
+
     public BlockCoverable(Material material) {
 
         super(material);
@@ -85,94 +88,94 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public final MovingObjectPosition collisionRayTrace(World world, BlockPos pos, Vec3 start, Vec3 end) {
+    public final RayTraceResult collisionRayTrace(IBlockState state, World world, BlockPos pos, Vec3d start, Vec3d end) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-        RayTraceResultPart result = tile != null ? tile.getMicroblockContainer().getPartContainer().collisionRayTrace(start, end) : null;
-        MovingObjectPosition hit = collisionRayTraceDefault(world, pos, start, end);
+        AdvancedRayTraceResultPart result = tile != null ? tile.getMicroblockContainer().getPartContainer().collisionRayTrace(start, end)
+                : null;
+        RayTraceResult hit = collisionRayTraceDefault(state, world, pos, start, end);
         if (result == null) return hit;
-        if (hit != null && hit.hitVec.squareDistanceTo(start) < result.squareDistanceTo(start)) return hit;
-        result.setBounds(world, pos);
+        if (hit != null && hit.hitVec.squareDistanceTo(start) < result.squareDistanceTo(start)) {
+            bounds = getSelectedBoundingBoxDefault(state, world, pos);
+            return hit;
+        }
+        bounds = result.bounds;
         return result.hit;
     }
 
-    private boolean rayTracingDefault = false;
+    public RayTraceResult collisionRayTraceDefault(IBlockState state, World world, BlockPos pos, Vec3d start, Vec3d end) {
 
-    public MovingObjectPosition collisionRayTraceDefault(World world, BlockPos pos, Vec3 start, Vec3 end) {
-
-        rayTracingDefault = true;
-        MovingObjectPosition hit = super.collisionRayTrace(world, pos, start, end);
-        rayTracingDefault = false;
-        return hit;
+        return super.collisionRayTrace(state, world, pos, start, end);
     }
 
     @Override
-    public final void setBlockBoundsBasedOnState(IBlockAccess world, BlockPos pos) {
+    public final AxisAlignedBB getSelectedBoundingBox(IBlockState worldIn, World pos, BlockPos state) {
 
-        if (rayTracingDefault) setBlockBoundsBasedOnStateDefault(world, pos);
+        return bounds;
     }
 
-    public void setBlockBoundsBasedOnStateDefault(IBlockAccess world, BlockPos pos) {
+    public AxisAlignedBB getSelectedBoundingBoxDefault(IBlockState state, World worldIn, BlockPos pos) {
 
+        return super.getSelectedBoundingBox(state, worldIn, pos);
     }
 
     @Override
-    public final void addCollisionBoxesToList(World world, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list,
-            Entity collidingEntity) {
+    public final void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox,
+            List<AxisAlignedBB> collidingBoxes, Entity entity) {
 
-        addCollisionBoxesToListDefault(world, pos, state, mask, list, collidingEntity);
+        addCollisionBoxToListDefault(state, world, pos, entityBox, collidingBoxes, entity);
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-        if (tile != null) tile.getMicroblockContainer().getPartContainer().addCollisionBoxes(mask, list, collidingEntity);
+        if (tile != null) tile.getMicroblockContainer().getPartContainer().addCollisionBoxes(entityBox, collidingBoxes, entity);
     }
 
-    public void addCollisionBoxesToListDefault(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask,
-            List<AxisAlignedBB> list, Entity collidingEntity) {
+    public void addCollisionBoxToListDefault(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
+            List<AxisAlignedBB> collidingBoxes, Entity entityIn) {
 
-        super.addCollisionBoxesToList(worldIn, pos, state, mask, list, collidingEntity);
+        super.addCollisionBoxToList(state, worldIn, pos, entityBox, collidingBoxes, entityIn);
     }
 
     @Override
-    public final int getLightValue(IBlockAccess world, BlockPos pos) {
+    public final int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         return Math.max(tile != null ? tile.getMicroblockContainer().getPartContainer().getLightValue() : 0,
-                getLightValueDefault(world, pos));
+                getLightValueDefault(state, world, pos));
     }
 
-    public int getLightValueDefault(IBlockAccess world, BlockPos pos) {
+    public int getLightValueDefault(IBlockState state, IBlockAccess world, BlockPos pos) {
 
-        return super.getLightValue(world, pos);
+        return super.getLightValue(state, world, pos);
     }
 
     @Override
-    public final ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos, EntityPlayer player) {
+    public final ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
 
         if (target instanceof PartMOP) {
             IMicroblockContainerTile tile = getMicroblockTile(world, pos);
             return tile != null ? tile.getMicroblockContainer().getPartContainer().getPickBlock(player, (PartMOP) target) : null;
         }
-        return getPickBlockDefault(target, world, pos, player);
+        return getPickBlockDefault(state, target, world, pos, player);
     }
 
-    public ItemStack getPickBlockDefault(MovingObjectPosition target, World world, BlockPos pos, EntityPlayer player) {
+    public ItemStack getPickBlockDefault(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
 
-        return super.getPickBlock(target, world, pos, player);
+        return super.getPickBlock(state, target, world, pos, player);
     }
 
     private IMicroblockContainerTile brokenTile = null;
     private boolean harvestingWrapper = false;
 
     @Override
-    public final void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te) {
+    public final void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack) {
 
         brokenTile = te instanceof IMicroblockContainerTile ? (IMicroblockContainerTile) te : null;
-        defaultHarvestBlock(world, player, pos, state, te);
+        defaultHarvestBlock(world, player, pos, state, te, stack);
         brokenTile = null;
     }
 
-    public void defaultHarvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te) {
+    public void defaultHarvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack) {
 
-        super.harvestBlock(worldIn, player, pos, state, te);
+        super.harvestBlock(worldIn, player, pos, state, te, stack);
     }
 
     @Override
@@ -193,9 +196,9 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public final boolean removedByPlayer(World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
+    public final boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
 
-        MovingObjectPosition hit = reTraceAll(world, pos, player);
+        RayTraceResult hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
             IMicroblockContainerTile tile = getMicroblockTile(world, pos);
             if (tile != null) tile.getMicroblockContainer().getPartContainer().harvest(player, (PartMOP) hit);
@@ -204,72 +207,71 @@ public class BlockCoverable extends BlockContainer {
             IMicroblockContainerTile tile = getMicroblockTile(world, pos);
             MultipartContainer container = tile != null ? tile.getMicroblockContainer().getPartContainer() : null;
             if (container.getParts().isEmpty()) {
-                return removedByPlayerDefault(world, pos, player, willHarvest);
+                return removedByPlayerDefault(state, world, pos, player, willHarvest);
             } else {
-                if (!removedByPlayerDefault(world, pos, player, willHarvest)) return false;
+                if (!removedByPlayerDefault(state, world, pos, player, willHarvest)) return false;
                 world.removeTileEntity(pos);
                 if (!world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState(), 0)) return false;
                 world.removeTileEntity(pos);
                 world.setTileEntity(pos, new TileMultipartContainer(container));
-                world.markBlockForUpdate(pos);
+                world.notifyBlockUpdate(pos, state, MCMultiPartMod.multipart.getDefaultState(), 0);
                 harvestingWrapper = true;
-                harvestBlock(world, player, pos, world.getBlockState(pos), world.getTileEntity(pos));
+                harvestBlock(world, player, pos, world.getBlockState(pos), world.getTileEntity(pos), player.getActiveItemStack());
                 harvestingWrapper = false;
                 return false;
             }
         }
     }
 
-    public boolean removedByPlayerDefault(World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
+    public boolean removedByPlayerDefault(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
 
-        return super.removedByPlayer(world, pos, player, willHarvest);
+        return super.removedByPlayer(state, world, pos, player, willHarvest);
     }
 
     @Override
-    public final float getPlayerRelativeBlockHardness(EntityPlayer player, World world, BlockPos pos) {
+    public final float getPlayerRelativeBlockHardness(IBlockState state, EntityPlayer player, World world, BlockPos pos) {
 
-        MovingObjectPosition hit = reTraceAll(world, pos, player);
+        RayTraceResult hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
             IMicroblockContainerTile tile = getMicroblockTile(world, pos);
             return tile != null ? tile.getMicroblockContainer().getPartContainer().getHardness(player, (PartMOP) hit) : 0F;
         } else {
-            return getPlayerRelativeBlockHardnessDefault(player, world, pos);
+            return getPlayerRelativeBlockHardnessDefault(state, player, world, pos);
         }
     }
 
-    public float getPlayerRelativeBlockHardnessDefault(EntityPlayer player, World world, BlockPos pos) {
+    public float getPlayerRelativeBlockHardnessDefault(IBlockState state, EntityPlayer player, World world, BlockPos pos) {
 
-        return super.getPlayerRelativeBlockHardness(player, world, pos);
+        return super.getPlayerRelativeBlockHardness(state, player, world, pos);
     }
 
     @Override
-    public final boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX,
-            float hitY, float hitZ) {
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem,
+            EnumFacing side, float hitX, float hitY, float hitZ) {
 
-        MovingObjectPosition hit = reTraceAll(world, pos, player);
+        RayTraceResult hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
             IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-            return tile != null ? tile.getMicroblockContainer().getPartContainer()
-                    .onActivated(player, player.getCurrentEquippedItem(), (PartMOP) hit) : false;
+            return tile != null ? tile.getMicroblockContainer().getPartContainer().onActivated(player, hand, heldItem, (PartMOP) hit)
+                    : false;
         } else {
-            return onBlockActivatedDefault(world, pos, state, player, side, hitX, hitY, hitZ);
+            return onBlockActivatedDefault(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
         }
     }
 
-    public boolean onBlockActivatedDefault(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX,
-            float hitY, float hitZ) {
+    public boolean onBlockActivatedDefault(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
+            ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 
-        return super.onBlockActivated(world, pos, state, player, side, hitX, hitY, hitZ);
+        return super.onBlockActivated(world, pos, state, player, hand, heldItem, side, hitX, hitY, hitZ);
     }
 
     @Override
     public final void onBlockClicked(World world, BlockPos pos, EntityPlayer player) {
 
-        MovingObjectPosition hit = reTraceAll(world, pos, player);
+        RayTraceResult hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
             IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-            if (tile != null)
-                tile.getMicroblockContainer().getPartContainer().onClicked(player, player.getCurrentEquippedItem(), (PartMOP) hit);
+            if (tile != null) tile.getMicroblockContainer().getPartContainer().onClicked(player, (PartMOP) hit);
         } else {
             onBlockClickedDefault(world, pos, player);
         }
@@ -296,12 +298,8 @@ public class BlockCoverable extends BlockContainer {
     public final void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-        if (tile != null)
-            tile.getMicroblockContainer()
-                    .getPartContainer()
-                    .onNeighborTileChange(
-                            EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ()
-                                    - pos.getZ()));
+        if (tile != null) tile.getMicroblockContainer().getPartContainer().onNeighborTileChange(
+                EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ() - pos.getZ()));
         onNeighborChangeDefault(world, pos, neighbor);
     }
 
@@ -355,8 +353,8 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public Boolean isEntityInsideMaterial(World world, BlockPos pos, IBlockState state, Entity entity, double yToTest, Material material,
-            boolean testingHead) {
+    public Boolean isEntityInsideMaterial(IBlockAccess world, BlockPos pos, IBlockState state, Entity entity, double yToTest,
+            Material material, boolean testingHead) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         Boolean def = isEntityInsideMaterialDefault(world, pos, state, entity, yToTest, material, testingHead);
@@ -367,105 +365,108 @@ public class BlockCoverable extends BlockContainer {
         return null;
     }
 
-    public Boolean isEntityInsideMaterialDefault(World world, BlockPos blockpos, IBlockState iblockstate, Entity entity, double yToTest,
-            Material materialIn, boolean testingHead) {
+    public Boolean isEntityInsideMaterialDefault(IBlockAccess world, BlockPos blockpos, IBlockState iblockstate, Entity entity,
+            double yToTest, Material materialIn, boolean testingHead) {
 
         return super.isEntityInsideMaterial(world, blockpos, iblockstate, entity, yToTest, materialIn, testingHead);
     }
 
     @Override
-    public boolean canProvidePower() {
+    public boolean canProvidePower(IBlockState state) {
 
         return true;
     }
 
     @Override
-    public final boolean canConnectRedstone(IBlockAccess world, BlockPos pos, EnumFacing side) {
+    public final boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 
         if (side == null) return false;
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
         if (container.getPartContainer().canConnectRedstone(side)) return true;
-        return canConnectRedstoneDefault(world, pos, side, container);
+        return canConnectRedstoneDefault(state, world, pos, side, container);
     }
 
-    public boolean canConnectRedstoneDefault(IBlockAccess world, BlockPos pos, EnumFacing side, MicroblockContainer partContainer) {
+    public boolean canConnectRedstoneDefault(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side,
+            MicroblockContainer partContainer) {
 
         return false;
     }
 
     @Override
-    public final int getWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
+    public final int getWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 
         if (side == null) return 0;
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
-        if (container == null) return getWeakPowerDefault(world, pos, state, side, null);
-        return Math.max(container.getPartContainer().getWeakSignal(side), getWeakPowerDefault(world, pos, state, side, container));
+        if (container == null) return getWeakPowerDefault(state, world, pos, side, null);
+        return Math.max(container.getPartContainer().getWeakSignal(side), getWeakPowerDefault(state, world, pos, side, container));
     }
 
-    public int getWeakPowerDefault(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side, MicroblockContainer partContainer) {
+    public int getWeakPowerDefault(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side,
+            MicroblockContainer partContainer) {
 
-        return super.getWeakPower(world, pos, state, side);
+        return super.getWeakPower(state, world, pos, side);
     }
 
     @Override
-    public final int getStrongPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
+    public final int getStrongPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 
         if (side == null) return 0;
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
-        if (container == null) return getStrongPowerDefault(world, pos, state, side, null);
-        return Math.max(container.getPartContainer().getStrongSignal(side), getStrongPowerDefault(world, pos, state, side, container));
+        if (container == null) return getStrongPowerDefault(state, world, pos, side, null);
+        return Math.max(container.getPartContainer().getStrongSignal(side), getStrongPowerDefault(state, world, pos, side, container));
     }
 
-    public int getStrongPowerDefault(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side, MicroblockContainer partContainer) {
+    public int getStrongPowerDefault(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side,
+            MicroblockContainer partContainer) {
 
-        return super.getStrongPower(world, pos, state, side);
+        return super.getStrongPower(state, world, pos, side);
     }
 
     @Override
-    public final boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
+    public final boolean isSideSolid(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
         if (container == null) return false;
-        return container.getPartContainer().isSideSolid(side) || isSideSolidDefault(world, pos, side);
+        return container.getPartContainer().isSideSolid(side) || isSideSolidDefault(state, world, pos, side);
     }
 
-    public boolean isSideSolidDefault(IBlockAccess world, BlockPos pos, EnumFacing side) {
+    public boolean isSideSolidDefault(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 
-        return super.isSideSolid(world, pos, side);
+        return super.isSideSolid(state, world, pos, side);
     }
 
     @Override
-    public final boolean canPlaceTorchOnTop(IBlockAccess world, BlockPos pos) {
+    public final boolean canPlaceTorchOnTop(IBlockState state, IBlockAccess world, BlockPos pos) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
         if (container == null) return false;
-        return container.getPartContainer().canPlaceTorchOnTop() || canPlaceTorchOnTopDefault(world, pos);
+        return container.getPartContainer().canPlaceTorchOnTop() || canPlaceTorchOnTopDefault(state, world, pos);
     }
 
-    public boolean canPlaceTorchOnTopDefault(IBlockAccess world, BlockPos pos) {
+    public boolean canPlaceTorchOnTopDefault(IBlockState state, IBlockAccess world, BlockPos pos) {
 
-        return super.canPlaceTorchOnTop(world, pos);
+        return super.canPlaceTorchOnTop(state, world, pos);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand) {
+    public void randomDisplayTick(IBlockState state, World world, BlockPos pos, Random rand) {
 
-        randomDisplayTickDefault(world, pos, state, rand);
+        randomDisplayTickDefault(state, world, pos, rand);
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
         if (container != null) container.getPartContainer().randomDisplayTick(rand);
     }
 
     @SideOnly(Side.CLIENT)
-    public void randomDisplayTickDefault(World world, BlockPos pos, IBlockState state, Random rand) {
+    public void randomDisplayTickDefault(IBlockState state, World world, BlockPos pos, Random rand) {
 
-        super.randomDisplayTick(world, pos, state, rand);
+        super.randomDisplayTick(state, world, pos, rand);
     }
 
     @Override
@@ -478,18 +479,14 @@ public class BlockCoverable extends BlockContainer {
 
             ResourceLocation path = hit.partHit.getModelPath();
             IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
-            IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
-                    .getModelManager()
-                    .getModel(new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
+            IBakedModel model = path == null ? null
+                    : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getModel(
+                            new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
             if (model != null) {
-                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
-                        .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
-                if (model != null) {
-                    TextureAtlasSprite icon = model.getParticleTexture();
-                    if (icon != null) {
-                        AdvancedEffectRenderer.getInstance(effectRenderer).addBlockDestroyEffects(pos, icon);
-                        return true;
-                    }
+                TextureAtlasSprite icon = model.getParticleTexture();
+                if (icon != null) {
+                    AdvancedEffectRenderer.getInstance(effectRenderer).addBlockDestroyEffects(pos, icon);
+                    return true;
                 }
             }
             return true;
@@ -505,48 +502,36 @@ public class BlockCoverable extends BlockContainer {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public final boolean addHitEffects(World world, MovingObjectPosition target, EffectRenderer effectRenderer) {
+    public final boolean addHitEffects(IBlockState state, World world, RayTraceResult target, EffectRenderer effectRenderer) {
 
         PartMOP hit = target instanceof PartMOP ? (PartMOP) target : null;
         if (hit != null) {
             if (hit.partHit.addHitEffects(hit, AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
 
             ResourceLocation path = hit.partHit.getModelPath();
-            IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
-            IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
-                    .getModelManager()
-                    .getModel(new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
+            IBlockState partState = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
+            IBakedModel model = path == null ? null
+                    : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getModel(
+                            new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(partState.getProperties())));
             if (model != null) {
-                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
-                        .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
-                if (model != null) {
-                    TextureAtlasSprite icon = model.getParticleTexture();
-                    if (icon != null) {
-                        AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(
-                                target.getBlockPos(),
-                                hit,
-                                world.getBlockState(target.getBlockPos()).getBlock().getSelectedBoundingBox(world, target.getBlockPos())
-                                        .offset(-target.getBlockPos().getX(), -target.getBlockPos().getY(), -target.getBlockPos().getZ()),
-                                icon);
-                        return true;
-                    }
-                }
+                AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(target.getBlockPos(), hit);
+                return true;
             }
             return true;
         }
-        return addHitEffectsDefault(world, target, effectRenderer);
+        return addHitEffectsDefault(state, world, target, effectRenderer);
     }
 
     @SideOnly(Side.CLIENT)
-    public boolean addHitEffectsDefault(World world, MovingObjectPosition target, EffectRenderer effectRenderer) {
+    public boolean addHitEffectsDefault(IBlockState state, World world, RayTraceResult target, EffectRenderer effectRenderer) {
 
-        return super.addHitEffects(world, target, effectRenderer);
+        return super.addHitEffects(state, world, target, effectRenderer);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean addLandingEffects(WorldServer worldObj, BlockPos blockPosition, IBlockState iblockstate, EntityLivingBase entity,
-            int numberOfParticles) {
+    public boolean addLandingEffects(IBlockState state, WorldServer worldObj, BlockPos blockPosition, IBlockState iblockstate,
+            EntityLivingBase entity, int numberOfParticles) {
 
         return true;
     }
@@ -555,24 +540,24 @@ public class BlockCoverable extends BlockContainer {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         if (tile == null) return null;
-        Vec3 start = RayTraceUtils.getStart(player);
-        Vec3 end = RayTraceUtils.getEnd(player);
-        RayTraceResultPart result = tile.getMicroblockContainer().getPartContainer().collisionRayTrace(start, end);
+        Vec3d start = RayTraceUtils.getStart(player);
+        Vec3d end = RayTraceUtils.getEnd(player);
+        AdvancedRayTraceResultPart result = tile.getMicroblockContainer().getPartContainer().collisionRayTrace(start, end);
         return result == null ? null : result.hit;
     }
 
-    private MovingObjectPosition reTraceBlock(World world, BlockPos pos, EntityPlayer player) {
+    private RayTraceResult reTraceBlock(World world, BlockPos pos, EntityPlayer player) {
 
-        Vec3 start = RayTraceUtils.getStart(player);
-        Vec3 end = RayTraceUtils.getEnd(player);
-        return collisionRayTraceDefault(world, pos, start, end);
+        Vec3d start = RayTraceUtils.getStart(player);
+        Vec3d end = RayTraceUtils.getEnd(player);
+        return collisionRayTraceDefault(world.getBlockState(pos), world, pos, start, end);
     }
 
-    private MovingObjectPosition reTraceAll(World world, BlockPos pos, EntityPlayer player) {
+    private RayTraceResult reTraceAll(World world, BlockPos pos, EntityPlayer player) {
 
-        Vec3 start = RayTraceUtils.getStart(player);
+        Vec3d start = RayTraceUtils.getStart(player);
         PartMOP partMOP = reTrace(world, pos, player);
-        MovingObjectPosition blockMOP = reTraceBlock(world, pos, player);
+        RayTraceResult blockMOP = reTraceBlock(world, pos, player);
         if (partMOP == null && blockMOP == null) return null;
         if (partMOP == null && blockMOP != null) return blockMOP;
         if (partMOP != null && blockMOP == null) return partMOP;
@@ -581,31 +566,31 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public int getRenderType() {
+    public EnumBlockRenderType getRenderType(IBlockState state) {
 
-        return 3;
+        return EnumBlockRenderType.MODEL;
     }
 
     @Override
-    public boolean isBlockNormalCube() {
+    public boolean isBlockNormalCube(IBlockState state) {
 
         return false;
     }
 
     @Override
-    public boolean isOpaqueCube() {
+    public boolean isOpaqueCube(IBlockState state) {
 
         return false;
     }
 
     @Override
-    public boolean isFullCube() {
+    public boolean isFullCube(IBlockState state) {
 
         return false;
     }
 
     @Override
-    public boolean isFullBlock() {
+    public boolean isFullBlock(IBlockState state) {
 
         return false;
     }
@@ -614,8 +599,8 @@ public class BlockCoverable extends BlockContainer {
     public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-        return ((IExtendedBlockState) state).withProperty(BlockMultipartContainer.properties[0], tile != null ? tile
-                .getMicroblockContainer().getPartContainer().getExtendedStates(world, pos) : new ArrayList<PartState>());
+        return ((IExtendedBlockState) state).withProperty(BlockMultipartContainer.properties[0],
+                tile != null ? tile.getMicroblockContainer().getPartContainer().getExtendedStates(world, pos) : new ArrayList<PartState>());
     }
 
     @Override
@@ -625,18 +610,18 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    protected BlockState createBlockState() {
+    protected BlockStateContainer createBlockState() {
 
         return new ExtendedBlockState(this, new IProperty[0], BlockMultipartContainer.properties);
     }
 
     @Override
-    public final boolean canRenderInLayer(EnumWorldBlockLayer layer) {
+    public final boolean canRenderInLayer(BlockRenderLayer layer) {
 
         return true;
     }
 
-    public boolean canRenderInLayerDefault(EnumWorldBlockLayer layer) {
+    public boolean canRenderInLayerDefault(BlockRenderLayer layer) {
 
         return super.canRenderInLayer(layer);
     }
@@ -658,7 +643,7 @@ public class BlockCoverable extends BlockContainer {
             GlStateManager.translate(x, y, z);
 
             if (hit.partHit instanceof ICustomHighlightPart
-                    && ((ICustomHighlightPart) hit.partHit).drawHighlight(hit, event.player, event.currentItem, event.partialTicks))
+                    && ((ICustomHighlightPart) hit.partHit).drawHighlight(hit, event.player, event.partialTicks))
                 event.setCanceled(true);
 
             GlStateManager.popMatrix();

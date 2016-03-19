@@ -12,11 +12,11 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -28,9 +28,8 @@ public class AdvancedEffectRenderer extends EffectRenderer {
 
     public static AdvancedEffectRenderer getInstance(EffectRenderer effectRenderer) {
 
-        if (instance == null)
-            return instance = new AdvancedEffectRenderer(Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().renderEngine,
-                    effectRenderer);
+        if (instance == null) return instance = new AdvancedEffectRenderer(Minecraft.getMinecraft().theWorld,
+                Minecraft.getMinecraft().renderEngine, effectRenderer);
         instance.worldObj = Minecraft.getMinecraft().theWorld;
         instance.parent = new WeakReference<EffectRenderer>(effectRenderer);
         return instance;
@@ -61,7 +60,7 @@ public class AdvancedEffectRenderer extends EffectRenderer {
                     double d1 = pos.getY() + (k + 0.5D) / i;
                     double d2 = pos.getZ() + (l + 0.5D) / i;
                     this.addEffect(new AdvancedEntityDiggingFX(this.worldObj, d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D,
-                            d2 - pos.getZ() - 0.5D, icon).func_174846_a(pos));
+                            d2 - pos.getZ() - 0.5D, icon).setBlockPos(pos));
                 }
             }
         }
@@ -91,18 +90,18 @@ public class AdvancedEffectRenderer extends EffectRenderer {
         if (side == EnumFacing.WEST) d0 = i + box.minX - f;
         if (side == EnumFacing.EAST) d0 = i + box.maxX + f;
 
-        this.addEffect((new AdvancedEntityDiggingFX(this.worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, icon)).func_174846_a(pos)
+        this.addEffect((new AdvancedEntityDiggingFX(this.worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, icon)).setBlockPos(pos)
                 .multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
     }
 
     @Override
-    public void addBlockHitEffects(BlockPos pos, MovingObjectPosition target) {
+    public void addBlockHitEffects(BlockPos pos, RayTraceResult target) {
 
         EffectRenderer p = parent.get();
         if (p != null) p.addBlockHitEffects(pos, target);
     }
 
-    public void addBlockHitEffects(BlockPos pos, MovingObjectPosition target, AxisAlignedBB box, TextureAtlasSprite icon) {
+    public void addBlockHitEffects(BlockPos pos, RayTraceResult target, AxisAlignedBB box, TextureAtlasSprite icon) {
 
         addBlockHitEffects(pos, target.sideHit, box, icon);
     }
@@ -136,20 +135,6 @@ public class AdvancedEffectRenderer extends EffectRenderer {
     }
 
     @Override
-    public void moveToAlphaLayer(EntityFX effect) {
-
-        EffectRenderer p = parent.get();
-        if (p != null) p.moveToAlphaLayer(effect);
-    }
-
-    @Override
-    public void moveToNoAlphaLayer(EntityFX effect) {
-
-        EffectRenderer p = parent.get();
-        if (p != null) p.moveToNoAlphaLayer(effect);
-    }
-
-    @Override
     public void registerParticle(int id, IParticleFactory particleFactory) {
 
     }
@@ -172,9 +157,8 @@ public class AdvancedEffectRenderer extends EffectRenderer {
     public EntityFX spawnEffectParticle(int particleId, double p_178927_2_, double p_178927_4_, double p_178927_6_, double p_178927_8_,
             double p_178927_10_, double p_178927_12_, int... p_178927_14_) {
 
-        if (parent.get() != null)
-            return parent.get().spawnEffectParticle(particleId, p_178927_2_, p_178927_4_, p_178927_6_, p_178927_8_, p_178927_10_,
-                    p_178927_12_, p_178927_14_);
+        if (parent.get() != null) return parent.get().spawnEffectParticle(particleId, p_178927_2_, p_178927_4_, p_178927_6_, p_178927_8_,
+                p_178927_10_, p_178927_12_, p_178927_14_);
         return null;
     }
 
@@ -191,7 +175,7 @@ public class AdvancedEffectRenderer extends EffectRenderer {
                 double ySpeedIn, double zSpeedIn, TextureAtlasSprite icon) {
 
             super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, Blocks.stone.getDefaultState());
-            setParticleIcon(icon);
+            setParticleTexture(icon);
         }
 
     }

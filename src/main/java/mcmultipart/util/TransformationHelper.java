@@ -7,12 +7,13 @@ import java.nio.FloatBuffer;
 import javax.vecmath.Vector2d;
 
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+// TODO: Remove this if it's not needed
 public class TransformationHelper {
 
     private static final FloatBuffer[] glMatrices = new FloatBuffer[6];
@@ -39,57 +40,57 @@ public class TransformationHelper {
 
     public static AxisAlignedBB rotate(AxisAlignedBB aabb, EnumFacing side) {
 
-        Vec3 v1 = rotate(new Vec3(aabb.minX, aabb.minY, aabb.minZ), side);
-        Vec3 v2 = rotate(new Vec3(aabb.maxX, aabb.maxY, aabb.maxZ), side);
+        Vec3d v1 = rotate(new Vec3d(aabb.minX, aabb.minY, aabb.minZ), side);
+        Vec3d v2 = rotate(new Vec3d(aabb.maxX, aabb.maxY, aabb.maxZ), side);
         return new AxisAlignedBB(v1.xCoord, v1.yCoord, v1.zCoord, v2.xCoord, v2.yCoord, v2.zCoord);
     }
 
-    public static Vec3 rotate(Vec3 vec, EnumFacing side) {
+    public static Vec3d rotate(Vec3d vec, EnumFacing side) {
 
         switch (side) {
         case DOWN:
-            return new Vec3(vec.xCoord, vec.yCoord, vec.zCoord);
+            return new Vec3d(vec.xCoord, vec.yCoord, vec.zCoord);
         case UP:
-            return new Vec3(vec.xCoord, -vec.yCoord, -vec.zCoord);
+            return new Vec3d(vec.xCoord, -vec.yCoord, -vec.zCoord);
         case NORTH:
-            return new Vec3(vec.xCoord, -vec.zCoord, vec.yCoord);
+            return new Vec3d(vec.xCoord, -vec.zCoord, vec.yCoord);
         case SOUTH:
-            return new Vec3(vec.xCoord, vec.zCoord, -vec.yCoord);
+            return new Vec3d(vec.xCoord, vec.zCoord, -vec.yCoord);
         case WEST:
-            return new Vec3(vec.yCoord, -vec.xCoord, vec.zCoord);
+            return new Vec3d(vec.yCoord, -vec.xCoord, vec.zCoord);
         case EAST:
-            return new Vec3(-vec.yCoord, vec.xCoord, vec.zCoord);
+            return new Vec3d(-vec.yCoord, vec.xCoord, vec.zCoord);
         }
         return null;
     }
 
     public static AxisAlignedBB revRotate(AxisAlignedBB aabb, EnumFacing side) {
 
-        Vec3 v1 = revRotate(new Vec3(aabb.minX, aabb.minY, aabb.minZ), side);
-        Vec3 v2 = revRotate(new Vec3(aabb.maxX, aabb.maxY, aabb.maxZ), side);
+        Vec3d v1 = revRotate(new Vec3d(aabb.minX, aabb.minY, aabb.minZ), side);
+        Vec3d v2 = revRotate(new Vec3d(aabb.maxX, aabb.maxY, aabb.maxZ), side);
         return new AxisAlignedBB(v1.xCoord, v1.yCoord, v1.zCoord, v2.xCoord, v2.yCoord, v2.zCoord);
     }
 
-    public static Vec3 revRotate(Vec3 vec, EnumFacing side) {
+    public static Vec3d revRotate(Vec3d vec, EnumFacing side) {
 
         switch (side) {
         case DOWN:
-            return new Vec3(vec.xCoord, vec.yCoord, vec.zCoord);
+            return new Vec3d(vec.xCoord, vec.yCoord, vec.zCoord);
         case UP:
-            return new Vec3(vec.xCoord, -vec.yCoord, -vec.zCoord);
+            return new Vec3d(vec.xCoord, -vec.yCoord, -vec.zCoord);
         case NORTH:
-            return new Vec3(vec.xCoord, vec.zCoord, -vec.yCoord);
+            return new Vec3d(vec.xCoord, vec.zCoord, -vec.yCoord);
         case SOUTH:
-            return new Vec3(vec.xCoord, -vec.zCoord, vec.yCoord);
+            return new Vec3d(vec.xCoord, -vec.zCoord, vec.yCoord);
         case WEST:
-            return new Vec3(-vec.yCoord, vec.xCoord, vec.zCoord);
+            return new Vec3d(-vec.yCoord, vec.xCoord, vec.zCoord);
         case EAST:
-            return new Vec3(vec.yCoord, -vec.xCoord, vec.zCoord);
+            return new Vec3d(vec.yCoord, -vec.xCoord, vec.zCoord);
         }
         return null;
     }
 
-    public static Vector2d project(Vec3 vec, EnumFacing sideHit) {
+    public static Vector2d project(Vec3d vec, EnumFacing sideHit) {
 
         double x = vec.xCoord, z = vec.zCoord;
 

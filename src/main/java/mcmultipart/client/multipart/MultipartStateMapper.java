@@ -6,11 +6,11 @@ import java.util.Map;
 import mcmultipart.multipart.MultipartRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.DefaultStateMapper;
 import net.minecraft.client.renderer.block.statemap.IStateMapper;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
 
 public class MultipartStateMapper extends DefaultStateMapper {
@@ -32,7 +32,7 @@ public class MultipartStateMapper extends DefaultStateMapper {
             if (mapper != null) {
                 mappings.putAll(mapper.putStateModelLocations(blockIn));
             } else {
-                BlockState state = MultipartRegistry.getDefaultState(part);
+                BlockStateContainer state = MultipartRegistry.getDefaultState(part);
                 ResourceLocation modelPath = MultipartRegistry.getStateLocation(state);
                 for (IBlockState istate : state.getValidStates())
                     mappings.put(istate, new ModelResourceLocation(modelPath, this.getPropertyString(istate.getProperties())));
@@ -41,9 +41,8 @@ public class MultipartStateMapper extends DefaultStateMapper {
         return mappings;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
-    public String getPropertyString(Map<IProperty, Comparable> p_178131_1_) {
+    public String getPropertyString(Map<IProperty<?>, Comparable<?>> p_178131_1_) {
 
         String str = super.getPropertyString(p_178131_1_);
         if (replaceNormal && str.equals("normal")) return "multipart";

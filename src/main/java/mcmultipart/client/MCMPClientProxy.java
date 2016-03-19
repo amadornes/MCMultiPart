@@ -9,7 +9,7 @@ import mcmultipart.client.multipart.MultipartContainerSpecialRenderer.TileCovera
 import mcmultipart.client.multipart.MultipartContainerSpecialRenderer.TileMultipartSpecialRenderer;
 import mcmultipart.client.multipart.MultipartStateMapper;
 import net.minecraft.block.Block;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -46,8 +46,9 @@ public class MCMPClientProxy extends MCMPCommonProxy {
     public void onModelBake(ModelBakeEvent event) {
 
         // Link the custom ISmartBlockModel to the multipart block
-        event.modelRegistry.putObject(new ModelResourceLocation(Block.blockRegistry.getNameForObject(MCMultiPartMod.multipart), "normal"),
-                new ModelMultipartContainer(null));
+        event.getModelRegistry().putObject(
+                new ModelResourceLocation(Block.blockRegistry.getNameForObject(MCMultiPartMod.multipart), "normal"),
+                new ModelMultipartContainer(null, null));
     }
 
     @Override

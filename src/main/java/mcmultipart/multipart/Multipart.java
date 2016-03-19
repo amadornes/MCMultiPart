@@ -12,11 +12,11 @@ import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import mcmultipart.network.MessageMultipartChange;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
+import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResult;
+import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResultPart;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -25,12 +25,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -50,7 +51,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public abstract class Multipart implements IMultipart, ICapabilitySerializable<NBTTagCompound> {
 
-    protected static final AxisAlignedBB DEFAULT_RENDER_BOUNDS = AxisAlignedBB.fromBounds(0, 0, 0, 1, 1, 1);
+    protected static final AxisAlignedBB DEFAULT_RENDER_BOUNDS = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
 
     private final ResourceLocation partType = MultipartRegistry.getPartType(this);
     private IMultipartContainer container;
@@ -101,12 +102,12 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
     }
 
     @Override
-    public RayTraceResultPart collisionRayTrace(Vec3 start, Vec3 end) {
+    public AdvancedRayTraceResultPart collisionRayTrace(Vec3d start, Vec3d end) {
 
         List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
         addSelectionBoxes(list);
-        RayTraceResult result = RayTraceUtils.collisionRayTrace(getWorld(), getPos(), start, end, list);
-        return result == null ? null : new RayTraceResultPart(result, this);
+        AdvancedRayTraceResult result = RayTraceUtils.collisionRayTrace(getWorld(), getPos(), start, end, list);
+        return result == null ? null : new AdvancedRayTraceResultPart(result, this);
     }
 
     /**
@@ -196,7 +197,7 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
         else if (hardness == 0.0F) return 1.0F;
 
         Material mat = getMaterial();
-        ItemStack stack = player.getCurrentEquippedItem();
+        ItemStack stack = player.getHeldItemMainhand();
         boolean effective = mat == null || mat.isToolNotRequired();
         if (!effective && stack != null) for (String tool : stack.getItem().getToolClasses(stack))
             if (effective = isToolEffective(tool, stack.getItem().getHarvestLevel(stack, tool))) break;
@@ -260,13 +261,13 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
     }
 
     @Override
-    public boolean onActivated(EntityPlayer player, ItemStack stack, PartMOP hit) {
-
+    public boolean onActivated(EntityPlayer player, EnumHand hand, ItemStack heldItem, PartMOP hit) {
+    
         return false;
     }
 
     @Override
-    public void onClicked(EntityPlayer player, ItemStack stack, PartMOP hit) {
+    public void onClicked(EntityPlayer player, PartMOP hit) {
 
     }
 
@@ -307,9 +308,9 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
     }
 
     @Override
-    public boolean canRenderInLayer(EnumWorldBlockLayer layer) {
+    public boolean canRenderInLayer(BlockRenderLayer layer) {
 
-        return layer == EnumWorldBlockLayer.SOLID;
+        return layer == BlockRenderLayer.SOLID;
     }
 
     @Override
@@ -319,9 +320,9 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
     }
 
     @Override
-    public BlockState createBlockState() {
+    public BlockStateContainer createBlockState() {
 
-        return new BlockState(MCMultiPartMod.multipart);
+        return new BlockStateContainer(MCMultiPartMod.multipart);
     }
 
     @SideOnly(Side.CLIENT)

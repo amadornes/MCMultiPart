@@ -8,7 +8,6 @@ import java.util.Random;
 import mcmultipart.MCMultiPartMod;
 import mcmultipart.client.multipart.AdvancedEffectRenderer;
 import mcmultipart.client.multipart.ICustomHighlightPart;
-import mcmultipart.client.multipart.ISmartMultipartModel;
 import mcmultipart.client.multipart.MultipartStateMapper;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.Multipart;
@@ -17,31 +16,34 @@ import mcmultipart.multipart.PartState;
 import mcmultipart.property.PropertyMultipartStates;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
+import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResultPart;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
+import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumWorldBlockLayer;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -60,7 +62,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * You do NOT need to extend this class for your multiparts to work. I repeat, you do NOT. You need to either extend {@link Multipart} or
  * implement {@link IMultipart}. If you only need microblock support, look into {@link BlockCoverable}.
  */
-public final class BlockMultipartContainer extends BlockContainer {
+public final class BlockMultipartContainer extends Block implements ITileEntityProvider {
+
+    private AxisAlignedBB bounds = FULL_BLOCK_AABB;
 
     public BlockMultipartContainer() {
 
@@ -81,28 +85,34 @@ public final class BlockMultipartContainer extends BlockContainer {
     }
 
     @Override
-    public MovingObjectPosition collisionRayTrace(World world, BlockPos pos, Vec3 start, Vec3 end) {
+    public RayTraceResult collisionRayTrace(IBlockState state, World world, BlockPos pos, Vec3d start, Vec3d end) {
 
-        if (world == null || pos == null || start == null || end == null) return null;
+        if (state == null || world == null || pos == null || start == null || end == null) return null;
         TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return null;
-        RayTraceResultPart result = tile.getPartContainer().collisionRayTrace(start, end);
+        AdvancedRayTraceResultPart result = tile.getPartContainer().collisionRayTrace(start, end);
         if (result == null) return null;
-        result.setBounds(world, pos);
+        this.bounds = result.bounds;
         return result.hit;
     }
 
     @Override
-    public void addCollisionBoxesToList(World worldIn, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list,
-            Entity collidingEntity) {
+    public AxisAlignedBB getSelectedBoundingBox(IBlockState worldIn, World pos, BlockPos state) {
 
-        TileMultipartContainer tile = getMultipartTile(worldIn, pos);
-        if (tile == null) return;
-        tile.getPartContainer().addCollisionBoxes(mask, list, collidingEntity);
+        return bounds;
     }
 
     @Override
-    public int getLightValue(IBlockAccess world, BlockPos pos) {
+    public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
+            List<AxisAlignedBB> collidingBoxes, Entity collidingEntity) {
+
+        TileMultipartContainer tile = getMultipartTile(worldIn, pos);
+        if (tile == null) return;
+        tile.getPartContainer().addCollisionBoxes(entityBox, collidingBoxes, collidingEntity);
+    }
+
+    @Override
+    public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
 
         TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return 0;
@@ -110,7 +120,7 @@ public final class BlockMultipartContainer extends BlockContainer {
     }
 
     @Override
-    public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos, EntityPlayer player) {
+    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
 
         if (target instanceof PartMOP) {
             TileMultipartContainer tile = getMultipartTile(world, pos);
@@ -123,10 +133,10 @@ public final class BlockMultipartContainer extends BlockContainer {
     private TileMultipartContainer brokenTile = null;
 
     @Override
-    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te) {
+    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack) {
 
         brokenTile = te instanceof TileMultipartContainer ? (TileMultipartContainer) te : null;
-        super.harvestBlock(worldIn, player, pos, state, te);
+        super.harvestBlock(worldIn, player, pos, state, te, stack);
         brokenTile = null;
     }
 
@@ -140,17 +150,17 @@ public final class BlockMultipartContainer extends BlockContainer {
     }
 
     @Override
-    public boolean removedByPlayer(World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
+    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
 
         TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return false;
         PartMOP hit = reTrace(world, pos, player);
         if (hit == null) return false;
-        return tile.getPartContainer().harvest(player, hit) ? super.removedByPlayer(world, pos, player, willHarvest) : false;
+        return tile.getPartContainer().harvest(player, hit) ? super.removedByPlayer(state, world, pos, player, willHarvest) : false;
     }
 
     @Override
-    public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, BlockPos pos) {
+    public float getPlayerRelativeBlockHardness(IBlockState state, EntityPlayer player, World world, BlockPos pos) {
 
         TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return 0;
@@ -160,12 +170,12 @@ public final class BlockMultipartContainer extends BlockContainer {
     }
 
     @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX,
-            float hitY, float hitZ) {
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem,
+            EnumFacing side, float hitX, float hitY, float hitZ) {
 
         TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return false;
-        return tile.getPartContainer().onActivated(player, player.getCurrentEquippedItem(), reTrace(world, pos, player));
+        return tile.getPartContainer().onActivated(player, hand, heldItem, reTrace(world, pos, player));
     }
 
     @Override
@@ -173,7 +183,7 @@ public final class BlockMultipartContainer extends BlockContainer {
 
         TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return;
-        tile.getPartContainer().onClicked(player, player.getCurrentEquippedItem(), reTrace(world, pos, player));
+        tile.getPartContainer().onClicked(player, reTrace(world, pos, player));
     }
 
     @Override
@@ -187,7 +197,7 @@ public final class BlockMultipartContainer extends BlockContainer {
     @Override
     public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 
-TileMultipartContainer tile = getMultipartTile(world, pos);
+        TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return;
         tile.getPartContainer().onNeighborTileChange(
                 EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ() - pos.getZ()));
@@ -218,8 +228,8 @@ TileMultipartContainer tile = getMultipartTile(world, pos);
     }
 
     @Override
-    public Boolean isEntityInsideMaterial(World world, BlockPos pos, IBlockState state, Entity entity, double yToTest, Material material,
-            boolean testingHead) {
+    public Boolean isEntityInsideMaterial(IBlockAccess world, BlockPos pos, IBlockState state, Entity entity, double yToTest,
+            Material material, boolean testingHead) {
 
         TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return null;
@@ -227,13 +237,13 @@ TileMultipartContainer tile = getMultipartTile(world, pos);
     }
 
     @Override
-    public boolean canProvidePower() {
+    public boolean canProvidePower(IBlockState state) {
 
         return true;
     }
 
     @Override
-    public boolean canConnectRedstone(IBlockAccess world, BlockPos pos, EnumFacing side) {
+    public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 
         if (side == null) return false;
         TileMultipartContainer tile = getMultipartTile(world, pos);
@@ -242,7 +252,7 @@ TileMultipartContainer tile = getMultipartTile(world, pos);
     }
 
     @Override
-    public int getWeakPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
+    public int getWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 
         if (side == null) return 0;
         TileMultipartContainer tile = getMultipartTile(world, pos);
@@ -251,7 +261,7 @@ TileMultipartContainer tile = getMultipartTile(world, pos);
     }
 
     @Override
-    public int getStrongPower(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
+    public int getStrongPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 
         if (side == null) return 0;
         TileMultipartContainer tile = getMultipartTile(world, pos);
@@ -260,7 +270,7 @@ TileMultipartContainer tile = getMultipartTile(world, pos);
     }
 
     @Override
-    public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
+    public boolean isSideSolid(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 
         TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return false;
@@ -268,7 +278,7 @@ TileMultipartContainer tile = getMultipartTile(world, pos);
     }
 
     @Override
-    public boolean canPlaceTorchOnTop(IBlockAccess world, BlockPos pos) {
+    public boolean canPlaceTorchOnTop(IBlockState state, IBlockAccess world, BlockPos pos) {
 
         TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return false;
@@ -277,7 +287,7 @@ TileMultipartContainer tile = getMultipartTile(world, pos);
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void randomDisplayTick(World world, BlockPos pos, IBlockState state, Random rand) {
+    public void randomDisplayTick(IBlockState state, World world, BlockPos pos, Random rand) {
 
         TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile != null) tile.getPartContainer().randomDisplayTick(rand);
@@ -293,16 +303,12 @@ TileMultipartContainer tile = getMultipartTile(world, pos);
 
             ResourceLocation path = hit.partHit.getModelPath();
             IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
-            IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
-                    .getModelManager()
-                    .getModel(new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
+            IBakedModel model = path == null ? null
+                    : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getModel(
+                            new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
             if (model != null) {
-                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
-                        .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
-                if (model != null) {
-                    TextureAtlasSprite icon = model.getParticleTexture();
-                    if (icon != null) AdvancedEffectRenderer.getInstance(effectRenderer).addBlockDestroyEffects(pos, icon);
-                }
+                TextureAtlasSprite icon = model.getParticleTexture();
+                if (icon != null) AdvancedEffectRenderer.getInstance(effectRenderer).addBlockDestroyEffects(pos, icon);
             }
         }
         return true;
@@ -310,77 +316,64 @@ TileMultipartContainer tile = getMultipartTile(world, pos);
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean addHitEffects(World world, MovingObjectPosition target, EffectRenderer effectRenderer) {
+    public boolean addHitEffects(IBlockState state, World world, RayTraceResult target, EffectRenderer effectRenderer) {
 
         PartMOP hit = target instanceof PartMOP ? (PartMOP) target : null;
         if (hit != null) {
             if (hit.partHit.addHitEffects(hit, AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
 
             ResourceLocation path = hit.partHit.getModelPath();
-            IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
-            IBakedModel model = path == null ? null : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
-                    .getModelManager()
-                    .getModel(new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
-            if (model != null) {
-                model = model instanceof ISmartMultipartModel ? ((ISmartMultipartModel) model).handlePartState(hit.partHit
-                        .getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState())) : model;
-                if (model != null) {
-                    TextureAtlasSprite icon = model.getParticleTexture();
-                    if (icon != null)
-                        AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(
-                                target.getBlockPos(),
-                                hit,
-                                world.getBlockState(target.getBlockPos()).getBlock().getSelectedBoundingBox(world, target.getBlockPos())
-                                        .offset(-target.getBlockPos().getX(), -target.getBlockPos().getY(), -target.getBlockPos().getZ()),
-                                icon);
-                }
-            }
+            IBlockState partState = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
+            IBakedModel model = path == null ? null
+                    : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getModel(
+                            new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(partState.getProperties())));
+            if (model != null) AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(target.getBlockPos(), hit);
         }
         return true;
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public boolean addLandingEffects(WorldServer worldObj, BlockPos blockPosition, IBlockState iblockstate, EntityLivingBase entity,
-            int numberOfParticles) {
+    public boolean addLandingEffects(IBlockState state, WorldServer worldObj, BlockPos blockPosition, IBlockState iblockstate,
+            EntityLivingBase entity, int numberOfParticles) {
 
-        return true;
+        // TODO Auto-generated method stub
+        return super.addLandingEffects(state, worldObj, blockPosition, iblockstate, entity, numberOfParticles);
     }
 
     private PartMOP reTrace(World world, BlockPos pos, EntityPlayer player) {
 
-        Vec3 start = RayTraceUtils.getStart(player);
-        Vec3 end = RayTraceUtils.getEnd(player);
-        RayTraceResultPart result = getMultipartTile(world, pos).getPartContainer().collisionRayTrace(start, end);
+        Vec3d start = RayTraceUtils.getStart(player);
+        Vec3d end = RayTraceUtils.getEnd(player);
+        AdvancedRayTraceResultPart result = getMultipartTile(world, pos).getPartContainer().collisionRayTrace(start, end);
         return result == null ? null : result.hit;
     }
 
     @Override
-    public int getRenderType() {
+    public EnumBlockRenderType getRenderType(IBlockState state) {
 
-        return 3;
+        return EnumBlockRenderType.MODEL;
     }
 
     @Override
-    public boolean isBlockNormalCube() {
+    public boolean isBlockNormalCube(IBlockState state) {
 
         return false;
     }
 
     @Override
-    public boolean isOpaqueCube() {
+    public boolean isOpaqueCube(IBlockState state) {
 
         return false;
     }
 
     @Override
-    public boolean isFullCube() {
+    public boolean isFullCube(IBlockState state) {
 
         return false;
     }
 
     @Override
-    public boolean isFullBlock() {
+    public boolean isFullBlock(IBlockState state) {
 
         return false;
     }
@@ -407,13 +400,13 @@ TileMultipartContainer tile = getMultipartTile(world, pos);
     }
 
     @Override
-    protected BlockState createBlockState() {
+    protected BlockStateContainer createBlockState() {
 
         return new ExtendedBlockState(this, new IProperty[0], properties);
     }
 
     @Override
-    public boolean canRenderInLayer(EnumWorldBlockLayer layer) {
+    public boolean canRenderInLayer(BlockRenderLayer layer) {
 
         return true;
     }
@@ -434,8 +427,7 @@ TileMultipartContainer tile = getMultipartTile(world, pos);
             double z = pos.getZ() - (player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks);
             GlStateManager.translate(x, y, z);
 
-            if (((ICustomHighlightPart) hit.partHit).drawHighlight(hit, event.player, event.currentItem, event.partialTicks))
-                event.setCanceled(true);
+            if (((ICustomHighlightPart) hit.partHit).drawHighlight(hit, event.player, event.partialTicks)) event.setCanceled(true);
 
             GlStateManager.popMatrix();
         }

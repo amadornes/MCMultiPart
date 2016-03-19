@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+import com.google.common.base.Optional;
+
 import mcmultipart.microblock.IMicroMaterial.IDelegatedMicroMaterial;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IRedstonePart;
@@ -12,26 +14,25 @@ import mcmultipart.multipart.Multipart;
 import mcmultipart.multipart.PartSlot;
 import mcmultipart.property.PropertyBlockState;
 import mcmultipart.property.PropertyMicroMaterial;
-import mcmultipart.property.PropertyPartSlot;
 import mcmultipart.raytrace.PartMOP;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.properties.PropertyInteger;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.common.property.Properties.PropertyAdapter;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
-
-import com.google.common.base.Optional;
 
 public abstract class Microblock extends Multipart implements IMicroblock, IRedstonePart, ISlottedRedstonePart {
 
@@ -45,7 +46,7 @@ public abstract class Microblock extends Multipart implements IMicroblock, IReds
         PROPERTIES[0] = PROPERTY_MATERIAL = new PropertyMicroMaterial("material");
         PROPERTIES[1] = PROPERTY_MATERIAL_STATE = new PropertyBlockState("material_state");
         PROPERTIES[2] = PROPERTY_SIZE = new PropertyAdapter<Integer>(PropertyInteger.create("size", 0, 7));
-        PROPERTIES[3] = PROPERTY_SLOT = new PropertyPartSlot("slot");
+        PROPERTIES[3] = PROPERTY_SLOT = new PropertyAdapter<PartSlot>(PropertyEnum.create("slot", PartSlot.class));
     }
 
     protected IMicroMaterial material;
@@ -191,9 +192,8 @@ public abstract class Microblock extends Multipart implements IMicroblock, IReds
         int iSlot = buf.readInt();
         slot = iSlot == -1 ? null : PartSlot.VALUES[iSlot];
         size = buf.readInt();
-        if (oldMat != material)
-            delegate = material instanceof IDelegatedMicroMaterial ? ((IDelegatedMicroMaterial) material).provideDelegate(this, true)
-                    : null;
+        if (oldMat != material) delegate = material instanceof IDelegatedMicroMaterial
+                ? ((IDelegatedMicroMaterial) material).provideDelegate(this, true) : null;
         if (delegate != null) delegate.readUpdatePacket(buf);
     }
 
@@ -289,20 +289,20 @@ public abstract class Microblock extends Multipart implements IMicroblock, IReds
     }
 
     @Override
-    public boolean onActivated(EntityPlayer player, ItemStack stack, PartMOP hit) {
+    public boolean onActivated(EntityPlayer player, EnumHand hand, ItemStack heldItem, PartMOP hit) {
 
         if (delegate != null) {
-            Optional<Boolean> activated = delegate.onActivated(player, stack, hit);
+            Optional<Boolean> activated = delegate.onActivated(player, hand, heldItem, hit);
             if (activated.isPresent()) return activated.get();
         }
-        return super.onActivated(player, stack, hit);
+        return super.onActivated(player, hand, heldItem, hit);
     }
 
     @Override
-    public void onClicked(EntityPlayer player, ItemStack stack, PartMOP hit) {
+    public void onClicked(EntityPlayer player, PartMOP hit) {
 
-        if (delegate != null && delegate.onClicked(player, stack, hit)) return;
-        super.onClicked(player, stack, hit);
+        if (delegate != null && delegate.onClicked(player, hit)) return;
+        super.onClicked(player, hit);
     }
 
     @Override

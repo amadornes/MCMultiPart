@@ -1,10 +1,10 @@
 package mcmultipart.microblock;
 
-import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 public interface IMicroMaterial {
@@ -23,9 +23,9 @@ public interface IMicroMaterial {
 
     public ItemStack getItem();
 
-    public Block.SoundType getSound();
+    public SoundType getSound();
 
-    public boolean canRenderInLayer(EnumWorldBlockLayer layer);
+    public boolean canRenderInLayer(BlockRenderLayer layer);
 
     public IBlockState getDefaultMaterialState();
 

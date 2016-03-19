@@ -1,5 +1,7 @@
 package mcmultipart.item;
 
+import com.google.common.base.Predicate;
+
 import mcmultipart.microblock.IMicroblock;
 import mcmultipart.microblock.MicroblockContainer;
 import mcmultipart.multipart.IMultipart;
@@ -8,12 +10,10 @@ import mcmultipart.multipart.MultipartHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
-import com.google.common.base.Predicate;
 
 public class MicroContainerPlacementWrapper extends PartPlacementWrapper {
 
@@ -28,7 +28,7 @@ public class MicroContainerPlacementWrapper extends PartPlacementWrapper {
     }
 
     @Override
-    protected boolean place(World world, BlockPos pos, EnumFacing side, Vec3 hit, ItemStack stack, EntityPlayer player) {
+    protected boolean place(World world, BlockPos pos, EnumFacing side, Vec3d hit, ItemStack stack, EntityPlayer player) {
 
         IMultipartContainer container = MultipartHelper.getOrConvertPartContainer(world, pos, true);
         if (container == null) return false;

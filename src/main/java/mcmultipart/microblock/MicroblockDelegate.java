@@ -1,5 +1,7 @@
 package mcmultipart.microblock;
 
+import com.google.common.base.Optional;
+
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.raytrace.PartMOP;
 import net.minecraft.block.Block;
@@ -8,8 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
-
-import com.google.common.base.Optional;
+import net.minecraft.util.EnumHand;
 
 public class MicroblockDelegate {
 
@@ -58,12 +59,12 @@ public class MicroblockDelegate {
 
     }
 
-    public Optional<Boolean> onActivated(EntityPlayer player, ItemStack stack, PartMOP hit) {
+    public Optional<Boolean> onActivated(EntityPlayer player, EnumHand hand, ItemStack heldItem, PartMOP hit) {
 
         return Optional.absent();
     }
 
-    public boolean onClicked(EntityPlayer player, ItemStack stack, PartMOP hit) {
+    public boolean onClicked(EntityPlayer player, PartMOP hit) {
 
         return false;
     }

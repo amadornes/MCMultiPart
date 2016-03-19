@@ -2,12 +2,13 @@ package mcmultipart.multipart;
 
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.text.translation.I18n;
 
 /**
  * Enumeration of all the slots a multipart can occupy inside a block.
  */
-public enum PartSlot {
+public enum PartSlot implements IStringSerializable {
 
     DOWN(EnumFacing.DOWN),
     UP(EnumFacing.UP),
@@ -115,7 +116,13 @@ public enum PartSlot {
 
     public String getLocalizedName() {
 
-        return StatCollector.translateToLocal(getUnlocalizedName());
+        return I18n.translateToLocal(getUnlocalizedName());
+    }
+
+    @Override
+    public String getName() {
+
+        return getLocalizedName();
     }
 
     public boolean matches(EnumFacing f1) {
