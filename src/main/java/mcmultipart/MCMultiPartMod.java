@@ -14,8 +14,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
-@Mod(modid = MCMultiPartMod.MODID, name = MCMultiPartMod.NAME, version = MCMultiPartMod.VERSION,
-        acceptedMinecraftVersions = "[1.8.8,1.8.9]")
+@Mod(modid = MCMultiPartMod.MODID, name = MCMultiPartMod.NAME, version = MCMultiPartMod.VERSION)
 public class MCMultiPartMod {
 
     public static final String MODID = "mcmultipart", NAME = "MCMultiPart", VERSION = "%VERSION%";
