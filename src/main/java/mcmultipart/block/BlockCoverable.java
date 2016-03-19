@@ -96,7 +96,7 @@ public class BlockCoverable extends BlockContainer {
         RayTraceResult hit = collisionRayTraceDefault(state, world, pos, start, end);
         if (result == null) return hit;
         if (hit != null && hit.hitVec.squareDistanceTo(start) < result.squareDistanceTo(start)) {
-            bounds = getSelectedBoundingBoxDefault(state, world, pos);
+            bounds = getSelectedBoundingBoxDefault(state, world, pos).offset(-pos.getX(), -pos.getY(), -pos.getZ());
             return hit;
         }
         bounds = result.bounds;
@@ -109,9 +109,9 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public final AxisAlignedBB getSelectedBoundingBox(IBlockState worldIn, World pos, BlockPos state) {
+    public final AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos) {
 
-        return bounds;
+        return bounds.offset(pos);
     }
 
     public AxisAlignedBB getSelectedBoundingBoxDefault(IBlockState state, World worldIn, BlockPos pos) {
@@ -121,11 +121,16 @@ public class BlockCoverable extends BlockContainer {
 
     @Override
     public final void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox,
-            List<AxisAlignedBB> collidingBoxes, Entity entity) {
+            List<AxisAlignedBB> collidingBoxes, Entity collidingEntity) {
 
-        addCollisionBoxToListDefault(state, world, pos, entityBox, collidingBoxes, entity);
+        addCollisionBoxToListDefault(state, world, pos, entityBox, collidingBoxes, collidingEntity);
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-        if (tile != null) tile.getMicroblockContainer().getPartContainer().addCollisionBoxes(entityBox, collidingBoxes, entity);
+
+        List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
+        AxisAlignedBB box = entityBox.offset(-pos.getX(), -pos.getY(), -pos.getZ());
+        tile.getMicroblockContainer().getPartContainer().addCollisionBoxes(box, list, collidingEntity);
+        for (AxisAlignedBB aabb : list)
+            collidingBoxes.add(aabb.offset(pos));
     }
 
     public void addCollisionBoxToListDefault(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,

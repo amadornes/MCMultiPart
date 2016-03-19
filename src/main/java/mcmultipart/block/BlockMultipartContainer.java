@@ -97,9 +97,9 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
     }
 
     @Override
-    public AxisAlignedBB getSelectedBoundingBox(IBlockState worldIn, World pos, BlockPos state) {
+    public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World world, BlockPos pos) {
 
-        return bounds;
+        return bounds.offset(pos);
     }
 
     @Override
@@ -108,7 +108,11 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
 
         TileMultipartContainer tile = getMultipartTile(worldIn, pos);
         if (tile == null) return;
-        tile.getPartContainer().addCollisionBoxes(entityBox, collidingBoxes, collidingEntity);
+        List<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
+        AxisAlignedBB box = entityBox.offset(-pos.getX(), -pos.getY(), -pos.getZ());
+        tile.getPartContainer().addCollisionBoxes(box, list, collidingEntity);
+        for (AxisAlignedBB aabb : list)
+            collidingBoxes.add(aabb.offset(pos));
     }
 
     @Override

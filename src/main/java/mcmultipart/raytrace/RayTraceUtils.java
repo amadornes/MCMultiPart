@@ -9,6 +9,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.world.World;
 
 public final class RayTraceUtils {
@@ -120,11 +121,9 @@ public final class RayTraceUtils {
     public static AdvancedRayTraceResult collisionRayTrace(BlockPos pos, Vec3d start, Vec3d end, AxisAlignedBB bounds, int subHit,
             Object hitInfo) {
 
-        start = start.addVector((-pos.getX()), (-pos.getY()), (-pos.getZ()));
-        end = end.addVector((-pos.getX()), (-pos.getY()), (-pos.getZ()));
-
-        RayTraceResult result = bounds.calculateIntercept(start, end);
-        if(result == null) return null;
+        RayTraceResult result = bounds.offset(pos).calculateIntercept(start, end);
+        if (result == null) return null;
+        result = new RayTraceResult(Type.BLOCK, result.hitVec, result.sideHit, pos);
         result.subHit = subHit;
         result.hitInfo = hitInfo;
         return new AdvancedRayTraceResult(result, bounds);
