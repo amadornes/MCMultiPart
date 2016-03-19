@@ -331,7 +331,11 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
             IBakedModel model = path == null ? null
                     : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getModel(
                             new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(partState.getProperties())));
-            if (model != null) AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(target.getBlockPos(), hit);
+            if (model != null) {
+                TextureAtlasSprite icon = model.getParticleTexture();
+                if (icon != null)
+                    AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(target.getBlockPos(), hit, bounds, icon);
+            }
         }
         return true;
     }

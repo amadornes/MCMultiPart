@@ -519,8 +519,11 @@ public class BlockCoverable extends BlockContainer {
                     : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getModel(
                             new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(partState.getProperties())));
             if (model != null) {
-                AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(target.getBlockPos(), hit);
-                return true;
+                TextureAtlasSprite icon = model.getParticleTexture();
+                if (icon != null) {
+                    AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(target.getBlockPos(), hit, bounds, icon);
+                    return true;
+                }
             }
             return true;
         }
