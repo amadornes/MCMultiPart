@@ -184,7 +184,7 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+    public final List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
 
         if (harvestingWrapper) return getDropsDefault(world, pos, state, fortune);
         IMicroblockContainerTile brokenTile = getMicroblockTile(world, pos);
@@ -251,7 +251,7 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem,
+    public final boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem,
             EnumFacing side, float hitX, float hitY, float hitZ) {
 
         RayTraceResult hit = reTraceAll(world, pos, player);
@@ -341,7 +341,7 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public Boolean isAABBInsideMaterial(World world, BlockPos pos, AxisAlignedBB aabb, Material material) {
+    public final Boolean isAABBInsideMaterial(World world, BlockPos pos, AxisAlignedBB aabb, Material material) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         Boolean def = isAABBInsideMaterialDefault(world, pos, aabb, material);
@@ -358,7 +358,7 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public Boolean isEntityInsideMaterial(IBlockAccess world, BlockPos pos, IBlockState state, Entity entity, double yToTest,
+    public final Boolean isEntityInsideMaterial(IBlockAccess world, BlockPos pos, IBlockState state, Entity entity, double yToTest,
             Material material, boolean testingHead) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
@@ -460,7 +460,7 @@ public class BlockCoverable extends BlockContainer {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void randomDisplayTick(IBlockState state, World world, BlockPos pos, Random rand) {
+    public final void randomDisplayTick(IBlockState state, World world, BlockPos pos, Random rand) {
 
         randomDisplayTickDefault(state, world, pos, rand);
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
@@ -607,7 +607,7 @@ public class BlockCoverable extends BlockContainer {
     public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-        return ((IExtendedBlockState) state).withProperty(BlockMultipartContainer.properties[0],
+        return ((IExtendedBlockState) state).withProperty(BlockMultipartContainer.PROPERTY_MULTIPART_CONTAINER,
                 tile != null ? tile.getMicroblockContainer().getPartContainer().getExtendedStates(world, pos) : new ArrayList<PartState>());
     }
 

@@ -107,8 +107,8 @@ public class MicroblockContainer implements IMultipartContainer {
     @Override
     public boolean occlusionTest(IMultipart part, IMultipart... ignored) {
 
-        if (!container.occlusionTest(part, ignored)) return false;
-        return part instanceof IMicroblock && microTile.canAddMicroblock((IMicroblock) part);
+        if(!(part instanceof IMicroblock) || !microTile.canAddMicroblock((IMicroblock)part)) return false;
+        return container.occlusionTest(part, ignored);
     }
 
     @Override

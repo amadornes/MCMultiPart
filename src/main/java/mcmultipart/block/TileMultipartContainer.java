@@ -116,7 +116,7 @@ public final class TileMultipartContainer extends TileEntity implements IMultipa
     @Override
     public boolean occlusionTest(IMultipart part, IMultipart... ignored) {
 
-        return false;
+        return container.occlusionTest(part, ignored);
     }
 
     @Override

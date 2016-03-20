@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.common.base.Predicate;
 
+import mcmultipart.block.BlockCoverable;
 import mcmultipart.block.BlockMultipartContainer;
 import mcmultipart.multipart.PartState;
 import net.minecraft.block.state.IBlockState;
@@ -37,17 +38,16 @@ public class ModelMultipartContainer implements IBakedModel {
     public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand) {
 
         BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
-        // TODO Make the property a static variable
-        if (!(state instanceof IExtendedBlockState)
-                || !((IExtendedBlockState) state).getUnlistedProperties().containsKey(BlockMultipartContainer.properties[0])) {
+        if (!(state instanceof IExtendedBlockState) || !((IExtendedBlockState) state).getUnlistedProperties()
+                .containsKey(BlockMultipartContainer.PROPERTY_MULTIPART_CONTAINER)) {
             if (model != null && layerFilter.apply(layer)) return model.getQuads(state, side, rand);
             return Collections.emptyList();
         }
-        List<PartState> partStates = ((IExtendedBlockState) state).getValue(BlockMultipartContainer.properties[0]);
+        List<PartState> partStates = ((IExtendedBlockState) state).getValue(BlockMultipartContainer.PROPERTY_MULTIPART_CONTAINER);
         List<BakedQuad> quads = new ArrayList<BakedQuad>();
 
         if (model != null && layerFilter.apply(layer)) quads.addAll(model.getQuads(state, side, rand));
-        
+
         for (PartState partState : partStates) {
             if (!partState.renderLayers.contains(MinecraftForgeClient.getRenderLayer())) continue;
 
@@ -96,6 +96,18 @@ public class ModelMultipartContainer implements IBakedModel {
     public ItemOverrideList getOverrides() {
 
         return ItemOverrideList.NONE;
+    }
+
+    public static ModelMultipartContainer fromBlock(IBakedModel model, BlockCoverable block) {
+
+        return new ModelMultipartContainer(model, new Predicate<BlockRenderLayer>() {
+
+            @Override
+            public boolean apply(BlockRenderLayer layer) {
+
+                return block.canRenderInLayerDefault(layer);
+            }
+        });
     }
 
 }

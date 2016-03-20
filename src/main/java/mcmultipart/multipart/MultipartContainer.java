@@ -514,12 +514,10 @@ public class MultipartContainer implements IMultipartContainer {
 
         Boolean def = null;
         for (IMultipart part : getParts()) {
-            if (part instanceof IMaterialPart) {
-                Boolean is = ((IMaterialPart) part).isAABBInsideMaterial(aabb, material);
-                if (is != null) {
-                    if (is == true) return true;
-                    else def = false;
-                }
+            Boolean is = part.isAABBInsideMaterial(aabb, material);
+            if (is != null) {
+                if (is == true) return true;
+                else def = false;
             }
         }
         return def;
@@ -529,12 +527,10 @@ public class MultipartContainer implements IMultipartContainer {
 
         Boolean def = null;
         for (IMultipart part : getParts()) {
-            if (part instanceof IMaterialPart) {
-                Boolean is = ((IMaterialPart) part).isEntityInsideMaterial(entity, yToTest, material, testingHead);
-                if (is != null) {
-                    if (is == true) return true;
-                    else def = false;
-                }
+            Boolean is = part.isEntityInsideMaterial(entity, yToTest, material, testingHead);
+            if (is != null) {
+                if (is == true) return true;
+                else def = false;
             }
         }
         return def;
@@ -543,13 +539,13 @@ public class MultipartContainer implements IMultipartContainer {
     public void onEntityStanding(Entity entity) {
 
         for (IMultipart part : getParts())
-            if (part instanceof ICollidableMultipart) ((ICollidableMultipart) part).onEntityStanding(entity);
+            part.onEntityStanding(entity);
     }
 
     public void onEntityCollided(Entity entity) {
 
         for (IMultipart part : getParts())
-            if (part instanceof ICollidableMultipart) ((ICollidableMultipart) part).onEntityCollided(entity);
+            part.onEntityCollided(entity);
     }
 
 }

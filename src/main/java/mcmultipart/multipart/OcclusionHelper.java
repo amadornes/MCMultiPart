@@ -148,9 +148,9 @@ public class OcclusionHelper {
     public static boolean isSlotOccluded(Iterable<? extends IMultipart> parts, PartSlot slot, Predicate<IMultipart> ignored) {
 
         for (IMultipart part : parts)
-            if (!ignored.apply(part)
-                    && ((part instanceof ISlottedPart && ((ISlottedPart) part).getSlotMask().contains(slot)) || part instanceof ISlotOccludingPart
-                            && ((ISlotOccludingPart) part).getOccludedSlots().contains(slot))) return true;
+            if (!ignored.apply(part) && ((part instanceof ISlottedPart && ((ISlottedPart) part).getSlotMask().contains(slot))
+                    || part instanceof ISlotOccludingPart && ((ISlotOccludingPart) part).getOccludedSlots().contains(slot)))
+                return true;
         return false;
     }
 
@@ -177,6 +177,16 @@ public class OcclusionHelper {
 
             for (AxisAlignedBB bb : boxes)
                 list.add(bb);
+        }
+
+        public void setBoxes(Iterable<AxisAlignedBB> boxes) {
+
+            this.boxes = boxes;
+        }
+
+        public void setBoxes(AxisAlignedBB... boxes) {
+
+            this.boxes = Arrays.asList(boxes);
         }
 
     }

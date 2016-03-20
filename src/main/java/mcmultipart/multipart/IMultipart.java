@@ -8,6 +8,7 @@ import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResultPart;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -231,5 +232,13 @@ public interface IMultipart {
 
     @SideOnly(Side.CLIENT)
     public boolean addHitEffects(PartMOP hit, AdvancedEffectRenderer effectRenderer);
+
+    public void onEntityStanding(Entity entity);
+
+    public void onEntityCollided(Entity entity);
+
+    public Boolean isAABBInsideMaterial(AxisAlignedBB aabb, Material material);
+
+    public Boolean isEntityInsideMaterial(Entity entity, double yToTest, Material material, boolean testingHead);
 
 }

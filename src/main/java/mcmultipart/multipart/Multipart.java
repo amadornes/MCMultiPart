@@ -351,6 +351,28 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
 
         return false;
     }
+    
+    @Override
+    public Boolean isAABBInsideMaterial(AxisAlignedBB aabb, Material material) {
+    
+        return null;
+    }
+    
+    @Override
+    public Boolean isEntityInsideMaterial(Entity entity, double yToTest, Material material, boolean testingHead) {
+    
+        return null;
+    }
+    
+    @Override
+    public void onEntityCollided(Entity entity) {
+    
+    }
+    
+    @Override
+    public void onEntityStanding(Entity entity) {
+        
+    }
 
     protected void markRenderUpdate() {
 

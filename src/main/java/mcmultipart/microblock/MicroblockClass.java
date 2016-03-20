@@ -23,7 +23,7 @@ public abstract class MicroblockClass implements IAdvancedPartFactory {
     public abstract MicroblockPlacement getPlacement(World world, BlockPos pos, IMicroMaterial material, int size,
             RayTraceResult hit, EntityPlayer player);
 
-    public abstract MicroblockPlacementGrid getPlacementGrid();
+    public abstract IMicroblockPlacementGrid getPlacementGrid();
 
     public abstract IMultipart create(boolean client);
 

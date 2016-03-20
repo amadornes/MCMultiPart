@@ -344,8 +344,7 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
     public boolean addLandingEffects(IBlockState state, WorldServer worldObj, BlockPos blockPosition, IBlockState iblockstate,
             EntityLivingBase entity, int numberOfParticles) {
 
-        // TODO Auto-generated method stub
-        return super.addLandingEffects(state, worldObj, blockPosition, iblockstate, entity, numberOfParticles);
+        return true;
     }
 
     private PartMOP reTrace(World world, BlockPos pos, EntityPlayer player) {
@@ -386,18 +385,17 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
         return false;
     }
 
+    public static final IUnlistedProperty<List<PartState>> PROPERTY_MULTIPART_CONTAINER = new PropertyMultipartStates(
+            "multipart_container");
+    
     @SuppressWarnings("unchecked")
-    public static final IUnlistedProperty<List<PartState>>[] properties = new IUnlistedProperty[1];
-
-    static {
-        properties[0] = new PropertyMultipartStates("multipart_container");
-    }
+    static final IUnlistedProperty<List<PartState>>[] properties = new IUnlistedProperty[]{ PROPERTY_MULTIPART_CONTAINER };
 
     @Override
     public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 
         TileMultipartContainer tile = getMultipartTile(world, pos);
-        return ((IExtendedBlockState) state).withProperty(properties[0],
+        return ((IExtendedBlockState) state).withProperty(PROPERTY_MULTIPART_CONTAINER,
                 tile != null ? tile.getPartContainer().getExtendedStates(world, pos) : new ArrayList<PartState>());
     }
 

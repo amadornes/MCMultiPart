@@ -30,15 +30,6 @@ public final class RayTraceUtils {
             return hit != null && bounds != null;
         }
 
-        // TODO: Figure out a way around this
-        // public void setBounds(World world, BlockPos pos) {
-        //
-        // world.getBlockState(pos)
-        // .getBlock()
-        // .setBlockBounds((float) bounds.minX, (float) bounds.minY, (float) bounds.minZ, (float) bounds.maxX,
-        // (float) bounds.maxY, (float) bounds.maxZ);
-        // }
-
         public double squareDistanceTo(Vec3d vec) {
 
             return hit.hitVec.squareDistanceTo(vec);
