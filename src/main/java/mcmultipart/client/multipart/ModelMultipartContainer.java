@@ -98,7 +98,7 @@ public class ModelMultipartContainer implements IBakedModel {
         return ItemOverrideList.NONE;
     }
 
-    public static ModelMultipartContainer fromBlock(IBakedModel model, BlockCoverable block) {
+    public static ModelMultipartContainer fromBlock(IBakedModel model, final BlockCoverable block) {
 
         return new ModelMultipartContainer(model, new Predicate<BlockRenderLayer>() {
 
