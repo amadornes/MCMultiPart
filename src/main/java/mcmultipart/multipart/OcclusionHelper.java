@@ -1,5 +1,6 @@
 package mcmultipart.multipart;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -164,6 +165,12 @@ public class OcclusionHelper {
         public NormallyOccludingPart(Iterable<AxisAlignedBB> boxes) {
 
             this.boxes = boxes;
+        }
+        
+        
+        public NormallyOccludingPart(AxisAlignedBB... boxes) {
+            
+            this.boxes = Arrays.asList(boxes);
         }
 
         @Override
