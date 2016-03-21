@@ -37,6 +37,10 @@ public class ModelMultipartContainer implements IBakedModel {
     @Override
     public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand) {
 
+        if (state == null) {
+            if (model != null) return model.getQuads(state, side, rand);
+            return Collections.emptyList();
+        }
         BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
         if (!(state instanceof IExtendedBlockState) || !((IExtendedBlockState) state).getUnlistedProperties()
                 .containsKey(BlockMultipartContainer.PROPERTY_MULTIPART_CONTAINER)) {
