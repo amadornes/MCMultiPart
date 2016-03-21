@@ -19,7 +19,7 @@ import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils;
 import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResultPart;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockContainer;
+import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
@@ -57,7 +57,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * An implementation of {@link BlockContainer} that allows your block to act as a microblock container.<br/>
+ * An {@link Block} that allows your block to act as a microblock container.<br/>
  * Extend this class if you want your block to be able to have microblocks, but not any other kinds of multiparts. Otherwise, extend
  * {@link Multipart} or make a custom implementation of {@link IMultipart}.<br/>
  * All the overriden methods have a "default" counterpart that allows you to handle interactions with your block if the player isn't
@@ -65,7 +65,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * Extend {@link TileCoverable} or implement {@link IMicroblockContainerTile} and return it in
  * {@link BlockCoverable#createNewTileEntity(World, int)} if you want a custom tile entity for your block.
  */
-public class BlockCoverable extends BlockContainer {
+public class BlockCoverable extends Block implements ITileEntityProvider {
 
     private AxisAlignedBB bounds = FULL_BLOCK_AABB;
 
@@ -76,7 +76,7 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public TileEntity createNewTileEntity(World worldIn, int meta) {
+    public TileCoverable createNewTileEntity(World worldIn, int meta) {
 
         return new TileCoverable();
     }
@@ -94,8 +94,7 @@ public class BlockCoverable extends BlockContainer {
         AdvancedRayTraceResultPart result = tile != null ? tile.getMicroblockContainer().getPartContainer().collisionRayTrace(start, end)
                 : null;
         RayTraceResult hit = collisionRayTraceDefault(state, world, pos, start, end);
-        if (result == null) return hit;
-        if (hit != null && hit.hitVec.squareDistanceTo(start) < result.squareDistanceTo(start)) {
+        if (result == null || (hit != null && hit.hitVec.squareDistanceTo(start) < result.squareDistanceTo(start))) {
             bounds = getSelectedBoundingBoxDefault(state, world, pos).offset(-pos.getX(), -pos.getY(), -pos.getZ());
             return hit;
         }
@@ -174,11 +173,11 @@ public class BlockCoverable extends BlockContainer {
     public final void harvestBlock(World world, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack) {
 
         brokenTile = te instanceof IMicroblockContainerTile ? (IMicroblockContainerTile) te : null;
-        defaultHarvestBlock(world, player, pos, state, te, stack);
+        harvestBlockDefault(world, player, pos, state, te, stack);
         brokenTile = null;
     }
 
-    public void defaultHarvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack) {
+    public void harvestBlockDefault(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack) {
 
         super.harvestBlock(worldIn, player, pos, state, te, stack);
     }
@@ -251,8 +250,8 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public final boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem,
-            EnumFacing side, float hitX, float hitY, float hitZ) {
+    public final boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
+            ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 
         RayTraceResult hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
@@ -297,6 +296,7 @@ public class BlockCoverable extends BlockContainer {
 
     public void onNeighborBlockChangeDefault(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
 
+        super.onNeighborBlockChange(world, pos, state, neighborBlock);
     }
 
     @Override
@@ -310,6 +310,7 @@ public class BlockCoverable extends BlockContainer {
 
     public void onNeighborChangeDefault(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 
+        super.onNeighborChange(world, pos, neighbor);
     }
 
     @Override
@@ -395,7 +396,7 @@ public class BlockCoverable extends BlockContainer {
     public boolean canConnectRedstoneDefault(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side,
             MicroblockContainer partContainer) {
 
-        return false;
+        return super.canConnectRedstone(state, world, pos, side);
     }
 
     @Override
@@ -604,7 +605,7 @@ public class BlockCoverable extends BlockContainer {
     }
 
     @Override
-    public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
+    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         return ((IExtendedBlockState) state).withProperty(BlockMultipartContainer.PROPERTY_MULTIPART_CONTAINER,
