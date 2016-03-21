@@ -76,9 +76,15 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     }
 
     @Override
-    public TileCoverable createNewTileEntity(World worldIn, int meta) {
+    public TileEntity createNewTileEntity(World worldIn, int meta) {
 
-        return new TileCoverable();
+        return createNewTileEntityDefault(worldIn, meta);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends TileEntity & IMicroblockContainerTile> T createNewTileEntityDefault(World worldIn, int meta) {
+
+        return (T) new TileCoverable();
     }
 
     protected IMicroblockContainerTile getMicroblockTile(IBlockAccess world, BlockPos pos) {
