@@ -355,7 +355,7 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
         if (tile == null) return def;
         Boolean is = tile.getMicroblockContainer().getPartContainer().isAABBInsideMaterial(aabb, material);
         if ((def != null && def == true) || (is != null && is == true)) return true;
-        if ((def != null && def == false) || (is != null && is == false)) return true;
+        if ((def != null && def == false) || (is != null && is == false)) return false;
         return null;
     }
 
@@ -373,7 +373,7 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
         if (tile == null) return def;
         Boolean is = tile.getMicroblockContainer().getPartContainer().isEntityInsideMaterial(entity, yToTest, material, testingHead);
         if ((def != null && def == true) || (is != null && is == true)) return true;
-        if ((def != null && def == false) || (is != null && is == false)) return true;
+        if ((def != null && def == false) || (is != null && is == false)) return false;
         return null;
     }
 
