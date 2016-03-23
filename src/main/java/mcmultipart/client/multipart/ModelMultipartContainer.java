@@ -48,6 +48,12 @@ public class ModelMultipartContainer implements IBakedModel {
             return Collections.emptyList();
         }
         List<PartState> partStates = ((IExtendedBlockState) state).getValue(BlockMultipartContainer.PROPERTY_MULTIPART_CONTAINER);
+
+        if (partStates == null) {
+            if (model != null) model.getQuads(state, side, rand);
+            return Collections.emptyList();
+        }
+
         List<BakedQuad> quads = new ArrayList<BakedQuad>();
 
         if (model != null && layerFilter.apply(layer)) quads.addAll(model.getQuads(state, side, rand));
