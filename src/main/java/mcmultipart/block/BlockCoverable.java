@@ -645,20 +645,20 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     @SideOnly(Side.CLIENT)
     public final void onDrawBlockHighlight(DrawBlockHighlightEvent event) {
 
-        PartMOP hit = event.target instanceof PartMOP ? (PartMOP) event.target : null;
+        PartMOP hit = event.getTarget() instanceof PartMOP ? (PartMOP) event.getTarget() : null;
         if (hit != null) {
             GlStateManager.pushMatrix();
 
             BlockPos pos = hit.getBlockPos();
-            EntityPlayer player = event.player;
-            float partialTicks = event.partialTicks;
+            EntityPlayer player = event.getPlayer();
+            float partialTicks = event.getPartialTicks();
             double x = pos.getX() - (player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks);
             double y = pos.getY() - (player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks);
             double z = pos.getZ() - (player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks);
             GlStateManager.translate(x, y, z);
 
             if (hit.partHit instanceof ICustomHighlightPart
-                    && ((ICustomHighlightPart) hit.partHit).drawHighlight(hit, event.player, event.partialTicks))
+                    && ((ICustomHighlightPart) hit.partHit).drawHighlight(hit, player, partialTicks))
                 event.setCanceled(true);
 
             GlStateManager.popMatrix();

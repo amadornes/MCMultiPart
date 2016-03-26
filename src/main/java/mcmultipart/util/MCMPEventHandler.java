@@ -20,15 +20,15 @@ public class MCMPEventHandler {
     @SubscribeEvent
     public void onDrawGameOverlay(RenderGameOverlayEvent event) {
 
-        if (event.type == RenderGameOverlayEvent.ElementType.TEXT && event instanceof RenderGameOverlayEvent.Text
+        if (event.getType() == RenderGameOverlayEvent.ElementType.TEXT && event instanceof RenderGameOverlayEvent.Text
                 && Minecraft.getMinecraft().gameSettings.showDebugInfo) {
             RenderGameOverlayEvent.Text ev = (RenderGameOverlayEvent.Text) event;
             RayTraceResult hit = Minecraft.getMinecraft().objectMouseOver;
             if (hit != null && hit instanceof PartMOP) {
                 PartMOP mop = (PartMOP) hit;
                 if (mop.partHit != null) {
-                    ev.right.add("");
-                    ev.right.add(mop.partHit.getType().toString());
+                    ev.getRight().add("");
+                    ev.getRight().add(mop.partHit.getType().toString());
 
                     IBlockState state = mop.partHit.getExtendedState(MultipartRegistry.getDefaultState(mop.partHit).getBaseState());
                     for (Entry<IProperty<?>, Comparable<?>> entry : state.getProperties().entrySet()) {
@@ -40,7 +40,7 @@ public class MCMPEventHandler {
                             s = TextFormatting.RED + s;
                         }
 
-                        ev.right.add(entry.getKey().getName() + ": " + s);
+                        ev.getRight().add(entry.getKey().getName() + ": " + s);
                     }
                 }
             }

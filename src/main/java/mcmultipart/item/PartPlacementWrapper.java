@@ -146,16 +146,16 @@ public class PartPlacementWrapper {
     @SubscribeEvent
     public void onPlayerInteract(PlayerInteractEvent event) {
 
-        EnumHand hand = event.entityPlayer.getActiveHand();// TODO: MAKE SURE THIS WORKS
-        ItemStack stack = event.entityPlayer.getHeldItem(hand);
-        if (stack == null || !match.apply(stack) || event.action != PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) return;
+        EnumHand hand = event.getEntityPlayer().getActiveHand();// TODO: MAKE SURE THIS WORKS
+        ItemStack stack = event.getEntityPlayer().getHeldItem(hand);
+        if (stack == null || !match.apply(stack) || event.getAction() != PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) return;
 
         event.setCanceled(true);
 
-        World world = event.world;
-        BlockPos pos = event.pos;
-        EnumFacing side = event.face;
-        EntityPlayer player = event.entityPlayer;
+        World world = event.getWorld();
+        BlockPos pos = event.getPos();
+        EnumFacing side = event.getFace();
+        EntityPlayer player = event.getEntityPlayer();
         RayTraceResult mop = world.rayTraceBlocks(RayTraceUtils.getStart(player), RayTraceUtils.getEnd(player));
         Vec3d hit = mop.hitVec.subtract(new Vec3d(mop.getBlockPos()));
 

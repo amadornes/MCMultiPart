@@ -32,7 +32,7 @@ group = "MCMultiPart" // http://maven.apache.org/guides/mini/guide-naming-conven
 archivesBaseName = "MCMultiPart"
 
 minecraft {
-    version = "1.9-12.16.0.1770-1.9"
+    version = "1.9-12.16.0.1811-1.9"
     runDir = "run"
     
     mappings = "snapshot_20160318"
