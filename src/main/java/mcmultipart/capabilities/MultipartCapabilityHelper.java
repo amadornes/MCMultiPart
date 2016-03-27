@@ -20,7 +20,7 @@ public class MultipartCapabilityHelper {
 
         for (EnumFacing face : EnumFacing.VALUES)
             if (face != side && face.getOpposite() != side && hasCapability(container, capability, side, face)) return true;
-        return false;
+        return hasCapability(container, capability, side, null);
     }
 
     public static <T> T getCapability(IMultipartContainer container, Capability<T> capability, EnumFacing side) {
@@ -32,6 +32,12 @@ public class MultipartCapabilityHelper {
                 if (impl != null) implementations.add(impl);
             }
         }
+
+        {
+            T impl = getCapability(container, capability, side, null);
+            if (impl != null) implementations.add(impl);
+        }
+
         if (implementations.isEmpty()) return null;
         else if (implementations.size() == 1) return implementations.iterator().next();
         else return CapabilityWrapperRegistry.wrap(capability, implementations);
@@ -68,7 +74,7 @@ public class MultipartCapabilityHelper {
 
         for (IMultipart p : container.getParts())
             if (side == null || !(p instanceof ISlottedPart) || ((ISlottedPart) p).getSlotMask().isEmpty())
-                if (p instanceof ICapabilityProvider) return ((ICapabilityProvider) p).hasCapability(capability, side);
+                if (p instanceof ICapabilityProvider && ((ICapabilityProvider) p).hasCapability(capability, side)) return true;
 
         return false;
     }
