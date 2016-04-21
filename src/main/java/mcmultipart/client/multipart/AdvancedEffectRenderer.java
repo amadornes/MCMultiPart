@@ -174,7 +174,7 @@ public class AdvancedEffectRenderer extends EffectRenderer {
         protected AdvancedEntityDiggingFX(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
                 double ySpeedIn, double zSpeedIn, TextureAtlasSprite icon) {
 
-            super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, Blocks.stone.getDefaultState());
+            super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, Blocks.STONE.getDefaultState());
             setParticleTexture(icon);
         }
 

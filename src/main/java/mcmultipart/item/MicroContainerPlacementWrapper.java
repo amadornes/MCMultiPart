@@ -33,7 +33,7 @@ public class MicroContainerPlacementWrapper extends PartPlacementWrapper {
         IMultipartContainer container = MultipartHelper.getOrConvertPartContainer(world, pos, true);
         if (container == null) return false;
 
-        world.setBlockState(pos, Blocks.air.getDefaultState(), 0);
+        world.setBlockState(pos, Blocks.AIR.getDefaultState(), 0);
         if (!placeDefault(world, pos, side, hit, stack, player)) return false;
         if (world.isRemote) return true;
 

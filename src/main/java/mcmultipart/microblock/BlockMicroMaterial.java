@@ -66,7 +66,7 @@ public class BlockMicroMaterial implements IMicroMaterial {
     private final String genName() {
 
         StringBuilder stringbuilder = new StringBuilder();
-        stringbuilder.append(Block.blockRegistry.getNameForObject(blockState.getBlock()));
+        stringbuilder.append(Block.REGISTRY.getNameForObject(blockState.getBlock()));
         if (!blockState.getProperties().isEmpty()) {
             stringbuilder.append("[");
             COMMA_JOINER.appendTo(stringbuilder, Iterables.transform(blockState.getProperties().entrySet(), MAP_ENTRY_TO_STRING));

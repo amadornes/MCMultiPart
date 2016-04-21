@@ -144,11 +144,11 @@ public class PartPlacementWrapper {
     }
 
     @SubscribeEvent
-    public void onPlayerInteract(PlayerInteractEvent event) {
+    public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
 
         EnumHand hand = event.getEntityPlayer().getActiveHand();// TODO: MAKE SURE THIS WORKS
         ItemStack stack = event.getEntityPlayer().getHeldItem(hand);
-        if (stack == null || !match.apply(stack) || event.getAction() != PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) return;
+        if (stack == null || !match.apply(stack)) return;
 
         event.setCanceled(true);
 
