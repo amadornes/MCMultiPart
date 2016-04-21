@@ -68,7 +68,7 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
 
     public BlockMultipartContainer() {
 
-        super(Material.ground);
+        super(Material.GROUND);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -205,14 +205,6 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
         if (tile == null) return;
         tile.getPartContainer().onNeighborTileChange(
                 EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ() - pos.getZ()));
-    }
-
-    @Override
-    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity) {
-
-        TileMultipartContainer tile = getMultipartTile(world, pos);
-        if (tile == null) return;
-        tile.getPartContainer().onEntityStanding(entity);
     }
 
     @Override

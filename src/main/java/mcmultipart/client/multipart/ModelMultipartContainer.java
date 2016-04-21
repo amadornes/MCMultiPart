@@ -115,7 +115,7 @@ public class ModelMultipartContainer implements IBakedModel {
             @Override
             public boolean apply(BlockRenderLayer layer) {
 
-                return block.canRenderInLayerDefault(layer);
+                return block.canRenderInLayerDefault(block.getDefaultState(), layer);
             }
         });
     }

@@ -32,10 +32,10 @@ group = "MCMultiPart" // http://maven.apache.org/guides/mini/guide-naming-conven
 archivesBaseName = "MCMultiPart"
 
 minecraft {
-    version = "1.9-12.16.0.1811-1.9"
+    version = "1.9-12.16.0.1865-1.9"
     runDir = "run"
     
-    mappings = "snapshot_20160318"
+    mappings = "snapshot_20160421"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 	
 	replace "%VERSION%", project.version

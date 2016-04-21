@@ -47,7 +47,7 @@ public class MCMPClientProxy extends MCMPCommonProxy {
 
         // Link the custom ISmartBlockModel to the multipart block
         event.getModelRegistry().putObject(
-                new ModelResourceLocation(Block.blockRegistry.getNameForObject(MCMultiPartMod.multipart), "normal"),
+                new ModelResourceLocation(Block.REGISTRY.getNameForObject(MCMultiPartMod.multipart), "normal"),
                 new ModelMultipartContainer(null, null));
     }
 

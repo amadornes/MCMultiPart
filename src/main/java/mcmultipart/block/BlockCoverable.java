@@ -320,20 +320,6 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     }
 
     @Override
-    public final void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity) {
-
-        onEntityCollidedWithBlockDefault(world, pos, entity);
-        IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-        if (tile == null) return;
-        tile.getMicroblockContainer().getPartContainer().onEntityStanding(entity);
-    }
-
-    public void onEntityCollidedWithBlockDefault(World worldIn, BlockPos pos, Entity entityIn) {
-
-        super.onEntityCollidedWithBlock(worldIn, pos, entityIn);
-    }
-
-    @Override
     public final void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity) {
 
         onEntityCollidedWithBlockDefault(world, pos, state, entity);
@@ -631,14 +617,14 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     }
 
     @Override
-    public final boolean canRenderInLayer(BlockRenderLayer layer) {
+    public final boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
 
         return true;
     }
 
-    public boolean canRenderInLayerDefault(BlockRenderLayer layer) {
+    public boolean canRenderInLayerDefault(IBlockState state, BlockRenderLayer layer) {
 
-        return super.canRenderInLayer(layer);
+        return super.canRenderInLayer(state, layer);
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
