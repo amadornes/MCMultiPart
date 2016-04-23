@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.UUID;
 
 import mcmultipart.MCMultiPartMod;
+import mcmultipart.block.BlockMultipartContainer;
 import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.microblock.IMicroblockContainerTile;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -87,7 +89,8 @@ public class MultipartHelper {
         IMultipartContainer container = world.isRemote ? getPartContainer(world, pos) : getOrConvertPartContainer(world, pos, true);
         boolean newContainer = container == null;
         if (newContainer) {
-            world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState());
+            world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState().withProperty(BlockMultipartContainer.PROPERTY_TICKING,
+                    part instanceof ITickable));
             TileEntity te = world.getTileEntity(pos);
             if (te instanceof TileMultipartContainer) container = (IMultipartContainer) te;
             if (container == null) world.setTileEntity(pos, (TileEntity) (container = new TileMultipartContainer()));

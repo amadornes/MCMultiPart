@@ -88,43 +88,43 @@ public class MicroblockRegistry {
     }
 
     static {
-        registerMaterial(Blocks.stone, 0, 6);
-        registerMaterial(Blocks.cobblestone);
-        registerMaterial(Blocks.planks, 0, 5);
-        registerMaterial(Blocks.lapis_block);
-        registerMaterial(Blocks.sandstone, 0, 2);
-        registerMaterial(Blocks.wool, 0, 15);
-        registerMaterial(Blocks.gold_block);
-        registerMaterial(Blocks.iron_block);
-        registerMaterial(Blocks.brick_block);
-        registerMaterial(Blocks.bookshelf);
-        registerMaterial(Blocks.mossy_cobblestone);
-        registerMaterial(Blocks.obsidian);
-        registerMaterial(Blocks.diamond_block);
-        registerMaterial(Blocks.pumpkin);
-        registerMaterial(Blocks.netherrack);
-        registerMaterial(Blocks.soul_sand);
-        registerMaterial(Blocks.stonebrick, 0, 3);
-        registerMaterial(Blocks.nether_brick);
-        registerMaterial(Blocks.end_stone);
-        registerMaterial(Blocks.emerald_block);
-        registerMaterial(Blocks.quartz_block, 0, 2);
-        registerMaterial(Blocks.stained_hardened_clay, 0, 15);
-        registerMaterial(Blocks.prismarine, 0, 2);
-        registerMaterial(Blocks.hay_block);
-        registerMaterial(Blocks.hardened_clay);
-        registerMaterial(Blocks.coal_block);
-        registerMaterial(Blocks.ice);
-        registerMaterial(Blocks.packed_ice);
-        registerMaterial(Blocks.red_sandstone, 0, 2);
-        registerMaterial(Blocks.glass);
-        registerMaterial(Blocks.stained_glass, 0, 15);
-        registerMaterial(Blocks.lit_pumpkin);
-        registerMaterial(Blocks.glowstone);
-        registerMaterial(Blocks.sea_lantern);
-        registerMaterial(Blocks.redstone_block);
+        registerMaterial(Blocks.STONE, 0, 6);
+        registerMaterial(Blocks.COBBLESTONE);
+        registerMaterial(Blocks.PLANKS, 0, 5);
+        registerMaterial(Blocks.LAPIS_BLOCK);
+        registerMaterial(Blocks.SANDSTONE, 0, 2);
+        registerMaterial(Blocks.WOOL, 0, 15);
+        registerMaterial(Blocks.GOLD_BLOCK);
+        registerMaterial(Blocks.IRON_BLOCK);
+        registerMaterial(Blocks.BRICK_BLOCK);
+        registerMaterial(Blocks.BOOKSHELF);
+        registerMaterial(Blocks.MOSSY_COBBLESTONE);
+        registerMaterial(Blocks.OBSIDIAN);
+        registerMaterial(Blocks.DIAMOND_BLOCK);
+        registerMaterial(Blocks.PUMPKIN);
+        registerMaterial(Blocks.NETHERRACK);
+        registerMaterial(Blocks.SOUL_SAND);
+        registerMaterial(Blocks.STONEBRICK, 0, 3);
+        registerMaterial(Blocks.NETHER_BRICK);
+        registerMaterial(Blocks.END_STONE);
+        registerMaterial(Blocks.EMERALD_BLOCK);
+        registerMaterial(Blocks.QUARTZ_BLOCK, 0, 2);
+        registerMaterial(Blocks.STAINED_HARDENED_CLAY, 0, 15);
+        registerMaterial(Blocks.PRISMARINE, 0, 2);
+        registerMaterial(Blocks.HAY_BLOCK);
+        registerMaterial(Blocks.HARDENED_CLAY);
+        registerMaterial(Blocks.COAL_BLOCK);
+        registerMaterial(Blocks.ICE);
+        registerMaterial(Blocks.PACKED_ICE);
+        registerMaterial(Blocks.RED_SANDSTONE, 0, 2);
+        registerMaterial(Blocks.GLASS);
+        registerMaterial(Blocks.STAINED_GLASS, 0, 15);
+        registerMaterial(Blocks.LIT_PUMPKIN);
+        registerMaterial(Blocks.GLOWSTONE);
+        registerMaterial(Blocks.SEA_LANTERN);
+        registerMaterial(Blocks.REDSTONE_BLOCK);
 
-        registerMaterial(new BlockMicroMaterial(Blocks.crafting_table.getDefaultState())
+        registerMaterial(new BlockMicroMaterial(Blocks.CRAFTING_TABLE.getDefaultState())
                 .withDelegate(new Function<Tuple<IMicroblock, Boolean>, MicroblockDelegate>() {
 
                     @Override
@@ -141,18 +141,17 @@ public class MicroblockRegistry {
 
             super(delegated);
         }
-        
+
         @Override
         public Optional<Boolean> onActivated(EntityPlayer player, EnumHand hand, ItemStack heldItem, PartMOP hit) {
-            
+
             if (!delegated.getWorld().isRemote) {
                 player.displayGui(new InterfaceMicroCraftingTable(delegated));
-                player.addStat(StatList.craftingTableInteraction);
+                player.addStat(StatList.CRAFTING_TABLE_INTERACTION);
             }
 
             return Optional.of(true);
         }
-
 
         @Override
         public void onRemoved() {
@@ -185,7 +184,7 @@ public class MicroblockRegistry {
         @Override
         public ITextComponent getDisplayName() {
 
-            return new TextComponentTranslation(Blocks.crafting_table.getUnlocalizedName() + ".name");
+            return new TextComponentTranslation(Blocks.CRAFTING_TABLE.getUnlocalizedName() + ".name");
         }
 
         @Override
@@ -197,8 +196,8 @@ public class MicroblockRegistry {
                 public boolean canInteractWith(EntityPlayer player) {
 
                     BlockPos pos = microblock.getPos();
-                    return microblock.getContainer() == null ? false : player.getDistanceSq(pos.getX() + 0.5D, pos.getY() + 0.5D,
-                            pos.getZ() + 0.5D) <= 64.0D;
+                    return microblock.getContainer() == null ? false
+                            : player.getDistanceSq(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) <= 64.0D;
                 }
             };
         }

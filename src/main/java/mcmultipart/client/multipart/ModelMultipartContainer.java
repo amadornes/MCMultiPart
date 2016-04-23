@@ -120,4 +120,16 @@ public class ModelMultipartContainer implements IBakedModel {
         });
     }
 
+    public static ModelMultipartContainer fromBlockState(IBakedModel model, final IBlockState state) {
+
+        return new ModelMultipartContainer(model, new Predicate<BlockRenderLayer>() {
+
+            @Override
+            public boolean apply(BlockRenderLayer layer) {
+
+                return ((BlockCoverable) state.getBlock()).canRenderInLayerDefault(state, layer);
+            }
+        });
+    }
+
 }

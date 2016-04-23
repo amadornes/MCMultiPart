@@ -63,4 +63,16 @@ public interface IMultipartContainer extends IWorldLocation, ISlottedCapabilityP
      */
     public boolean occlusionTest(IMultipart part, IMultipart... ignored);
 
+    public static interface IMultipartContainerListener {
+
+        public void onAddPartPre(IMultipart part);
+
+        public void onAddPartPost(IMultipart part);
+
+        public void onRemovePartPre(IMultipart part);
+
+        public void onRemovePartPost(IMultipart part);
+
+    }
+
 }

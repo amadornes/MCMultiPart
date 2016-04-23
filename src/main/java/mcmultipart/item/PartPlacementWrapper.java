@@ -124,9 +124,8 @@ public class PartPlacementWrapper {
     protected void playPlacementSound(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
 
         Block placedBlock = Block.getBlockFromItem(stack.getItem());
-        if (placedBlock != null)
-            world.playSound(player, pos, placedBlock.getSoundType().getPlaceSound(), SoundCategory.BLOCKS,
-                    (placedBlock.getSoundType().getVolume() + 1.0F) / 2.0F, placedBlock.getSoundType().getPitch() * 0.8F);
+        if (placedBlock != null) world.playSound(player, pos, placedBlock.getSoundType().getPlaceSound(), SoundCategory.BLOCKS,
+                (placedBlock.getSoundType().getVolume() + 1.0F) / 2.0F, placedBlock.getSoundType().getPitch() * 0.8F);
 
         SoundType sound = getPlacementSound(stack);
         if (sound != null) world.playSound(player, pos, sound.getPlaceSound(), SoundCategory.BLOCKS, (sound.getVolume() + 1.0F) / 2.0F,
@@ -144,11 +143,12 @@ public class PartPlacementWrapper {
     }
 
     @SubscribeEvent
-    public void onPlayerInteract(PlayerInteractEvent event) {
+    public void onPlayerRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
 
-        EnumHand hand = event.getEntityPlayer().getActiveHand();// TODO: MAKE SURE THIS WORKS
+        EnumHand hand = event.getHand();
+        if (hand == null) return;
         ItemStack stack = event.getEntityPlayer().getHeldItem(hand);
-        if (stack == null || !match.apply(stack) || event.getAction() != PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) return;
+        if (stack == null || !match.apply(stack)) return;
 
         event.setCanceled(true);
 

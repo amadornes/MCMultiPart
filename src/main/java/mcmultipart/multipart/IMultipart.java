@@ -30,7 +30,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Interface that represents a multipart. This has all the methods required for a multipart to work properly.<br/>
- * For a simple, default implementation of most of this methods and some helpers, you can extend {@link Multipart} directly.
+ * For a simple, default implementation of most of these methods and some helpers, you can extend {@link Multipart} directly.
  */
 public interface IMultipart {
 

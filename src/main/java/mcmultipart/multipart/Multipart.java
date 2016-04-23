@@ -262,7 +262,7 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
 
     @Override
     public boolean onActivated(EntityPlayer player, EnumHand hand, ItemStack heldItem, PartMOP hit) {
-    
+
         return false;
     }
 
@@ -302,9 +302,8 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
      */
     public void sendUpdatePacket(boolean reRender) {
 
-        if (getWorld() instanceof WorldServer)
-            MessageMultipartChange.newPacket(getWorld(), getPos(), this,
-                    reRender ? MessageMultipartChange.Type.UPDATE_RERENDER : MessageMultipartChange.Type.UPDATE).send(getWorld());
+        if (getWorld() instanceof WorldServer) MessageMultipartChange.newPacket(getWorld(), getPos(), this,
+                reRender ? MessageMultipartChange.Type.UPDATE_RERENDER : MessageMultipartChange.Type.UPDATE).send(getWorld());
     }
 
     @Override
@@ -351,27 +350,27 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
 
         return false;
     }
-    
+
     @Override
     public Boolean isAABBInsideMaterial(AxisAlignedBB aabb, Material material) {
-    
+
         return null;
     }
-    
+
     @Override
     public Boolean isEntityInsideMaterial(Entity entity, double yToTest, Material material, boolean testingHead) {
-    
+
         return null;
     }
-    
+
     @Override
     public void onEntityCollided(Entity entity) {
-    
+
     }
-    
+
     @Override
     public void onEntityStanding(Entity entity) {
-        
+
     }
 
     protected void markRenderUpdate() {

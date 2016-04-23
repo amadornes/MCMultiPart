@@ -22,6 +22,7 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -68,8 +69,9 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
 
     public BlockMultipartContainer() {
 
-        super(Material.ground);
+        super(Material.GROUND);
         MinecraftForge.EVENT_BUS.register(this);
+        setDefaultState(getDefaultState().withProperty(PROPERTY_TICKING, true));
     }
 
     private TileMultipartContainer getMultipartTile(IBlockAccess world, BlockPos pos) {
@@ -81,7 +83,7 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
     @Override
     public TileEntity createNewTileEntity(World worldIn, int meta) {
 
-        return new TileMultipartContainer();
+        return meta == 1 ? new TileMultipartContainer() : new TileMultipartContainer.Ticking();
     }
 
     @Override
@@ -208,7 +210,7 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
     }
 
     @Override
-    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity) {
+    public void onEntityWalk(World world, BlockPos pos, Entity entity) {
 
         TileMultipartContainer tile = getMultipartTile(world, pos);
         if (tile == null) return;
@@ -385,11 +387,12 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
         return false;
     }
 
+    public static final IProperty<Boolean> PROPERTY_TICKING = PropertyBool.create("ticking");
     public static final IUnlistedProperty<List<PartState>> PROPERTY_MULTIPART_CONTAINER = new PropertyMultipartStates(
             "multipart_container");
-    
-    @SuppressWarnings("unchecked")
-    static final IUnlistedProperty<List<PartState>>[] properties = new IUnlistedProperty[]{ PROPERTY_MULTIPART_CONTAINER };
+
+    static final IProperty<?>[] PROPERTIES = new IProperty[] { PROPERTY_TICKING };
+    static final IUnlistedProperty<?>[] UNLISTED_PROPERTIES = new IUnlistedProperty[] { PROPERTY_MULTIPART_CONTAINER };
 
     @Override
     public IExtendedBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
@@ -402,13 +405,19 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
     @Override
     public int getMetaFromState(IBlockState state) {
 
-        return 0;
+        return state.getValue(PROPERTY_TICKING) ? 0 : 1;
+    }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta) {
+
+        return getDefaultState().withProperty(PROPERTY_TICKING, meta == 0);
     }
 
     @Override
     protected BlockStateContainer createBlockState() {
 
-        return new ExtendedBlockState(this, new IProperty[0], properties);
+        return new ExtendedBlockState(this, PROPERTIES, UNLISTED_PROPERTIES);
     }
 
     @Override

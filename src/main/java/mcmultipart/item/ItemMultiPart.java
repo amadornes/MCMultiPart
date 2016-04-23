@@ -34,8 +34,8 @@ public abstract class ItemMultiPart extends Item implements IItemMultipartFactor
             consumeItem(stack);
 
             SoundType sound = getPlacementSound(stack);
-            if (sound != null) world.playSound(player, pos, sound.getPlaceSound(), SoundCategory.BLOCKS,
-                    sound.getVolume(), sound.getPitch());
+            if (sound != null)
+                world.playSound(player, pos, sound.getPlaceSound(), SoundCategory.BLOCKS, sound.getVolume(), sound.getPitch());
 
             return true;
         }

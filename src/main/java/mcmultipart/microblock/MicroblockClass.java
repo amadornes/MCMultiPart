@@ -20,8 +20,8 @@ public abstract class MicroblockClass implements IAdvancedPartFactory {
 
     public abstract ItemStack createStack(IMicroMaterial material, int size, int stackSize);
 
-    public abstract MicroblockPlacement getPlacement(World world, BlockPos pos, IMicroMaterial material, int size,
-            RayTraceResult hit, EntityPlayer player);
+    public abstract MicroblockPlacement getPlacement(World world, BlockPos pos, IMicroMaterial material, int size, RayTraceResult hit,
+            EntityPlayer player);
 
     public abstract IMicroblockPlacementGrid getPlacementGrid();
 

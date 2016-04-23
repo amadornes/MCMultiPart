@@ -320,17 +320,17 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     }
 
     @Override
-    public final void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity) {
+    public final void onEntityWalk(World world, BlockPos pos, Entity entity) {
 
-        onEntityCollidedWithBlockDefault(world, pos, entity);
+        onEntityWalkDefault(world, pos, entity);
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         if (tile == null) return;
         tile.getMicroblockContainer().getPartContainer().onEntityStanding(entity);
     }
 
-    public void onEntityCollidedWithBlockDefault(World worldIn, BlockPos pos, Entity entityIn) {
+    public void onEntityWalkDefault(World worldIn, BlockPos pos, Entity entityIn) {
 
-        super.onEntityCollidedWithBlock(worldIn, pos, entityIn);
+        super.onEntityWalk(worldIn, pos, entityIn);
     }
 
     @Override
@@ -627,15 +627,21 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     @Override
     protected BlockStateContainer createBlockState() {
 
-        return new ExtendedBlockState(this, new IProperty[0], BlockMultipartContainer.properties);
+        return new ExtendedBlockState(this, new IProperty[0], BlockMultipartContainer.UNLISTED_PROPERTIES);
     }
 
     @Override
-    public final boolean canRenderInLayer(BlockRenderLayer layer) {
+    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
 
         return true;
     }
 
+    public boolean canRenderInLayerDefault(IBlockState state, BlockRenderLayer layer) {
+
+        return canRenderInLayerDefault(layer);
+    }
+
+    @Deprecated
     public boolean canRenderInLayerDefault(BlockRenderLayer layer) {
 
         return super.canRenderInLayer(layer);

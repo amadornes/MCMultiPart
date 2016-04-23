@@ -114,8 +114,6 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
 
         return container.getCapability(capability, slot, facing);
     }
-    
-    
 
     @Override
     public SPacketUpdateTileEntity getDescriptionPacket() {
@@ -124,13 +122,12 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
         getMicroblockContainer().getPartContainer().writeDescription(tag);
         return new SPacketUpdateTileEntity(getPosIn(), getBlockMetadata(), tag);
     }
-    
+
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 
         getMicroblockContainer().getPartContainer().readDescription(pkt.getNbtCompound());
     }
-
 
     @Override
     public boolean canRenderBreaking() {

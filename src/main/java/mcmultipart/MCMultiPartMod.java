@@ -5,6 +5,7 @@ import mcmultipart.block.TileCoverable;
 import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.network.MultipartNetworkHandler;
 import mcmultipart.util.MCMPEventHandler;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -28,8 +29,10 @@ public class MCMultiPartMod {
     public void preInit(FMLPreInitializationEvent event) {
 
         // Register the multipart container Block and TileEntity
-        GameRegistry.registerBlock(multipart = new BlockMultipartContainer(), null, "multipart");
-        GameRegistry.registerTileEntity(TileMultipartContainer.class, "mcmultipart:multipart");
+        GameRegistry.register(multipart = new BlockMultipartContainer(), new ResourceLocation(MCMultiPartMod.MODID, "multipart"));
+        GameRegistry.registerTileEntityWithAlternatives(TileMultipartContainer.Ticking.class, "mcmultipart:multipart.ticking",
+                "mcmultipart:multipart");
+        GameRegistry.registerTileEntity(TileMultipartContainer.class, "mcmultipart:multipart.nonticking");
         // Register the default coverable tile for use with blocks that want to host covers, but don't require a TE
         GameRegistry.registerTileEntity(TileCoverable.class, "mcmultipart:coverable");
 

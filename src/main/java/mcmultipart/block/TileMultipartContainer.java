@@ -3,9 +3,11 @@ package mcmultipart.block;
 import java.util.Collection;
 import java.util.UUID;
 
+import mcmultipart.MCMultiPartMod;
 import mcmultipart.capabilities.MultipartCapabilityHelper;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
+import mcmultipart.multipart.IMultipartContainer.IMultipartContainerListener;
 import mcmultipart.multipart.ISlottedPart;
 import mcmultipart.multipart.Multipart;
 import mcmultipart.multipart.MultipartContainer;
@@ -25,21 +27,23 @@ import net.minecraftforge.common.capabilities.Capability;
 /**
  * A final class that extends {@link BlockContainer} and implements {@link IMultipartContainer}. Represents a TileEntity which can contain
  * any kind of multipart.<br/>
- * You do NOT need to extend this class for your multiparts to work. I repeat, you do NOT. You need to either extend {@link Multipart} or
- * implement {@link IMultipart}. If you only need microblock support, look into {@link BlockCoverable}.
+ * <b>You do NOT need to extend this class for your multiparts to work.</b> I repeat, you do NOT. You need to either extend
+ * {@link Multipart} or implement {@link IMultipart}. If you only need microblock support, look into {@link BlockCoverable}.
  */
-public final class TileMultipartContainer extends TileEntity implements IMultipartContainer, ITickable {
+public class TileMultipartContainer extends TileEntity implements IMultipartContainer, IMultipartContainerListener {
 
     private MultipartContainer container;
 
     public TileMultipartContainer(MultipartContainer container) {
 
         this.container = new MultipartContainer(this, container.canTurnIntoBlock(), container);
+        this.container.setListener(this);
     }
 
     public TileMultipartContainer() {
 
         this.container = new MultipartContainer(this, true);
+        this.container.setListener(this);
     }
 
     @Override
@@ -120,6 +124,57 @@ public final class TileMultipartContainer extends TileEntity implements IMultipa
     }
 
     @Override
+    public void onAddPartPre(IMultipart part) {
+
+        if (part instanceof ITickable && !(this instanceof ITickable)) {
+            getWorld().setBlockState(getPos(),
+                    MCMultiPartMod.multipart.getDefaultState().withProperty(BlockMultipartContainer.PROPERTY_TICKING, true));
+            TileEntity te = getWorld().getTileEntity(getPos());
+            if (te != null && te instanceof TileMultipartContainer) {
+                ((TileMultipartContainer) te).container = container;
+                container.setListener((TileMultipartContainer) te);
+            } else {
+                throw new RuntimeException("Failed to replace ticking tile!");
+            }
+        }
+    }
+
+    @Override
+    public void onAddPartPost(IMultipart part) {
+
+    }
+
+    @Override
+    public void onRemovePartPre(IMultipart part) {
+
+        if (part instanceof ITickable && getParts().size() > 1) {
+            boolean shouldTick = false;
+            for (IMultipart p : getParts()) {
+                if (p != part && p instanceof ITickable) {
+                    shouldTick = true;
+                    break;
+                }
+            }
+            if (!shouldTick) {
+                getWorld().setBlockState(getPos(),
+                        MCMultiPartMod.multipart.getDefaultState().withProperty(BlockMultipartContainer.PROPERTY_TICKING, false));
+                TileEntity te = getWorld().getTileEntity(getPos());
+                if (te != null && te instanceof TileMultipartContainer) {
+                    ((TileMultipartContainer) te).container = container;
+                    container.setListener((TileMultipartContainer) te);
+                } else {
+                    throw new RuntimeException("Failed to replace ticking tile!");
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onRemovePartPost(IMultipart part) {
+
+    }
+
+    @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 
         if (super.hasCapability(capability, facing)) return true;
@@ -144,18 +199,6 @@ public final class TileMultipartContainer extends TileEntity implements IMultipa
     public <T> T getCapability(Capability<T> capability, PartSlot slot, EnumFacing facing) {
 
         return container.getCapability(capability, slot, facing);
-    }
-
-    @Override
-    public void update() {
-
-        if (!getWorldIn().isRemote && getParts().isEmpty()) {
-            getWorldIn().setBlockToAir(getPosIn());
-            return;
-        }
-
-        for (IMultipart part : getParts())
-            if (part instanceof ITickable) ((ITickable) part).update();
     }
 
     @Override
@@ -227,6 +270,22 @@ public final class TileMultipartContainer extends TileEntity implements IMultipa
         }
         if (bounds == null) bounds = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
         return bounds.offset(getPosIn().getX(), getPosIn().getY(), getPosIn().getZ());
+    }
+
+    public static class Ticking extends TileMultipartContainer implements ITickable {
+
+        @Override
+        public void update() {
+
+            if (!getWorldIn().isRemote && getParts().isEmpty()) {
+                getWorldIn().setBlockToAir(getPosIn());
+                return;
+            }
+
+            for (IMultipart part : getParts())
+                if (part instanceof ITickable) ((ITickable) part).update();
+        }
+
     }
 
 }

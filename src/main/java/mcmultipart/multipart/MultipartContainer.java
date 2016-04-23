@@ -57,6 +57,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class MultipartContainer implements IMultipartContainer {
 
     private IWorldLocation location;
+    private IMultipartContainerListener listener;
+
     private boolean canTurnIntoBlock;
     private BiMap<UUID, IMultipart> partMap = HashBiMap.create();
     private Map<PartSlot, ISlottedPart> slotMap = new HashMap<PartSlot, ISlottedPart>();
@@ -75,6 +77,11 @@ public class MultipartContainer implements IMultipartContainer {
         this.slotMap = new HashMap<PartSlot, ISlottedPart>(container.slotMap);
         for (IMultipart part : partMap.values())
             part.setContainer(this);
+    }
+
+    public void setListener(IMultipartContainerListener listener) {
+
+        this.listener = listener;
     }
 
     @Override
@@ -162,6 +169,8 @@ public class MultipartContainer implements IMultipartContainer {
         if (getParts().contains(part))
             throw new IllegalArgumentException("Attempted to add a duplicate part at " + getPosIn() + " (" + part + ")");
 
+        if (listener != null) listener.onAddPartPre(part);
+
         part.setContainer(this);
 
         BiMap<UUID, IMultipart> partMap = HashBiMap.create(this.partMap);
@@ -184,6 +193,8 @@ public class MultipartContainer implements IMultipartContainer {
             getWorldIn().checkLight(getPosIn());
         }
 
+        if (listener != null) listener.onAddPartPost(part);
+
         if (getWorldIn() != null && !getWorldIn().isRemote && (!canTurnIntoBlock || !tryConvert || !MultipartRegistry.convertToBlock(this)))
             MessageMultipartChange.newPacket(getWorldIn(), getPosIn(), part, Type.ADD).send(getWorldIn());
     }
@@ -202,6 +213,8 @@ public class MultipartContainer implements IMultipartContainer {
 
         BiMap<UUID, IMultipart> partMap = HashBiMap.create(this.partMap), oldPartMap = this.partMap;
         Map<PartSlot, ISlottedPart> slotMap = new HashMap<PartSlot, ISlottedPart>(this.slotMap), oldSlotMap = this.slotMap;
+
+        if (listener != null) listener.onRemovePartPre(part);
 
         partMap.inverse().remove(part);
         if (part instanceof ISlottedPart) {
@@ -232,6 +245,8 @@ public class MultipartContainer implements IMultipartContainer {
         }
 
         part.setContainer(null);
+
+        if (listener != null) listener.onRemovePartPost(part);
     }
 
     @Override

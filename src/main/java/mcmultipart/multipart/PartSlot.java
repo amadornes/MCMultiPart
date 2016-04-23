@@ -145,9 +145,8 @@ public enum PartSlot implements IStringSerializable {
     public PartSlot getOpposite(Axis axis) {
 
         if (f2 != null) {
-            if (f3 != null)
-                return getCornerSlot(f1.getAxis() == axis ? f1.getOpposite() : f1, f2.getAxis() == axis ? f2.getOpposite() : f2,
-                        f3.getAxis() == axis ? f3.getOpposite() : f3);
+            if (f3 != null) return getCornerSlot(f1.getAxis() == axis ? f1.getOpposite() : f1, f2.getAxis() == axis ? f2.getOpposite() : f2,
+                    f3.getAxis() == axis ? f3.getOpposite() : f3);
             return getEdgeSlot(f1.getAxis() == axis ? f1.getOpposite() : f1, f2.getAxis() == axis ? f2.getOpposite() : f2);
         }
         if (f1 == null) return CENTER;

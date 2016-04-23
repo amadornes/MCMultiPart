@@ -72,7 +72,7 @@ public final class MultipartContainerSpecialRenderer {
         GlStateManager.enablePolygonOffset();
         GlStateManager.alphaFunc(516, 0.1F);
         GlStateManager.enableAlpha();
-        Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.locationBlocksTexture).setBlurMipmap(false, false);
+        Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
     }
 
     private static void startTessellating(double x, double y, double z) {
@@ -100,11 +100,11 @@ public final class MultipartContainerSpecialRenderer {
                     for (BlockRenderLayer layer : BlockRenderLayer.values()) {
                         if (part.canRenderInLayer(layer)) {
                             ForgeHooksClient.setRenderLayer(layer);
-                            IBakedModel layerModel  = (new SimpleBakedModel.Builder(state, model,
+                            IBakedModel layerModel = (new SimpleBakedModel.Builder(state, model,
                                     Minecraft.getMinecraft().getTextureMapBlocks()
                                             .getAtlasSprite("minecraft:blocks/destroy_stage_" + destroyStage),
                                     part.getPos())).makeBakedModel();
-                            rendererDispatcher.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+                            rendererDispatcher.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
                             startTessellating(x, y, z);
                             consumer = new VertexBufferConsumer(Tessellator.getInstance().getBuffer());
                             renderBreaking(state, layerModel, consumer);
@@ -132,7 +132,7 @@ public final class MultipartContainerSpecialRenderer {
 
     private static void finishBreaking() {
 
-        Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.locationBlocksTexture).restoreLastBlurMipmap();
+        Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
         GlStateManager.disableAlpha();
         GlStateManager.doPolygonOffset(0.0F, 0.0F);
         GlStateManager.disablePolygonOffset();
