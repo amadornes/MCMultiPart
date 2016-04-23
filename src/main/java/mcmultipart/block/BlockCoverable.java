@@ -226,7 +226,8 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
                 world.setTileEntity(pos, new TileMultipartContainer(container));
                 world.notifyBlockUpdate(pos, state, MCMultiPartMod.multipart.getDefaultState(), 0);
                 harvestingWrapper = true;
-                harvestBlock(world, player, pos, world.getBlockState(pos), world.getTileEntity(pos), player.getActiveItemStack());
+                if (!player.capabilities.isCreativeMode)
+                    harvestBlock(world, player, pos, world.getBlockState(pos), world.getTileEntity(pos), player.getActiveItemStack());
                 harvestingWrapper = false;
                 return false;
             }
