@@ -14,37 +14,46 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class MCMPEventHandler {
-
+public class MCMPEventHandler
+{
+    
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    public void onDrawGameOverlay(RenderGameOverlayEvent event) {
-
+    public void onDrawGameOverlay(RenderGameOverlayEvent event)
+    {
+        
         if (event.getType() == RenderGameOverlayEvent.ElementType.TEXT && event instanceof RenderGameOverlayEvent.Text
-                && Minecraft.getMinecraft().gameSettings.showDebugInfo) {
+                && Minecraft.getMinecraft().gameSettings.showDebugInfo)
+        {
             RenderGameOverlayEvent.Text ev = (RenderGameOverlayEvent.Text) event;
             RayTraceResult hit = Minecraft.getMinecraft().objectMouseOver;
-            if (hit != null && hit instanceof PartMOP) {
+            if (hit != null && hit instanceof PartMOP)
+            {
                 PartMOP mop = (PartMOP) hit;
-                if (mop.partHit != null) {
+                if (mop.partHit != null)
+                {
                     ev.getRight().add("");
                     ev.getRight().add(mop.partHit.getType().toString());
-
+                    
                     IBlockState state = mop.partHit.getExtendedState(MultipartRegistry.getDefaultState(mop.partHit).getBaseState());
-                    for (Entry<IProperty<?>, Comparable<?>> entry : state.getProperties().entrySet()) {
+                    for (Entry<IProperty<?>, Comparable<?>> entry : state.getProperties().entrySet())
+                    {
                         String s = entry.getValue().toString();
-
-                        if (entry.getValue() == Boolean.TRUE) {
+                        
+                        if (entry.getValue() == Boolean.TRUE)
+                        {
                             s = TextFormatting.GREEN + s;
-                        } else if (entry.getValue() == Boolean.FALSE) {
+                        }
+                        else if (entry.getValue() == Boolean.FALSE)
+                        {
                             s = TextFormatting.RED + s;
                         }
-
+                        
                         ev.getRight().add(entry.getKey().getName() + ": " + s);
                     }
                 }
             }
         }
     }
-
+    
 }

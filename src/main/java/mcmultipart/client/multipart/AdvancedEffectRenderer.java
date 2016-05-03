@@ -22,40 +22,54 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class AdvancedEffectRenderer extends EffectRenderer {
-
+public class AdvancedEffectRenderer extends EffectRenderer
+{
+    
     private static AdvancedEffectRenderer instance;
-
-    public static AdvancedEffectRenderer getInstance(EffectRenderer effectRenderer) {
-
-        if (instance == null) return instance = new AdvancedEffectRenderer(Minecraft.getMinecraft().theWorld,
-                Minecraft.getMinecraft().renderEngine, effectRenderer);
+    
+    public static AdvancedEffectRenderer getInstance(EffectRenderer effectRenderer)
+    {
+        
+        if (instance == null)
+        {
+            return instance = new AdvancedEffectRenderer(Minecraft.getMinecraft().theWorld,
+                    Minecraft.getMinecraft().renderEngine, effectRenderer);
+        }
         instance.worldObj = Minecraft.getMinecraft().theWorld;
         instance.parent = new WeakReference<EffectRenderer>(effectRenderer);
         return instance;
     }
-
+    
     private WeakReference<EffectRenderer> parent;
-
-    private AdvancedEffectRenderer(World worldIn, TextureManager rendererIn, EffectRenderer parent) {
-
+    
+    private AdvancedEffectRenderer(World worldIn, TextureManager rendererIn, EffectRenderer parent)
+    {
+        
         super(worldIn, rendererIn);
         this.parent = new WeakReference<EffectRenderer>(parent);
     }
-
+    
     @Override
-    public void addBlockDestroyEffects(BlockPos pos, IBlockState state) {
-
+    public void addBlockDestroyEffects(BlockPos pos, IBlockState state)
+    {
+        
         EffectRenderer p = parent.get();
-        if (p != null) p.addBlockDestroyEffects(pos, state);
+        if (p != null)
+        {
+            p.addBlockDestroyEffects(pos, state);
+        }
     }
-
-    public void addBlockDestroyEffects(BlockPos pos, TextureAtlasSprite icon) {
-
+    
+    public void addBlockDestroyEffects(BlockPos pos, TextureAtlasSprite icon)
+    {
+        
         int i = 4;
-        for (int j = 0; j < i; ++j) {
-            for (int k = 0; k < i; ++k) {
-                for (int l = 0; l < i; ++l) {
+        for (int j = 0; j < i; ++j)
+        {
+            for (int k = 0; k < i; ++k)
+            {
+                for (int l = 0; l < i; ++l)
+                {
                     double d0 = pos.getX() + (j + 0.5D) / i;
                     double d1 = pos.getY() + (k + 0.5D) / i;
                     double d2 = pos.getZ() + (l + 0.5D) / i;
@@ -65,16 +79,21 @@ public class AdvancedEffectRenderer extends EffectRenderer {
             }
         }
     }
-
+    
     @Override
-    public void addBlockHitEffects(BlockPos pos, EnumFacing side) {
-
+    public void addBlockHitEffects(BlockPos pos, EnumFacing side)
+    {
+        
         EffectRenderer p = parent.get();
-        if (p != null) p.addBlockHitEffects(pos, side);
+        if (p != null)
+        {
+            p.addBlockHitEffects(pos, side);
+        }
     }
-
-    public void addBlockHitEffects(BlockPos pos, EnumFacing side, AxisAlignedBB box, TextureAtlasSprite icon) {
-
+    
+    public void addBlockHitEffects(BlockPos pos, EnumFacing side, AxisAlignedBB box, TextureAtlasSprite icon)
+    {
+        
         int i = pos.getX();
         int j = pos.getY();
         int k = pos.getZ();
@@ -82,102 +101,160 @@ public class AdvancedEffectRenderer extends EffectRenderer {
         double d0 = i + this.worldObj.rand.nextDouble() * (box.maxX - box.minX - f * 2.0F) + f + box.minX;
         double d1 = j + this.worldObj.rand.nextDouble() * (box.maxY - box.maxY - f * 2.0F) + f + box.minY;
         double d2 = k + this.worldObj.rand.nextDouble() * (box.maxZ - box.minZ - f * 2.0F) + f + box.minZ;
-
-        if (side == EnumFacing.DOWN) d1 = j + box.minY - f;
-        if (side == EnumFacing.UP) d1 = j + box.maxY + f;
-        if (side == EnumFacing.NORTH) d2 = k + box.minZ - f;
-        if (side == EnumFacing.SOUTH) d2 = k + box.maxZ + f;
-        if (side == EnumFacing.WEST) d0 = i + box.minX - f;
-        if (side == EnumFacing.EAST) d0 = i + box.maxX + f;
-
+        
+        if (side == EnumFacing.DOWN)
+        {
+            d1 = j + box.minY - f;
+        }
+        if (side == EnumFacing.UP)
+        {
+            d1 = j + box.maxY + f;
+        }
+        if (side == EnumFacing.NORTH)
+        {
+            d2 = k + box.minZ - f;
+        }
+        if (side == EnumFacing.SOUTH)
+        {
+            d2 = k + box.maxZ + f;
+        }
+        if (side == EnumFacing.WEST)
+        {
+            d0 = i + box.minX - f;
+        }
+        if (side == EnumFacing.EAST)
+        {
+            d0 = i + box.maxX + f;
+        }
+        
         this.addEffect((new AdvancedEntityDiggingFX(this.worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, icon)).setBlockPos(pos)
                 .multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
     }
-
+    
     @Override
-    public void addBlockHitEffects(BlockPos pos, RayTraceResult target) {
-
+    public void addBlockHitEffects(BlockPos pos, RayTraceResult target)
+    {
+        
         EffectRenderer p = parent.get();
-        if (p != null) p.addBlockHitEffects(pos, target);
+        if (p != null)
+        {
+            p.addBlockHitEffects(pos, target);
+        }
     }
-
-    public void addBlockHitEffects(BlockPos pos, RayTraceResult target, AxisAlignedBB box, TextureAtlasSprite icon) {
-
+    
+    public void addBlockHitEffects(BlockPos pos, RayTraceResult target, AxisAlignedBB box, TextureAtlasSprite icon)
+    {
+        
         addBlockHitEffects(pos, target.sideHit, box, icon);
     }
-
+    
     @Override
-    public void addEffect(EntityFX effect) {
-
+    public void addEffect(EntityFX effect)
+    {
+        
         EffectRenderer p = parent.get();
-        if (p != null) p.addEffect(effect);
+        if (p != null)
+        {
+            p.addEffect(effect);
+        }
     }
-
+    
     @Override
-    public void clearEffects(World worldIn) {
-
+    public void clearEffects(World worldIn)
+    {
+        
         EffectRenderer p = parent.get();
-        if (p != null) p.clearEffects(worldIn);
+        if (p != null)
+        {
+            p.clearEffects(worldIn);
+        }
     }
-
+    
     @Override
-    public void emitParticleAtEntity(Entity entityIn, EnumParticleTypes particleTypes) {
-
+    public void emitParticleAtEntity(Entity entityIn, EnumParticleTypes particleTypes)
+    {
+        
         EffectRenderer p = parent.get();
-        if (p != null) p.emitParticleAtEntity(entityIn, particleTypes);
+        if (p != null)
+        {
+            p.emitParticleAtEntity(entityIn, particleTypes);
+        }
     }
-
+    
     @Override
-    public String getStatistics() {
-
-        if (parent.get() != null) return parent.get().getStatistics();
+    public String getStatistics()
+    {
+        
+        if (parent.get() != null)
+        {
+            return parent.get().getStatistics();
+        }
         return null;
     }
-
+    
     @Override
-    public void registerParticle(int id, IParticleFactory particleFactory) {
-
+    public void registerParticle(int id, IParticleFactory particleFactory)
+    {
+        
     }
-
+    
     @Override
-    public void renderLitParticles(Entity entityIn, float p_78872_2_) {
-
+    public void renderLitParticles(Entity entityIn, float p_78872_2_)
+    {
+        
         EffectRenderer p = parent.get();
-        if (p != null) p.renderLitParticles(entityIn, p_78872_2_);
+        if (p != null)
+        {
+            p.renderLitParticles(entityIn, p_78872_2_);
+        }
     }
-
+    
     @Override
-    public void renderParticles(Entity entityIn, float partialTicks) {
-
+    public void renderParticles(Entity entityIn, float partialTicks)
+    {
+        
         EffectRenderer p = parent.get();
-        if (p != null) p.renderParticles(entityIn, partialTicks);
+        if (p != null)
+        {
+            p.renderParticles(entityIn, partialTicks);
+        }
     }
-
+    
     @Override
     public EntityFX spawnEffectParticle(int particleId, double p_178927_2_, double p_178927_4_, double p_178927_6_, double p_178927_8_,
-            double p_178927_10_, double p_178927_12_, int... p_178927_14_) {
-
-        if (parent.get() != null) return parent.get().spawnEffectParticle(particleId, p_178927_2_, p_178927_4_, p_178927_6_, p_178927_8_,
-                p_178927_10_, p_178927_12_, p_178927_14_);
+            double p_178927_10_, double p_178927_12_, int... p_178927_14_)
+    {
+        
+        if (parent.get() != null)
+        {
+            return parent.get().spawnEffectParticle(particleId, p_178927_2_, p_178927_4_, p_178927_6_, p_178927_8_,
+                    p_178927_10_, p_178927_12_, p_178927_14_);
+        }
         return null;
     }
-
+    
     @Override
-    public void updateEffects() {
-
+    public void updateEffects()
+    {
+        
         EffectRenderer p = parent.get();
-        if (p != null) p.updateEffects();
+        if (p != null)
+        {
+            p.updateEffects();
+        }
     }
-
-    public static class AdvancedEntityDiggingFX extends EntityDiggingFX {
-
+    
+    public static class AdvancedEntityDiggingFX extends EntityDiggingFX
+    {
+        
         protected AdvancedEntityDiggingFX(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
-                double ySpeedIn, double zSpeedIn, TextureAtlasSprite icon) {
-
+                double ySpeedIn, double zSpeedIn, TextureAtlasSprite icon)
+        {
+            
             super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, Blocks.STONE.getDefaultState());
             setParticleTexture(icon);
         }
-
+        
     }
-
+    
 }
