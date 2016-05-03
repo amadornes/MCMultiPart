@@ -1,5 +1,7 @@
 package mcmultipart.client.multipart;
 
+import org.lwjgl.opengl.GL11;
+
 import mcmultipart.block.TileCoverable;
 import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.multipart.IMultipart;
@@ -9,7 +11,9 @@ import mcmultipart.raytrace.PartMOP;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -52,11 +56,52 @@ public final class MultipartContainerSpecialRenderer {
             return true;
         }
 
+        Tessellator tessellator = Tessellator.getInstance();
+        VertexBuffer buffer = tessellator.getBuffer();
+        rendererDispatcher.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GlStateManager.enableBlend();
+        GlStateManager.disableCull();
+
+        if (Minecraft.isAmbientOcclusionEnabled()) {
+            GlStateManager.shadeModel(GL11.GL_SMOOTH);
+        } else {
+            GlStateManager.shadeModel(GL11.GL_FLAT);
+        }
+
+        buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+        for (IMultipart part : container.getParts()) {
+            MultipartSpecialRenderer<IMultipart> renderer = MultipartRegistryClient.getSpecialRenderer(part);
+            if (renderer != null && renderer.shouldRenderInPass(part, MinecraftForgeClient.getRenderPass()) && part instanceof IFastMSRPart
+                    && ((IFastMSRPart) part).hasFastRenderer()) {
+                renderer.setRendererDispatcher(rendererDispatcher);
+                renderer.renderMultipartFast(part, x, y, z, partialTicks, destroyStage, buffer);
+            }
+        }
+        buffer.setTranslation(0, 0, 0);
+        tessellator.draw();
+        RenderHelper.enableStandardItemLighting();
+
+        for (IMultipart part : container.getParts()) {
+            MultipartSpecialRenderer<IMultipart> renderer = MultipartRegistryClient.getSpecialRenderer(part);
+            if (renderer != null && renderer.shouldRenderInPass(part, MinecraftForgeClient.getRenderPass())
+                    && !(part instanceof IFastMSRPart && ((IFastMSRPart) part).hasFastRenderer())) {
+                renderer.setRendererDispatcher(rendererDispatcher);
+                renderer.renderMultipartAt(part, x, y, z, partialTicks, destroyStage);
+            }
+        }
+        return false;
+    }
+
+    public static boolean renderMultipartContainerFast(IMultipartContainer container, double x, double y, double z, float partialTicks,
+            int destroyStage, TileEntityRendererDispatcher rendererDispatcher, VertexBuffer buffer) {
+
         for (IMultipart part : container.getParts()) {
             MultipartSpecialRenderer<IMultipart> renderer = MultipartRegistryClient.getSpecialRenderer(part);
             if (renderer != null && renderer.shouldRenderInPass(part, MinecraftForgeClient.getRenderPass())) {
                 renderer.setRendererDispatcher(rendererDispatcher);
-                renderer.renderMultipartAt(part, x, y, z, partialTicks, destroyStage);
+                renderer.renderMultipartFast(part, x, y, z, partialTicks, destroyStage, buffer);
             }
         }
         return false;
@@ -149,6 +194,13 @@ public final class MultipartContainerSpecialRenderer {
             renderMultipartContainerAt(te, x, y, z, partialTicks, destroyStage, rendererDispatcher);
         }
 
+        @Override
+        public void renderTileEntityFast(TileMultipartContainer te, double x, double y, double z, float partialTicks, int destroyStage,
+                VertexBuffer buffer) {
+
+            renderMultipartContainerFast(te, x, y, z, partialTicks, destroyStage, rendererDispatcher, buffer);
+        }
+
     }
 
     public static class TileCoverableSpecialRenderer<T extends TileCoverable> extends TileEntitySpecialRenderer<T> {
@@ -192,6 +244,19 @@ public final class MultipartContainerSpecialRenderer {
         }
 
         public void renderTileEntityAtDefault(T te, double x, double y, double z, float partialTicks, int destroyStage) {
+
+        }
+
+        @Override
+        public void renderTileEntityFast(T te, double x, double y, double z, float partialTicks, int destroyStage, VertexBuffer buffer) {
+
+            if (renderMultipartContainerFast(te.getMicroblockContainer(), x, y, z, partialTicks, destroyStage, rendererDispatcher, buffer))
+                return;
+            renderTileEntityFastDefault(te, x, y, z, partialTicks, destroyStage, buffer);
+        }
+
+        public void renderTileEntityFastDefault(T te, double x, double y, double z, float partialTicks, int destroyStage,
+                VertexBuffer buffer) {
 
         }
 

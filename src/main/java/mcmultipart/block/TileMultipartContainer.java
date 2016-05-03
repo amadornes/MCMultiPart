@@ -5,6 +5,9 @@ import java.util.UUID;
 
 import mcmultipart.MCMultiPartMod;
 import mcmultipart.capabilities.MultipartCapabilityHelper;
+import mcmultipart.client.multipart.IFastMSRPart;
+import mcmultipart.client.multipart.MultipartRegistryClient;
+import mcmultipart.client.multipart.MultipartSpecialRenderer;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.IMultipartContainer.IMultipartContainerListener;
@@ -23,6 +26,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * A final class that extends {@link BlockContainer} and implements {@link IMultipartContainer}. Represents a TileEntity which can contain
@@ -270,6 +275,21 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         }
         if (bounds == null) bounds = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
         return bounds.offset(getPosIn().getX(), getPosIn().getY(), getPosIn().getZ());
+    }
+
+    @Override
+    public boolean hasFastRenderer() {
+
+        for (IMultipart part : getParts())
+            if (getSpecialRenderer(part) != null && (!(part instanceof IFastMSRPart) || !((IFastMSRPart) part).hasFastRenderer()))
+                return false;
+        return true;
+    }
+
+    @SideOnly(Side.CLIENT)
+    private MultipartSpecialRenderer<?> getSpecialRenderer(IMultipart part) {
+
+        return MultipartRegistryClient.getSpecialRenderer(part);
     }
 
     public static class Ticking extends TileMultipartContainer implements ITickable {

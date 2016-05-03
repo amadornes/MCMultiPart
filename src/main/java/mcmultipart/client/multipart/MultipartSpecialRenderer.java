@@ -2,6 +2,7 @@ package mcmultipart.client.multipart;
 
 import mcmultipart.multipart.IMultipart;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.ResourceLocation;
@@ -19,9 +20,18 @@ public abstract class MultipartSpecialRenderer<T extends IMultipart> {
 
     public abstract void renderMultipartAt(T part, double x, double y, double z, float partialTicks, int destroyStage);
 
+    public void renderMultipartFast(T part, double x, double y, double z, float partialTicks, int destroyStage, VertexBuffer buffer) {
+
+    }
+
     public boolean shouldRenderInPass(T part, int pass) {
 
         return pass == 0;
+    }
+
+    public boolean canRenderBreaking(T part) {
+
+        return false;
     }
 
     protected void bindTexture(ResourceLocation location) {
@@ -43,11 +53,6 @@ public abstract class MultipartSpecialRenderer<T extends IMultipart> {
     public FontRenderer getFontRenderer() {
 
         return this.rendererDispatcher.getFontRenderer();
-    }
-
-    public boolean canRenderBreaking(T part) {
-
-        return false;
     }
 
 }
