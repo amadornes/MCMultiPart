@@ -445,7 +445,7 @@ public class MultipartContainer implements IMultipartContainer {
         }
     }
 
-    public void writeDescription(NBTTagCompound tag) {
+    public NBTTagCompound writeDescription(NBTTagCompound tag) {
 
         NBTTagList partList = new NBTTagList();
         for (Entry<UUID, IMultipart> entry : partMap.entrySet()) {
@@ -458,6 +458,7 @@ public class MultipartContainer implements IMultipartContainer {
             partList.appendTag(t);
         }
         tag.setTag("partList", partList);
+        return tag;
     }
 
     public void readDescription(NBTTagCompound tag) {

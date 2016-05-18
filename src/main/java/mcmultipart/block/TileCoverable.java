@@ -8,8 +8,6 @@ import mcmultipart.microblock.MicroblockContainer;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.PartSlot;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -59,6 +57,33 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
     }
 
     @Override
+    public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+
+        if (super.hasCapability(capability, facing)) return true;
+        return MultipartCapabilityHelper.hasCapability(container, capability, facing);
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+
+        T impl = super.getCapability(capability, facing);
+        if (impl != null) return impl;
+        return MultipartCapabilityHelper.getCapability(container, capability, facing);
+    }
+
+    @Override
+    public boolean hasCapability(Capability<?> capability, PartSlot slot, EnumFacing facing) {
+
+        return container.hasCapability(capability, slot, facing);
+    }
+
+    @Override
+    public <T> T getCapability(Capability<T> capability, PartSlot slot, EnumFacing facing) {
+
+        return container.getCapability(capability, slot, facing);
+    }
+
+    @Override
     public void onLoad() {
 
         super.onLoad();
@@ -90,44 +115,9 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
     }
 
     @Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+    public NBTTagCompound getUpdateTag() {
 
-        if (super.hasCapability(capability, facing)) return true;
-        return MultipartCapabilityHelper.hasCapability(container, capability, facing);
-    }
-
-    @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-
-        T impl = super.getCapability(capability, facing);
-        if (impl != null) return impl;
-        return MultipartCapabilityHelper.getCapability(container, capability, facing);
-    }
-
-    @Override
-    public boolean hasCapability(Capability<?> capability, PartSlot slot, EnumFacing facing) {
-
-        return container.hasCapability(capability, slot, facing);
-    }
-
-    @Override
-    public <T> T getCapability(Capability<T> capability, PartSlot slot, EnumFacing facing) {
-
-        return container.getCapability(capability, slot, facing);
-    }
-
-    @Override
-    public SPacketUpdateTileEntity getUpdatePacket() {
-
-        NBTTagCompound tag = new NBTTagCompound();
-        getMicroblockContainer().getPartContainer().writeDescription(tag);
-        return new SPacketUpdateTileEntity(getPosIn(), getBlockMetadata(), tag);
-    }
-
-    @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
-
-        getMicroblockContainer().getPartContainer().readDescription(pkt.getNbtCompound());
+        return getMicroblockContainer().getPartContainer().writeToNBT(super.getUpdateTag());
     }
 
     @Override
