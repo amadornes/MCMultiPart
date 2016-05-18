@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import mcmultipart.MCMultiPartMod;
-import mcmultipart.client.multipart.AdvancedEffectRenderer;
+import mcmultipart.client.multipart.AdvancedParticleManager;
 import mcmultipart.client.multipart.ICustomHighlightPart;
 import mcmultipart.client.multipart.MultipartStateMapper;
 import mcmultipart.microblock.IMicroblockContainerTile;
@@ -25,7 +25,7 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -294,7 +294,7 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     }
 
     @Override
-    public final void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
+    public final void func_189540_a(IBlockState state, World world, BlockPos pos, Block neighborBlock) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         if (tile != null) tile.getMicroblockContainer().getPartContainer().onNeighborBlockChange(neighborBlock);
@@ -303,7 +303,7 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
 
     public void onNeighborBlockChangeDefault(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
 
-        super.onNeighborBlockChange(world, pos, state, neighborBlock);
+        super.func_189540_a(state, world, pos, neighborBlock);
     }
 
     @Override
@@ -484,11 +484,11 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public final boolean addDestroyEffects(World world, BlockPos pos, EffectRenderer effectRenderer) {
+    public final boolean addDestroyEffects(World world, BlockPos pos, ParticleManager particleManager) {
 
         PartMOP hit = reTrace(world, pos, MCMultiPartMod.proxy.getPlayer());
         if (hit != null) {
-            if (hit.partHit.addDestroyEffects(AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
+            if (hit.partHit.addDestroyEffects(AdvancedParticleManager.getInstance(particleManager))) return true;
 
             ResourceLocation path = hit.partHit.getModelPath();
             IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
@@ -498,28 +498,28 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
             if (model != null) {
                 TextureAtlasSprite icon = model.getParticleTexture();
                 if (icon != null) {
-                    AdvancedEffectRenderer.getInstance(effectRenderer).addBlockDestroyEffects(pos, icon);
+                    AdvancedParticleManager.getInstance(particleManager).addBlockDestroyEffects(pos, icon);
                     return true;
                 }
             }
             return true;
         }
-        return addDestroyEffectsDefault(world, pos, effectRenderer);
+        return addDestroyEffectsDefault(world, pos, particleManager);
     }
 
     @SideOnly(Side.CLIENT)
-    public boolean addDestroyEffectsDefault(World world, BlockPos pos, EffectRenderer effectRenderer) {
+    public boolean addDestroyEffectsDefault(World world, BlockPos pos, ParticleManager particleManager) {
 
-        return super.addDestroyEffects(world, pos, effectRenderer);
+        return super.addDestroyEffects(world, pos, particleManager);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public final boolean addHitEffects(IBlockState state, World world, RayTraceResult target, EffectRenderer effectRenderer) {
+    public final boolean addHitEffects(IBlockState state, World world, RayTraceResult target, ParticleManager particleManager) {
 
         PartMOP hit = target instanceof PartMOP ? (PartMOP) target : null;
         if (hit != null) {
-            if (hit.partHit.addHitEffects(hit, AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
+            if (hit.partHit.addHitEffects(hit, AdvancedParticleManager.getInstance(particleManager))) return true;
 
             ResourceLocation path = hit.partHit.getModelPath();
             IBlockState partState = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
@@ -529,19 +529,19 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
             if (model != null) {
                 TextureAtlasSprite icon = model.getParticleTexture();
                 if (icon != null) {
-                    AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(target.getBlockPos(), hit, bounds, icon);
+                    AdvancedParticleManager.getInstance(particleManager).addBlockHitEffects(target.getBlockPos(), hit, bounds, icon);
                     return true;
                 }
             }
             return true;
         }
-        return addHitEffectsDefault(state, world, target, effectRenderer);
+        return addHitEffectsDefault(state, world, target, particleManager);
     }
 
     @SideOnly(Side.CLIENT)
-    public boolean addHitEffectsDefault(IBlockState state, World world, RayTraceResult target, EffectRenderer effectRenderer) {
+    public boolean addHitEffectsDefault(IBlockState state, World world, RayTraceResult target, ParticleManager particleManager) {
 
-        return super.addHitEffects(state, world, target, effectRenderer);
+        return super.addHitEffects(state, world, target, particleManager);
     }
 
     @Override

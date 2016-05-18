@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import mcmultipart.MCMultiPartMod;
-import mcmultipart.client.multipart.AdvancedEffectRenderer;
+import mcmultipart.client.multipart.AdvancedParticleManager;
 import mcmultipart.client.multipart.ICustomHighlightPart;
 import mcmultipart.client.multipart.MultipartStateMapper;
 import mcmultipart.multipart.IMultipart;
@@ -26,7 +26,7 @@ import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -193,7 +193,7 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
     }
 
     @Override
-    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
+    public void func_189540_a(IBlockState state, World worldIn, BlockPos pos, Block neighborBlock) {
 
         TileMultipartContainer tile = getMultipartTile(worldIn, pos);
         if (tile == null) return;
@@ -301,11 +301,11 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean addDestroyEffects(World world, BlockPos pos, EffectRenderer effectRenderer) {
+    public boolean addDestroyEffects(World world, BlockPos pos, ParticleManager particleManager) {
 
         PartMOP hit = reTrace(world, pos, MCMultiPartMod.proxy.getPlayer());
         if (hit != null) {
-            if (hit.partHit.addDestroyEffects(AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
+            if (hit.partHit.addDestroyEffects(AdvancedParticleManager.getInstance(particleManager))) return true;
 
             ResourceLocation path = hit.partHit.getModelPath();
             IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
@@ -314,7 +314,7 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
                             new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
             if (model != null) {
                 TextureAtlasSprite icon = model.getParticleTexture();
-                if (icon != null) AdvancedEffectRenderer.getInstance(effectRenderer).addBlockDestroyEffects(pos, icon);
+                if (icon != null) AdvancedParticleManager.getInstance(particleManager).addBlockDestroyEffects(pos, icon);
             }
         }
         return true;
@@ -322,11 +322,11 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean addHitEffects(IBlockState state, World world, RayTraceResult target, EffectRenderer effectRenderer) {
+    public boolean addHitEffects(IBlockState state, World world, RayTraceResult target, ParticleManager particleManager) {
 
         PartMOP hit = target instanceof PartMOP ? (PartMOP) target : null;
         if (hit != null) {
-            if (hit.partHit.addHitEffects(hit, AdvancedEffectRenderer.getInstance(effectRenderer))) return true;
+            if (hit.partHit.addHitEffects(hit, AdvancedParticleManager.getInstance(particleManager))) return true;
 
             ResourceLocation path = hit.partHit.getModelPath();
             IBlockState partState = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
@@ -336,7 +336,7 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
             if (model != null) {
                 TextureAtlasSprite icon = model.getParticleTexture();
                 if (icon != null)
-                    AdvancedEffectRenderer.getInstance(effectRenderer).addBlockHitEffects(target.getBlockPos(), hit, bounds, icon);
+                    AdvancedParticleManager.getInstance(particleManager).addBlockHitEffects(target.getBlockPos(), hit, bounds, icon);
             }
         }
         return true;

@@ -75,10 +75,11 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound compound) {
+    public NBTTagCompound func_189515_b(NBTTagCompound compound) {
 
-        super.writeToNBT(compound);
+        compound = super.func_189515_b(compound);
         getMicroblockContainer().getPartContainer().writeToNBT(compound);
+        return compound;
     }
 
     @Override
@@ -116,7 +117,7 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
     }
 
     @Override
-    public SPacketUpdateTileEntity getDescriptionPacket() {
+    public SPacketUpdateTileEntity func_189518_D_() {
 
         NBTTagCompound tag = new NBTTagCompound();
         getMicroblockContainer().getPartContainer().writeDescription(tag);

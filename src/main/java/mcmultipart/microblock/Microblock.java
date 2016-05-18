@@ -198,14 +198,15 @@ public abstract class Microblock extends Multipart implements IMicroblock, IReds
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
+    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
 
-        super.writeToNBT(tag);
+        tag = super.writeToNBT(tag);
 
         tag.setString("material", getMicroMaterial().getName());
         tag.setInteger("slot", slot != null ? slot.ordinal() : -1);
         tag.setInteger("size", getSize());
-        if (delegate != null) delegate.writeToNBT(tag);
+        if (delegate != null) tag = delegate.writeToNBT(tag);
+        return tag;
     }
 
     @Override

@@ -90,13 +90,14 @@ public class BlockMicroMaterial implements IMicroMaterial {
     @Override
     public boolean isSolid() {
 
-        return blockState.getBlock().isFullCube(blockState);
+        return blockState.isFullCube();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public int getLightValue() {
 
-        return blockState.getBlock().getLightValue(blockState);
+        return blockState.getLightValue();
     }
 
     @Override

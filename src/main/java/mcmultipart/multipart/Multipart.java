@@ -7,7 +7,7 @@ import java.util.Random;
 
 import mcmultipart.MCMultiPartMod;
 import mcmultipart.capabilities.PartAttachCapabilitiesEvent;
-import mcmultipart.client.multipart.AdvancedEffectRenderer;
+import mcmultipart.client.multipart.AdvancedParticleManager;
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import mcmultipart.network.MessageMultipartChange;
 import mcmultipart.raytrace.PartMOP;
@@ -202,7 +202,7 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
         if (!effective && stack != null) for (String tool : stack.getItem().getToolClasses(stack))
             if (effective = isToolEffective(tool, stack.getItem().getHarvestLevel(stack, tool))) break;
 
-        float breakSpeed = player.getBreakSpeed(getExtendedState(MultipartRegistry.getDefaultState(this).getBaseState()), getPos());
+        float breakSpeed = player.getDigSpeed(getExtendedState(MultipartRegistry.getDefaultState(this).getBaseState()), getPos());
 
         if (!effective) return breakSpeed / hardness / 100F;
         else return breakSpeed / hardness / 30F;
@@ -272,8 +272,9 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
+    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
 
+        return tag;
     }
 
     @Override
@@ -339,14 +340,14 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
 
     @SideOnly(Side.CLIENT)
     @Override
-    public boolean addDestroyEffects(AdvancedEffectRenderer effectRenderer) {
+    public boolean addDestroyEffects(AdvancedParticleManager particleManager) {
 
         return false;
     }
 
     @SideOnly(Side.CLIENT)
     @Override
-    public boolean addHitEffects(PartMOP hit, AdvancedEffectRenderer effectRenderer) {
+    public boolean addHitEffects(PartMOP hit, AdvancedParticleManager particleManager) {
 
         return false;
     }

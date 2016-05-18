@@ -3,7 +3,7 @@ package mcmultipart.multipart;
 import java.util.List;
 import java.util.Random;
 
-import mcmultipart.client.multipart.AdvancedEffectRenderer;
+import mcmultipart.client.multipart.AdvancedParticleManager;
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResultPart;
@@ -179,7 +179,7 @@ public interface IMultipart {
     /**
      * Writes this part's NBT data to a tag so it can be saved.
      */
-    public void writeToNBT(NBTTagCompound tag);
+    public NBTTagCompound writeToNBT(NBTTagCompound tag);
 
     /**
      * Loads this part's data from the saved NBT tag.
@@ -228,10 +228,10 @@ public interface IMultipart {
     public void randomDisplayTick(Random rand);
 
     @SideOnly(Side.CLIENT)
-    public boolean addDestroyEffects(AdvancedEffectRenderer effectRenderer);
+    public boolean addDestroyEffects(AdvancedParticleManager particleManager);
 
     @SideOnly(Side.CLIENT)
-    public boolean addHitEffects(PartMOP hit, AdvancedEffectRenderer effectRenderer);
+    public boolean addHitEffects(PartMOP hit, AdvancedParticleManager particleManager);
 
     public void onEntityStanding(Entity entity);
 

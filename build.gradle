@@ -7,7 +7,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -32,7 +32,7 @@ group = "MCMultiPart" // http://maven.apache.org/guides/mini/guide-naming-conven
 archivesBaseName = "MCMultiPart"
 
 minecraft {
-    version = "1.9-12.16.0.1865-1.9"
+    version = "1.9.4-12.16.1.1908-1.9.4"
     runDir = "run"
     
     mappings = "snapshot_20160422"
