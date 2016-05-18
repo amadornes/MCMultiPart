@@ -21,16 +21,17 @@ import net.minecraft.world.World;
  */
 public abstract class ItemMultiPart extends Item implements IItemMultipartFactory {
 
+    @Override
     public abstract IMultipart createPart(World world, BlockPos pos, EnumFacing side, Vec3d hit, ItemStack stack, EntityPlayer player);
 
     public boolean place(World world, BlockPos pos, EnumFacing side, Vec3d hit, ItemStack stack, EntityPlayer player) {
 
         if (!player.canPlayerEdit(pos, side, stack)) return false;
 
-        IMultipart mb = createPart(world, pos, side, hit, stack, player);
+        IMultipart part = createPart(world, pos, side, hit, stack, player);
 
-        if (MultipartHelper.canAddPart(world, pos, mb)) {
-            if (!world.isRemote) MultipartHelper.addPart(world, pos, mb);
+        if (part != null && MultipartHelper.canAddPart(world, pos, part)) {
+            if (!world.isRemote) MultipartHelper.addPart(world, pos, part);
             consumeItem(stack);
 
             SoundType sound = getPlacementSound(stack);
