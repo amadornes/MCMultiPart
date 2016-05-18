@@ -193,7 +193,7 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
     }
 
     @Override
-    public void func_189540_a(IBlockState state, World worldIn, BlockPos pos, Block neighborBlock) {
+    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block neighborBlock) {
 
         TileMultipartContainer tile = getMultipartTile(worldIn, pos);
         if (tile == null) return;

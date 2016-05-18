@@ -294,7 +294,7 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     }
 
     @Override
-    public final void func_189540_a(IBlockState state, World world, BlockPos pos, Block neighborBlock) {
+    public final void neighborChanged(IBlockState state, World world, BlockPos pos, Block neighborBlock) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         if (tile != null) tile.getMicroblockContainer().getPartContainer().onNeighborBlockChange(neighborBlock);
@@ -303,7 +303,7 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
 
     public void onNeighborBlockChangeDefault(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
 
-        super.func_189540_a(state, world, pos, neighborBlock);
+        super.neighborChanged(state, world, pos, neighborBlock);
     }
 
     @Override

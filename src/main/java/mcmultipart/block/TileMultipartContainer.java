@@ -223,9 +223,9 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     }
 
     @Override
-    public NBTTagCompound func_189515_b(NBTTagCompound compound) {
+    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 
-        compound = super.func_189515_b(compound);
+        compound = super.writeToNBT(compound);
         container.writeToNBT(compound);
         return compound;
     }
@@ -238,7 +238,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     }
 
     @Override
-    public SPacketUpdateTileEntity func_189518_D_() {
+    public SPacketUpdateTileEntity getUpdatePacket() {
 
         NBTTagCompound tag = new NBTTagCompound();
         container.writeDescription(tag);
