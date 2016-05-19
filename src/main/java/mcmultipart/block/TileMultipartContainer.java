@@ -17,6 +17,8 @@ import mcmultipart.multipart.MultipartContainer;
 import mcmultipart.multipart.PartSlot;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
@@ -239,6 +241,18 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     public NBTTagCompound getUpdateTag() {
 
         return container.writeToNBT(super.getUpdateTag());
+    }
+
+    @Override
+    public SPacketUpdateTileEntity getUpdatePacket() {
+
+        return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), getUpdateTag());
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+
+        readFromNBT(pkt.getNbtCompound());
     }
 
     @Override

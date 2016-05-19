@@ -8,6 +8,8 @@ import mcmultipart.microblock.MicroblockContainer;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.PartSlot;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -118,6 +120,18 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
     public NBTTagCompound getUpdateTag() {
 
         return getMicroblockContainer().getPartContainer().writeToNBT(super.getUpdateTag());
+    }
+
+    @Override
+    public SPacketUpdateTileEntity getUpdatePacket() {
+
+        return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), getUpdateTag());
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+
+        readFromNBT(pkt.getNbtCompound());
     }
 
     @Override
