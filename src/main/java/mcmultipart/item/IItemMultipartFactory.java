@@ -8,9 +8,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-public interface IItemMultipartFactory
-{
-    
+public interface IItemMultipartFactory {
+
     public IMultipart createPart(World world, BlockPos pos, EnumFacing side, Vec3d hit, ItemStack stack, EntityPlayer player);
-    
+
 }

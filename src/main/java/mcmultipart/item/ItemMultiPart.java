@@ -15,86 +15,60 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 /**
- * {@link ItemMultiPart} is an {@link Item} that can handle multipart placement.
- * <br/>
- * Implement
- * {@link ItemMultiPart#place(World, BlockPos, EnumFacing, Vec3, ItemStack, EntityPlayer)}
- * and optionally override {@link ItemMultiPart#consumeItem(ItemStack)} and
- * {@link ItemMultiPart#getPlacementSound(ItemStack)} to place your part in the
- * world.
+ * {@link ItemMultiPart} is an {@link Item} that can handle multipart placement.<br/>
+ * Implement {@link ItemMultiPart#place(World, BlockPos, EnumFacing, Vec3, ItemStack, EntityPlayer)} and optionally override
+ * {@link ItemMultiPart#consumeItem(ItemStack)} and {@link ItemMultiPart#getPlacementSound(ItemStack)} to place your part in the world.
  */
-public abstract class ItemMultiPart extends Item implements IItemMultipartFactory
-{
-    
-    @Override
+public abstract class ItemMultiPart extends Item implements IItemMultipartFactory {
+
     public abstract IMultipart createPart(World world, BlockPos pos, EnumFacing side, Vec3d hit, ItemStack stack, EntityPlayer player);
-    
-    public boolean place(World world, BlockPos pos, EnumFacing side, Vec3d hit, ItemStack stack, EntityPlayer player)
-    {
-        
-        if (!player.canPlayerEdit(pos, side, stack))
-        {
-            return false;
-        }
-        
+
+    public boolean place(World world, BlockPos pos, EnumFacing side, Vec3d hit, ItemStack stack, EntityPlayer player) {
+
+        if (!player.canPlayerEdit(pos, side, stack)) return false;
+
         IMultipart mb = createPart(world, pos, side, hit, stack, player);
-        
-        if (MultipartHelper.canAddPart(world, pos, mb))
-        {
-            if (!world.isRemote)
-            {
-                MultipartHelper.addPart(world, pos, mb);
-            }
+
+        if (MultipartHelper.canAddPart(world, pos, mb)) {
+            if (!world.isRemote) MultipartHelper.addPart(world, pos, mb);
             consumeItem(stack);
-            
+
             SoundType sound = getPlacementSound(stack);
             if (sound != null)
-            {
                 world.playSound(player, pos, sound.getPlaceSound(), SoundCategory.BLOCKS, sound.getVolume(), sound.getPitch());
-            }
-            
+
             return true;
         }
-        
+
         return false;
     }
-    
-    protected void consumeItem(ItemStack stack)
-    {
-        
+
+    protected void consumeItem(ItemStack stack) {
+
         stack.stackSize--;
     }
-    
+
     @Override
     public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side,
-            float hitX, float hitY, float hitZ)
-    {
-        
+            float hitX, float hitY, float hitZ) {
+
         Vec3d hit = new Vec3d(hitX, hitY, hitZ);
         double depth = ((hit.xCoord * 2 - 1) * side.getFrontOffsetX() + (hit.yCoord * 2 - 1) * side.getFrontOffsetY()
                 + (hit.zCoord * 2 - 1) * side.getFrontOffsetZ());
-        if (depth < 1 && place(world, pos, side, hit, stack, player))
-        {
-            return EnumActionResult.SUCCESS;
-        }
-        if (place(world, pos.offset(side), side.getOpposite(), hit, stack, player))
-        {
-            return EnumActionResult.SUCCESS;
-        }
+        if (depth < 1 && place(world, pos, side, hit, stack, player)) return EnumActionResult.SUCCESS;
+        if (place(world, pos.offset(side), side.getOpposite(), hit, stack, player)) return EnumActionResult.SUCCESS;
         return EnumActionResult.PASS;
     }
-    
-    public SoundType getPlacementSound(ItemStack stack)
-    {
-        
+
+    public SoundType getPlacementSound(ItemStack stack) {
+
         return SoundType.GLASS;
     }
-    
+
     @Override
-    public boolean canItemEditBlocks()
-    {
-        
+    public boolean canItemEditBlocks() {
+
         return true;
     }
-    
+
 }

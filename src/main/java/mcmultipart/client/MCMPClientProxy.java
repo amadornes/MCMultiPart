@@ -18,40 +18,33 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class MCMPClientProxy extends MCMPCommonProxy
-{
-    
+public class MCMPClientProxy extends MCMPCommonProxy {
+
     @Override
-    public void preInit()
-    {
-        
+    public void preInit() {
+
         super.preInit();
-        
-        // Register the MCMultiPart state mapper to be able to load multipart
-        // json models
+
+        // Register the MCMultiPart state mapper to be able to load multipart json models
         ModelLoader.setCustomStateMapper(MCMultiPartMod.multipart, MultipartStateMapper.instance);
     }
-    
+
     @Override
-    public void init()
-    {
-        
+    public void init() {
+
         super.init();
-        
-        // Register tile entity renderers, for breaking animations and dynamic
-        // rendering
+
+        // Register tile entity renderers, for breaking animations and dynamic rendering
         ClientRegistry.bindTileEntitySpecialRenderer(TileMultipartContainer.class, new TileMultipartSpecialRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TileCoverable.class, new TileCoverableSpecialRenderer<TileCoverable>());
-        
-        // Sets up the proxy as an event handler so it can listen to model bake
-        // events
+
+        // Sets up the proxy as an event handler so it can listen to model bake events
         MinecraftForge.EVENT_BUS.register(this);
     }
-    
+
     @SubscribeEvent
-    public void onModelBake(ModelBakeEvent event)
-    {
-        
+    public void onModelBake(ModelBakeEvent event) {
+
         // Link the custom ISmartBlockModel to the multipart block
         event.getModelRegistry().putObject(
                 new ModelResourceLocation(Block.REGISTRY.getNameForObject(MCMultiPartMod.multipart), "ticking=false"),
@@ -60,12 +53,11 @@ public class MCMPClientProxy extends MCMPCommonProxy
                 new ModelResourceLocation(Block.REGISTRY.getNameForObject(MCMultiPartMod.multipart), "ticking=true"),
                 new ModelMultipartContainer(null, null));
     }
-    
+
     @Override
-    public EntityPlayer getPlayer()
-    {
-        
+    public EntityPlayer getPlayer() {
+
         return FMLClientHandler.instance().getClientPlayerEntity();
     }
-    
+
 }

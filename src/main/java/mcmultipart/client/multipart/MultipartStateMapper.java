@@ -13,52 +13,40 @@ import net.minecraft.client.renderer.block.statemap.DefaultStateMapper;
 import net.minecraft.client.renderer.block.statemap.IStateMapper;
 import net.minecraft.util.ResourceLocation;
 
-public class MultipartStateMapper extends DefaultStateMapper
-{
-    
+public class MultipartStateMapper extends DefaultStateMapper {
+
     public static MultipartStateMapper instance = new MultipartStateMapper();
-    
+
     private boolean replaceNormal = true;
-    
+
     @Override
-    public Map<IBlockState, ModelResourceLocation> putStateModelLocations(Block blockIn)
-    {
-        
+    public Map<IBlockState, ModelResourceLocation> putStateModelLocations(Block blockIn) {
+
         Map<IBlockState, ModelResourceLocation> mappings = new HashMap<IBlockState, ModelResourceLocation>();
         replaceNormal = false;
         mappings.put(blockIn.getDefaultState(), this.getModelResourceLocation(blockIn.getDefaultState()));
         replaceNormal = true;
-        
-        for (ResourceLocation part : MultipartRegistry.getRegisteredParts())
-        {
+
+        for (ResourceLocation part : MultipartRegistry.getRegisteredParts()) {
             IStateMapper mapper = MultipartRegistryClient.getSpecialPartStateMapper(part);
-            if (mapper != null)
-            {
+            if (mapper != null) {
                 mappings.putAll(mapper.putStateModelLocations(blockIn));
-            }
-            else
-            {
+            } else {
                 BlockStateContainer state = MultipartRegistry.getDefaultState(part);
                 ResourceLocation modelPath = MultipartRegistry.getStateLocation(state);
                 for (IBlockState istate : state.getValidStates())
-                {
                     mappings.put(istate, new ModelResourceLocation(modelPath, this.getPropertyString(istate.getProperties())));
-                }
             }
         }
         return mappings;
     }
-    
+
     @Override
-    public String getPropertyString(Map<IProperty<?>, Comparable<?>> p_178131_1_)
-    {
-        
+    public String getPropertyString(Map<IProperty<?>, Comparable<?>> p_178131_1_) {
+
         String str = super.getPropertyString(p_178131_1_);
-        if (replaceNormal && str.equals("normal"))
-        {
-            return "multipart";
-        }
+        if (replaceNormal && str.equals("normal")) return "multipart";
         return str;
     }
-    
+
 }

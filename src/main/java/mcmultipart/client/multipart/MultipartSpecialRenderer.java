@@ -8,9 +8,8 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public abstract class MultipartSpecialRenderer<T extends IMultipart>
-{
-    
+public abstract class MultipartSpecialRenderer<T extends IMultipart> {
+
     protected static final ResourceLocation[] DESTROY_STAGES = new ResourceLocation[] {
             new ResourceLocation("textures/blocks/destroy_stage_0.png"), new ResourceLocation("textures/blocks/destroy_stage_1.png"),
             new ResourceLocation("textures/blocks/destroy_stage_2.png"), new ResourceLocation("textures/blocks/destroy_stage_3.png"),
@@ -18,52 +17,42 @@ public abstract class MultipartSpecialRenderer<T extends IMultipart>
             new ResourceLocation("textures/blocks/destroy_stage_6.png"), new ResourceLocation("textures/blocks/destroy_stage_7.png"),
             new ResourceLocation("textures/blocks/destroy_stage_8.png"), new ResourceLocation("textures/blocks/destroy_stage_9.png") };
     protected TileEntityRendererDispatcher rendererDispatcher;
-    
+
     public abstract void renderMultipartAt(T part, double x, double y, double z, float partialTicks, int destroyStage);
-    
-    public void renderMultipartFast(T part, double x, double y, double z, float partialTicks, int destroyStage, VertexBuffer buffer)
-    {
-        
+
+    public void renderMultipartFast(T part, double x, double y, double z, float partialTicks, int destroyStage, VertexBuffer buffer) {
+
     }
-    
-    public boolean shouldRenderInPass(T part, int pass)
-    {
-        
+
+    public boolean shouldRenderInPass(T part, int pass) {
+
         return pass == 0;
     }
-    
-    public boolean canRenderBreaking(T part)
-    {
-        
+
+    public boolean canRenderBreaking(T part) {
+
         return false;
     }
-    
-    protected void bindTexture(ResourceLocation location)
-    {
-        
+
+    protected void bindTexture(ResourceLocation location) {
+
         TextureManager texturemanager = this.rendererDispatcher.renderEngine;
-        if (texturemanager != null)
-        {
-            texturemanager.bindTexture(location);
-        }
+        if (texturemanager != null) texturemanager.bindTexture(location);
     }
-    
-    protected World getWorld()
-    {
-        
+
+    protected World getWorld() {
+
         return this.rendererDispatcher.worldObj;
     }
-    
-    public void setRendererDispatcher(TileEntityRendererDispatcher rendererDispatcher)
-    {
-        
+
+    public void setRendererDispatcher(TileEntityRendererDispatcher rendererDispatcher) {
+
         this.rendererDispatcher = rendererDispatcher;
     }
-    
-    public FontRenderer getFontRenderer()
-    {
-        
+
+    public FontRenderer getFontRenderer() {
+
         return this.rendererDispatcher.getFontRenderer();
     }
-    
+
 }
