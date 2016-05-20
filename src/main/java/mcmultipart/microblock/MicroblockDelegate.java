@@ -69,8 +69,9 @@ public class MicroblockDelegate {
         return false;
     }
 
-    public void writeToNBT(NBTTagCompound tag) {
+    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
 
+        return tag;
     }
 
     public void readFromNBT(NBTTagCompound tag) {

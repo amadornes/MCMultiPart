@@ -4,10 +4,10 @@ import java.lang.ref.WeakReference;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.EffectRenderer;
-import net.minecraft.client.particle.EntityDiggingFX;
-import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.particle.IParticleFactory;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleDigging;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.Entity;
@@ -22,31 +22,31 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class AdvancedEffectRenderer extends EffectRenderer {
+public class AdvancedParticleManager extends ParticleManager {
 
-    private static AdvancedEffectRenderer instance;
+    private static AdvancedParticleManager instance;
 
-    public static AdvancedEffectRenderer getInstance(EffectRenderer effectRenderer) {
+    public static AdvancedParticleManager getInstance(ParticleManager particleManager) {
 
-        if (instance == null) return instance = new AdvancedEffectRenderer(Minecraft.getMinecraft().theWorld,
-                Minecraft.getMinecraft().renderEngine, effectRenderer);
+        if (instance == null) return instance = new AdvancedParticleManager(Minecraft.getMinecraft().theWorld,
+                Minecraft.getMinecraft().renderEngine, particleManager);
         instance.worldObj = Minecraft.getMinecraft().theWorld;
-        instance.parent = new WeakReference<EffectRenderer>(effectRenderer);
+        instance.parent = new WeakReference<ParticleManager>(particleManager);
         return instance;
     }
 
-    private WeakReference<EffectRenderer> parent;
+    private WeakReference<ParticleManager> parent;
 
-    private AdvancedEffectRenderer(World worldIn, TextureManager rendererIn, EffectRenderer parent) {
+    private AdvancedParticleManager(World worldIn, TextureManager rendererIn, ParticleManager parent) {
 
         super(worldIn, rendererIn);
-        this.parent = new WeakReference<EffectRenderer>(parent);
+        this.parent = new WeakReference<ParticleManager>(parent);
     }
 
     @Override
     public void addBlockDestroyEffects(BlockPos pos, IBlockState state) {
 
-        EffectRenderer p = parent.get();
+        ParticleManager p = parent.get();
         if (p != null) p.addBlockDestroyEffects(pos, state);
     }
 
@@ -69,7 +69,7 @@ public class AdvancedEffectRenderer extends EffectRenderer {
     @Override
     public void addBlockHitEffects(BlockPos pos, EnumFacing side) {
 
-        EffectRenderer p = parent.get();
+        ParticleManager p = parent.get();
         if (p != null) p.addBlockHitEffects(pos, side);
     }
 
@@ -97,7 +97,7 @@ public class AdvancedEffectRenderer extends EffectRenderer {
     @Override
     public void addBlockHitEffects(BlockPos pos, RayTraceResult target) {
 
-        EffectRenderer p = parent.get();
+        ParticleManager p = parent.get();
         if (p != null) p.addBlockHitEffects(pos, target);
     }
 
@@ -107,23 +107,23 @@ public class AdvancedEffectRenderer extends EffectRenderer {
     }
 
     @Override
-    public void addEffect(EntityFX effect) {
+    public void addEffect(Particle effect) {
 
-        EffectRenderer p = parent.get();
+        ParticleManager p = parent.get();
         if (p != null) p.addEffect(effect);
     }
 
     @Override
     public void clearEffects(World worldIn) {
 
-        EffectRenderer p = parent.get();
+        ParticleManager p = parent.get();
         if (p != null) p.clearEffects(worldIn);
     }
 
     @Override
     public void emitParticleAtEntity(Entity entityIn, EnumParticleTypes particleTypes) {
 
-        EffectRenderer p = parent.get();
+        ParticleManager p = parent.get();
         if (p != null) p.emitParticleAtEntity(entityIn, particleTypes);
     }
 
@@ -142,19 +142,19 @@ public class AdvancedEffectRenderer extends EffectRenderer {
     @Override
     public void renderLitParticles(Entity entityIn, float p_78872_2_) {
 
-        EffectRenderer p = parent.get();
+        ParticleManager p = parent.get();
         if (p != null) p.renderLitParticles(entityIn, p_78872_2_);
     }
 
     @Override
     public void renderParticles(Entity entityIn, float partialTicks) {
 
-        EffectRenderer p = parent.get();
+        ParticleManager p = parent.get();
         if (p != null) p.renderParticles(entityIn, partialTicks);
     }
 
     @Override
-    public EntityFX spawnEffectParticle(int particleId, double p_178927_2_, double p_178927_4_, double p_178927_6_, double p_178927_8_,
+    public Particle spawnEffectParticle(int particleId, double p_178927_2_, double p_178927_4_, double p_178927_6_, double p_178927_8_,
             double p_178927_10_, double p_178927_12_, int... p_178927_14_) {
 
         if (parent.get() != null) return parent.get().spawnEffectParticle(particleId, p_178927_2_, p_178927_4_, p_178927_6_, p_178927_8_,
@@ -165,11 +165,11 @@ public class AdvancedEffectRenderer extends EffectRenderer {
     @Override
     public void updateEffects() {
 
-        EffectRenderer p = parent.get();
+        ParticleManager p = parent.get();
         if (p != null) p.updateEffects();
     }
 
-    public static class AdvancedEntityDiggingFX extends EntityDiggingFX {
+    public static class AdvancedEntityDiggingFX extends ParticleDigging {
 
         protected AdvancedEntityDiggingFX(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn,
                 double ySpeedIn, double zSpeedIn, TextureAtlasSprite icon) {

@@ -223,10 +223,11 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound compound) {
+    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 
-        super.writeToNBT(compound);
+        compound = super.writeToNBT(compound);
         container.writeToNBT(compound);
+        return compound;
     }
 
     @Override
@@ -237,17 +238,21 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     }
 
     @Override
-    public SPacketUpdateTileEntity getDescriptionPacket() {
+    public NBTTagCompound getUpdateTag() {
 
-        NBTTagCompound tag = new NBTTagCompound();
-        container.writeDescription(tag);
-        return new SPacketUpdateTileEntity(getPosIn(), getBlockMetadata(), tag);
+        return container.writeToNBT(super.getUpdateTag());
+    }
+
+    @Override
+    public SPacketUpdateTileEntity getUpdatePacket() {
+
+        return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), getUpdateTag());
     }
 
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 
-        container.readDescription(pkt.getNbtCompound());
+        readFromNBT(pkt.getNbtCompound());
     }
 
     @Override

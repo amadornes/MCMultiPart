@@ -59,36 +59,6 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
     }
 
     @Override
-    public void onLoad() {
-
-        super.onLoad();
-        for (IMultipart part : getMicroblockContainer().getParts())
-            part.onLoaded();
-    }
-
-    @Override
-    public void onChunkUnload() {
-
-        super.onChunkUnload();
-        for (IMultipart part : getMicroblockContainer().getParts())
-            part.onUnloaded();
-    }
-
-    @Override
-    public void writeToNBT(NBTTagCompound compound) {
-
-        super.writeToNBT(compound);
-        getMicroblockContainer().getPartContainer().writeToNBT(compound);
-    }
-
-    @Override
-    public void readFromNBT(NBTTagCompound compound) {
-
-        super.readFromNBT(compound);
-        getMicroblockContainer().getPartContainer().readFromNBT(compound);
-    }
-
-    @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 
         if (super.hasCapability(capability, facing)) return true;
@@ -116,17 +86,52 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
     }
 
     @Override
-    public SPacketUpdateTileEntity getDescriptionPacket() {
+    public void onLoad() {
 
-        NBTTagCompound tag = new NBTTagCompound();
-        getMicroblockContainer().getPartContainer().writeDescription(tag);
-        return new SPacketUpdateTileEntity(getPosIn(), getBlockMetadata(), tag);
+        super.onLoad();
+        for (IMultipart part : getMicroblockContainer().getParts())
+            part.onLoaded();
+    }
+
+    @Override
+    public void onChunkUnload() {
+
+        super.onChunkUnload();
+        for (IMultipart part : getMicroblockContainer().getParts())
+            part.onUnloaded();
+    }
+
+    @Override
+    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+
+        compound = super.writeToNBT(compound);
+        getMicroblockContainer().getPartContainer().writeToNBT(compound);
+        return compound;
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound compound) {
+
+        super.readFromNBT(compound);
+        getMicroblockContainer().getPartContainer().readFromNBT(compound);
+    }
+
+    @Override
+    public NBTTagCompound getUpdateTag() {
+
+        return getMicroblockContainer().getPartContainer().writeToNBT(super.getUpdateTag());
+    }
+
+    @Override
+    public SPacketUpdateTileEntity getUpdatePacket() {
+
+        return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), getUpdateTag());
     }
 
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 
-        getMicroblockContainer().getPartContainer().readDescription(pkt.getNbtCompound());
+        readFromNBT(pkt.getNbtCompound());
     }
 
     @Override

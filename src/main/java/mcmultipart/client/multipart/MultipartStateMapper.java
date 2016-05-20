@@ -24,7 +24,7 @@ public class MultipartStateMapper extends DefaultStateMapper {
 
         Map<IBlockState, ModelResourceLocation> mappings = new HashMap<IBlockState, ModelResourceLocation>();
         replaceNormal = false;
-        mappings.put(blockIn.getDefaultState(), this.getModelResourceLocation(blockIn.getDefaultState()));
+        mappings.putAll(super.putStateModelLocations(blockIn));
         replaceNormal = true;
 
         for (ResourceLocation part : MultipartRegistry.getRegisteredParts()) {

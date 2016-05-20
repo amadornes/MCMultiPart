@@ -417,17 +417,18 @@ public class MultipartContainer implements IMultipartContainer {
             p.randomDisplayTick(rand);
     }
 
-    public void writeToNBT(NBTTagCompound tag) {
+    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
 
         NBTTagList partList = new NBTTagList();
         for (Entry<UUID, IMultipart> entry : partMap.entrySet()) {
             NBTTagCompound t = new NBTTagCompound();
             t.setString("__partID", entry.getKey().toString());
             t.setString("__partType", entry.getValue().getType().toString());
-            entry.getValue().writeToNBT(t);
+            t = entry.getValue().writeToNBT(t);
             partList.appendTag(t);
         }
         tag.setTag("partList", partList);
+        return tag;
     }
 
     public void readFromNBT(NBTTagCompound tag) {
@@ -444,7 +445,7 @@ public class MultipartContainer implements IMultipartContainer {
         }
     }
 
-    public void writeDescription(NBTTagCompound tag) {
+    public NBTTagCompound writeDescription(NBTTagCompound tag) {
 
         NBTTagList partList = new NBTTagList();
         for (Entry<UUID, IMultipart> entry : partMap.entrySet()) {
@@ -457,6 +458,7 @@ public class MultipartContainer implements IMultipartContainer {
             partList.appendTag(t);
         }
         tag.setTag("partList", partList);
+        return tag;
     }
 
     public void readDescription(NBTTagCompound tag) {

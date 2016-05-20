@@ -55,7 +55,7 @@ public class MultipartRegistry {
                 IMultipart multipart = factory.createPart(getResourceLocation(part), new NBTTagCompound());
                 BlockStateContainer state = multipart.createBlockState();
                 defaultStates.put(getResourceLocation(part), state);
-                stateLocations.put(state, getResourceLocation(part));
+                stateLocations.put(state, multipart.getModelPath());
             }
         } catch (Exception e) {
             e.printStackTrace();
