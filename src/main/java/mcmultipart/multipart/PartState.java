@@ -12,13 +12,14 @@ import scala.collection.mutable.StringBuilder;
  */
 public class PartState {
 
-    public final IBlockState state;
+    public final IBlockState state, extendedState;
     public final EnumSet<BlockRenderLayer> renderLayers;
     public final ResourceLocation modelPath;
 
-    public PartState(IBlockState state, EnumSet<BlockRenderLayer> renderLayers, ResourceLocation modelPath) {
+    public PartState(IBlockState state, IBlockState extendedState, EnumSet<BlockRenderLayer> renderLayers, ResourceLocation modelPath) {
 
         this.state = state;
+        this.extendedState = extendedState;
         this.renderLayers = renderLayers;
         this.modelPath = modelPath;
     }
@@ -32,9 +33,10 @@ public class PartState {
         for (BlockRenderLayer layer : BlockRenderLayer.values())
             if (part.canRenderInLayer(layer)) renderLayers.add(layer);
 
-        IBlockState state = part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState());
+        IBlockState state = part.getActualState(MultipartRegistry.getDefaultState(part).getBaseState());
+        IBlockState extendedState = part.getExtendedState(state);
 
-        return new PartState(state, renderLayers, path);
+        return new PartState(state, extendedState, renderLayers, path);
     }
 
     @Override
@@ -47,7 +49,7 @@ public class PartState {
     @Override
     public String toString() {
 
-        return new StringBuilder().append("(state=").append(state).append(", renderLayers=").append(renderLayers).append(", modelPath=")
-                .append(modelPath).append(")").toString();
+        return new StringBuilder().append("(state=").append(state).append(", extendedState=").append(extendedState)
+                .append(", renderLayers=").append(renderLayers).append(", modelPath=").append(modelPath).append(")").toString();
     }
 }

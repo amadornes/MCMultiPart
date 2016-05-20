@@ -65,7 +65,7 @@ public class ModelMultipartContainer implements IBakedModel {
                     MultipartStateMapper.instance.getPropertyString(partState.state.getProperties()));
             IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager()
                     .getModel(modelLocation);
-            if (model != null) quads.addAll(model.getQuads(partState.state, side, rand));
+            if (model != null) quads.addAll(model.getQuads(partState.extendedState, side, rand));
         }
 
         return quads;

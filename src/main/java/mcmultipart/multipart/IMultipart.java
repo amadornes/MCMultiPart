@@ -208,14 +208,19 @@ public interface IMultipart {
     public boolean canRenderInLayer(BlockRenderLayer layer);
 
     /**
-     * Gets the extended state of this part. <b>ONLY USED FOR RENDERING, THIS IS NOT WHERE YOU STORE DATA.</b>
-     */
-    public IBlockState getExtendedState(IBlockState state);
-
-    /**
      * Creates a {@link BlockState} for this part with the required properties.
      */
     public BlockStateContainer createBlockState();
+
+    /**
+     * Gets the actual state of this part. <b>ONLY USED FOR RENDERING, THIS IS NOT WHERE YOU STORE DATA.</b>
+     */
+    public IBlockState getActualState(IBlockState state);
+
+    /**
+     * Gets the extended state of this part. <b>ONLY USED FOR RENDERING, THIS IS NOT WHERE YOU STORE DATA.</b>
+     */
+    public IBlockState getExtendedState(IBlockState state);
 
     /**
      * Gets the bounding box used to render this part dynamically. By default, all multipart containers have a bounding box that goes from

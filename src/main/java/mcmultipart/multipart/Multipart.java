@@ -314,15 +314,21 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
     }
 
     @Override
-    public IBlockState getExtendedState(IBlockState state) {
+    public BlockStateContainer createBlockState() {
+
+        return new BlockStateContainer(MCMultiPartMod.multipart);
+    }
+
+    @Override
+    public IBlockState getActualState(IBlockState state) {
 
         return state;
     }
 
     @Override
-    public BlockStateContainer createBlockState() {
+    public IBlockState getExtendedState(IBlockState state) {
 
-        return new BlockStateContainer(MCMultiPartMod.multipart);
+        return state;
     }
 
     @SideOnly(Side.CLIENT)
