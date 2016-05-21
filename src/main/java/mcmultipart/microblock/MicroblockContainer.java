@@ -12,6 +12,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 
+/**
+ * Helper class that wraps a {@link MultipartContainer} so that only microblocks can be added to it and forwards all the other methods.
+ *
+ * @see IMicroblock
+ * @see IMultipartContainer
+ * @see MultipartContainer
+ */
 public class MicroblockContainer implements IMultipartContainer {
 
     private IMicroblockContainerTile microTile;

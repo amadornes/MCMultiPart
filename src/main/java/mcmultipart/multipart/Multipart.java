@@ -8,6 +8,7 @@ import java.util.Random;
 import mcmultipart.MCMultiPartMod;
 import mcmultipart.capabilities.PartAttachCapabilitiesEvent;
 import mcmultipart.client.multipart.AdvancedParticleManager;
+import mcmultipart.client.multipart.MultipartStateMapper;
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import mcmultipart.network.MessageMultipartChange;
 import mcmultipart.raytrace.PartMOP;
@@ -18,6 +19,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -48,6 +50,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * {@link IMultipart#getType()} is implemented by default and it returns the type with which this class was registered in
  * {@link MultipartRegistry}, though custom types can be used if your part is created by a custom {@link IPartFactory} or
  * {@link IAdvancedPartFactory}.
+ *
+ * @see IMultipart
  */
 public abstract class Multipart implements IMultipart, ICapabilitySerializable<NBTTagCompound> {
 
@@ -99,6 +103,12 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
     public ResourceLocation getModelPath() {
 
         return getType();
+    }
+
+    @Override
+    public ModelResourceLocation getModelPath(IBlockState state) {
+
+        return new ModelResourceLocation(getModelPath(), MultipartStateMapper.instance.getPropertyString(state.getProperties()));
     }
 
     @Override

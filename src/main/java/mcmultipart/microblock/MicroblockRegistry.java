@@ -22,15 +22,25 @@ import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IInteractionObject;
 
+/**
+ * The microblock registry. This is where you need to register your microblock materials as well as your micro classes. Also handles the
+ * registration of the default micro materials.
+ *
+ * @see IMicroblock
+ * @see IMicroMaterial
+ * @see BlockMicroMaterial
+ * @see MicroblockClass
+ */
 public class MicroblockRegistry {
 
-    private static final Map<String, IMicroMaterial> materials = new LinkedHashMap<String, IMicroMaterial>();
+    private static final Map<ResourceLocation, IMicroMaterial> materials = new LinkedHashMap<ResourceLocation, IMicroMaterial>();
     private static final Set<MicroblockClass> microClasses = new HashSet<MicroblockClass>();
 
     public static void registerMicroClass(MicroblockClass microClass) {
@@ -42,7 +52,7 @@ public class MicroblockRegistry {
     public static <T extends IMicroMaterial> T registerMaterial(T material) {
 
         if (material == null) throw new NullPointerException("Attempting to register a null micro material!");
-        String name = material.getName();
+        ResourceLocation name = material.getType();
         if (materials.containsKey(name))
             throw new IllegalArgumentException("Attempting to register a micro material with a name that's already in use!");
         materials.put(name, material);
@@ -82,7 +92,7 @@ public class MicroblockRegistry {
         return Collections.unmodifiableCollection(materials.values());
     }
 
-    public static IMicroMaterial getMaterial(String name) {
+    public static IMicroMaterial getMaterial(ResourceLocation name) {
 
         return materials.get(name);
     }

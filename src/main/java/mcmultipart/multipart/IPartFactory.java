@@ -5,7 +5,11 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
 /**
- * Implement this interface to create instances of your multiparts.
+ * Interface used to instantiate multiparts.
+ *
+ * @see IMultipart
+ * @see MultipartRegistry
+ * @see IAdvancedPartFactory
  */
 public interface IPartFactory {
 
@@ -15,8 +19,11 @@ public interface IPartFactory {
     public IMultipart createPart(ResourceLocation type, boolean client);
 
     /**
-     * Implement this interface to create instances of your parts depending on the part type and the data stored in NBT or received in an
-     * update packet.
+     * Interface used to instantiate parts depending on the part type and the data stored in NBT or received in an update packet.
+     *
+     * @see IMultipart
+     * @see MultipartRegistry
+     * @see IPartFactory
      */
     public interface IAdvancedPartFactory {
 

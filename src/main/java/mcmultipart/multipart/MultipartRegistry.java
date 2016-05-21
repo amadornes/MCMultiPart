@@ -19,8 +19,17 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Loader;
 
+/**
+ * The multipart registry. This is where you need to register your multiparts as well as your block->multipart and multipart->block
+ * converters.
+ *
+ * @see IMultipart
+ * @see IPartFactory
+ * @see IAdvancedPartFactory
+ * @see IPartConverter
+ * @see IReversePartConverter
+ */
 public class MultipartRegistry {
 
     private static Map<BlockStateContainer, ResourceLocation> stateLocations = new HashMap<BlockStateContainer, ResourceLocation>();
@@ -35,7 +44,7 @@ public class MultipartRegistry {
     /**
      * Links a set of parts to an {@link IPartFactory} that can produce them.
      */
-    public static void registerPartFactory(IPartFactory factory, String... parts) {
+    public static void registerPartFactory(IPartFactory factory, ResourceLocation... parts) {
 
         registerPartFactory(factory == null ? null : new AdvancedPartFactory(factory), parts);
     }
@@ -43,18 +52,18 @@ public class MultipartRegistry {
     /**
      * Links a set of parts to an {@link IAdvancedPartFactory} that can produce them.
      */
-    public static void registerPartFactory(IAdvancedPartFactory factory, String... parts) {
+    public static void registerPartFactory(IAdvancedPartFactory factory, ResourceLocation... parts) {
 
         if (factory == null) throw new IllegalArgumentException("Attempted to register a null multipart factory!");
         if (parts.length == 0) throw new IllegalArgumentException("Attempted to register a multipart factory without any provided parts!");
 
-        for (String part : parts)
-            partProviders.put(getResourceLocation(part), factory);
+        for (ResourceLocation part : parts)
+            partProviders.put(part, factory);
         try {
-            for (String part : parts) {
-                IMultipart multipart = factory.createPart(getResourceLocation(part), new NBTTagCompound());
+            for (ResourceLocation part : parts) {
+                IMultipart multipart = factory.createPart(part, new NBTTagCompound());
                 BlockStateContainer state = multipart.createBlockState();
-                defaultStates.put(getResourceLocation(part), state);
+                defaultStates.put(part, state);
                 stateLocations.put(state, multipart.getModelPath());
             }
         } catch (Exception e) {
@@ -66,7 +75,7 @@ public class MultipartRegistry {
     /**
      * Registers a part along with an identifier. A default part factory is automatically created.
      */
-    public static void registerPart(Class<? extends IMultipart> clazz, String identifier) {
+    public static void registerPart(Class<? extends IMultipart> clazz, ResourceLocation identifier) {
 
         if (clazz == null) throw new IllegalArgumentException("Attempted to register a null multipart class!");
         if (identifier == null) throw new IllegalArgumentException("Attempted to register a multipart with a null identifier!");
@@ -75,14 +84,8 @@ public class MultipartRegistry {
         if (partClasses.containsKey(identifier))
             throw new IllegalArgumentException("Attempted to register a multipart with an identifier that's already in use!");
 
-        partClasses.put(getResourceLocation(identifier), clazz);
+        partClasses.put(identifier, clazz);
         registerPartFactory(new SimplePartFactory(clazz), identifier);
-    }
-
-    private static ResourceLocation getResourceLocation(String identifier) {
-
-        if (identifier.contains(":")) return new ResourceLocation(identifier);
-        return new ResourceLocation(Loader.instance().activeModContainer().getModId(), identifier);
     }
 
     /**

@@ -3,8 +3,12 @@ package mcmultipart.multipart;
 import net.minecraft.util.EnumFacing;
 
 /**
- * Implement this interface in your {@link IMultipart} if you want one of its sides to be solid.<br/>
+ * Interface used to add solidity to the sides of an {@link IMultipart}.<br/>
  * For slotted parts, only the faces occupied by the part are checked. For non-slotted parts, all faces are checked.
+ *
+ * @see IMultipart
+ * @see Multipart
+ * @see ISolidTopPart
  */
 public interface ISolidPart extends IMultipart {
 
@@ -14,7 +18,11 @@ public interface ISolidPart extends IMultipart {
     public boolean isSideSolid(EnumFacing side);
 
     /**
-     * Implement this interface in your {@link IMultipart} if you want torches to be placed on top of it, even though the side isn't solid.
+     * Interface used to allow torches to be placed on top of an {@link IMultipart}. (The side doesn't have to be solid)
+     *
+     * @see IMultipart
+     * @see Multipart
+     * @see ISolidPart
      */
     public interface ISolidTopPart extends IMultipart {
 

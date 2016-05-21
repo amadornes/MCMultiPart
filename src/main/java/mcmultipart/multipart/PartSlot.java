@@ -1,5 +1,6 @@
 package mcmultipart.multipart;
 
+import mcmultipart.capabilities.ISlottedCapabilityProvider;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.IStringSerializable;
@@ -7,6 +8,12 @@ import net.minecraft.util.text.translation.I18n;
 
 /**
  * Enumeration of all the slots a multipart can occupy inside a block.
+ *
+ * @see IMultipart
+ * @see ISlottedPart
+ * @see ISlotOccludingPart
+ * @see ISlottedCapabilityProvider
+ * @see IMultipartContainer
  */
 public enum PartSlot implements IStringSerializable {
 

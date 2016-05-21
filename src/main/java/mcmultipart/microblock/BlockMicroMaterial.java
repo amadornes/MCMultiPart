@@ -12,6 +12,7 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -19,6 +20,9 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 /**
  * A simple implementation of {@link IMicroMaterial} that's defined based on an {@link IBlockState}.
+ *
+ * @see IMicroMaterial
+ * @see MicroblockRegistry
  */
 public class BlockMicroMaterial implements IMicroMaterial {
 
@@ -41,7 +45,7 @@ public class BlockMicroMaterial implements IMicroMaterial {
 
     private final IBlockState blockState;
     private final float hardness;
-    private final String name;
+    private final ResourceLocation type;
 
     public BlockMicroMaterial(IBlockState blockState) {
 
@@ -53,17 +57,17 @@ public class BlockMicroMaterial implements IMicroMaterial {
 
         this.blockState = blockState;
         this.hardness = hardness;
-        this.name = genName();
+        this.type = genType();
     }
 
     private BlockMicroMaterial(BlockMicroMaterial material) {
 
         this.blockState = material.blockState;
         this.hardness = material.hardness;
-        this.name = material.name;
+        this.type = material.type;
     }
 
-    private final String genName() {
+    private final ResourceLocation genType() {
 
         StringBuilder stringbuilder = new StringBuilder();
         stringbuilder.append(Block.REGISTRY.getNameForObject(blockState.getBlock()));
@@ -72,13 +76,13 @@ public class BlockMicroMaterial implements IMicroMaterial {
             COMMA_JOINER.appendTo(stringbuilder, Iterables.transform(blockState.getProperties().entrySet(), MAP_ENTRY_TO_STRING));
             stringbuilder.append("]");
         }
-        return stringbuilder.toString();
+        return new ResourceLocation(stringbuilder.toString());
     }
 
     @Override
-    public String getName() {
+    public ResourceLocation getType() {
 
-        return name;
+        return type;
     }
 
     @Override

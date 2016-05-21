@@ -7,7 +7,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 /**
- * Implement this interface to allow conversion of normal blocks into multiparts.
+ * Interface used to allow conversion of normal blocks into multiparts.
+ *
+ * @see IMultipart
+ * @see MultipartRegistry
  */
 public interface IPartConverter {
 

@@ -5,12 +5,31 @@ import mcmultipart.multipart.MultipartHelper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+/**
+ * Class that handles the placement of microblocks. Instances should be created in {@link MicroblockClass}.
+ *
+ * @see IMicroblock
+ * @see MicroblockClass
+ * @see MicroblockPlacementDefault
+ * @see MicroblockPlacementExpand
+ */
 public abstract class MicroblockPlacement {
 
+    /**
+     * Places the microblock at the specified position.
+     */
     public abstract boolean place(World world, BlockPos pos, boolean doPlace);
 
+    /**
+     * Gets the part that will be placed at the specified position.
+     */
     public abstract IMicroblock getPlacedPart(World world, BlockPos pos);
 
+    /**
+     * Class that handles normal microblock placement.
+     *
+     * @see MicroblockPlacement
+     */
     public static class MicroblockPlacementDefault extends MicroblockPlacement {
 
         private final IMicroblock microblock;
@@ -35,6 +54,11 @@ public abstract class MicroblockPlacement {
 
     }
 
+    /**
+     * Class that handles the expension of an already existing microblock.
+     *
+     * @see MicroblockPlacement
+     */
     public static class MicroblockPlacementExpand extends MicroblockPlacement {
 
         private final IMicroblock microblock, expanded;

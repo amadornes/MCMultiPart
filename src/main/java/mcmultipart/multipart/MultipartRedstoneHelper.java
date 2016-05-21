@@ -5,6 +5,11 @@ import net.minecraft.util.EnumFacing;
 
 /**
  * A general use multipart redstone helper, with getters for redstone signals and connection checking.
+ *
+ * @see IMultipart
+ * @see IRedstonePart
+ * @see ISlottedRedstonePart
+ * @see IMultipartContainer
  */
 public class MultipartRedstoneHelper {
 

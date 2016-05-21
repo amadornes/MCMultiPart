@@ -33,7 +33,7 @@ public class PropertyMicroMaterial implements IUnlistedProperty<IMicroMaterial> 
     @Override
     public String valueToString(IMicroMaterial value) {
 
-        return value.getName();
+        return value.getType().toString();
     }
 
 }

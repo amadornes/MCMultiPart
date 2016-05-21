@@ -6,6 +6,9 @@ import net.minecraft.util.math.AxisAlignedBB;
 
 /**
  * Interface that represents an {@link IMultipart} with {@link AxisAlignedBB} occlusion boxes.
+ *
+ * @see IMultipart
+ * @see Multipart
  */
 public interface INormallyOccludingPart extends IMultipart {
 

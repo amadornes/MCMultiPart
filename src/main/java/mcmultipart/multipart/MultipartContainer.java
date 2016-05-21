@@ -53,6 +53,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * each of the parts.<br/>
  * You can implement {@link IMultipartContainer} in your {@link TileEntity} and forward the calls to an instance of this class for default
  * multipart container logic.
+ *
+ * @see IMultipart
+ * @see IMultipartContainer
  */
 public class MultipartContainer implements IMultipartContainer {
 
@@ -563,6 +566,33 @@ public class MultipartContainer implements IMultipartContainer {
 
         for (IMultipart part : getParts())
             part.onEntityCollided(entity);
+    }
+
+    /**
+     * Interface used to listen to {@link IMultipartContainer} part addition and removal events.
+     */
+    public static interface IMultipartContainerListener {
+
+        /**
+         * Called before a part is added to the container.
+         */
+        public void onAddPartPre(IMultipart part);
+
+        /**
+         * Called after a part is added to the container.
+         */
+        public void onAddPartPost(IMultipart part);
+
+        /**
+         * Called before a part is removed from the container.
+         */
+        public void onRemovePartPre(IMultipart part);
+
+        /**
+         * Called after a part is removed from the container.
+         */
+        public void onRemovePartPost(IMultipart part);
+
     }
 
 }

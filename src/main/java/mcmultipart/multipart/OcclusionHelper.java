@@ -10,6 +10,11 @@ import net.minecraft.util.math.AxisAlignedBB;
 
 /**
  * A general use occlusion helper, with methods to check part-part occlusion, part-AABB occlusion, as well as slot occlusion.
+ *
+ * @see IMultipart
+ * @see Multipart
+ * @see INormallyOccludingPart
+ * @see NormallyOccludingPart
  */
 public class OcclusionHelper {
 
@@ -317,93 +322,12 @@ public class OcclusionHelper {
         return NOP.setBoxes(boxes);
     }
 
-    // DEPRECATED
-    // DEPRECATED
-    // DEPRECATED
-
-    /**
-     * <b>Deprecated. Use {@link OcclusionHelper#occlusionTest(IMultipart, Predicate, Iterable)} instead.</b>
-     */
-    @Deprecated
-    public static boolean occlusionTest(IMultipart part, Iterable<? extends IMultipart> parts, IMultipart... ignored) {
-
-        return occlusionTest(part, ignore(ignored), parts);
-    }
-
-    /**
-     * <b>Deprecated. Use {@link OcclusionHelper#occlusionTest(IMultipart, Predicate, Iterable)} instead.</b>
-     */
-    @Deprecated
-    public static boolean occlusionTest(IMultipart part, IMultipartContainer container, IMultipart... ignored) {
-
-        return occlusionTest(part, ignore(ignored), container);
-    }
-
-    /**
-     * <b>Deprecated. Use {@link OcclusionHelper#occlusionTest(IMultipart, Predicate, Iterable)} instead.</b>
-     */
-    @Deprecated
-    public static boolean occlusionTest(IMultipart part, Iterable<? extends IMultipart> parts, Predicate<IMultipart> ignored) {
-
-        return occlusionTest(part, ignored, parts);
-    }
-
-    /**
-     * <b>Deprecated. Use {@link OcclusionHelper#occlusionTest(IMultipart, IMultipart)} instead.</b>
-     */
-    @Deprecated
-    public static boolean occlusionTest(IMultipart part, AxisAlignedBB... boxes) {
-
-        return occlusionTest(boxes(boxes), part);
-    }
-
-    /**
-     * <b>Deprecated. Use {@link OcclusionHelper#occlusionTest(IMultipart, Iterable)} instead.</b>
-     */
-    @Deprecated
-    public static boolean occlusionTest(Iterable<? extends IMultipart> parts, AxisAlignedBB... boxes) {
-
-        return occlusionTest(boxes(boxes), parts);
-    }
-
-    /**
-     * <b>Deprecated. Use {@link OcclusionHelper#occlusionTest(IMultipart, Predicate, IMultipart...)} instead.</b>
-     */
-    @Deprecated
-    public static boolean occlusionTest(Iterable<? extends IMultipart> parts, Predicate<IMultipart> ignored, AxisAlignedBB... boxes) {
-
-        return occlusionTest(boxes(boxes), ignored, parts);
-    }
-
-    /**
-     * <b>Deprecated. Use {@link OcclusionHelper#slotOcclusionTest(PartSlot, Predicate, IMultipartContainer)} instead.</b>
-     */
-    @Deprecated
-    public static boolean isSlotOccluded(IMultipartContainer container, PartSlot slot, IMultipart... ignored) {
-
-        return !slotOcclusionTest(slot, ignore(ignored), container);
-    }
-
-    /**
-     * <b>Deprecated. Use {@link OcclusionHelper#slotOcclusionTest(PartSlot, Predicate, Iterable)} instead.</b>
-     */
-    @Deprecated
-    public static boolean isSlotOccluded(Iterable<? extends IMultipart> parts, PartSlot slot, IMultipart... ignored) {
-
-        return !slotOcclusionTest(slot, ignore(ignored), parts);
-    }
-
-    /**
-     * <b>Deprecated. Use {@link OcclusionHelper#slotOcclusionTest(PartSlot, Predicate, Iterable)} instead.</b>
-     */
-    @Deprecated
-    public static boolean isSlotOccluded(Iterable<? extends IMultipart> parts, PartSlot slot, Predicate<IMultipart> ignored) {
-
-        return !slotOcclusionTest(slot, ignored, parts);
-    }
-
     /**
      * An {@link INormallyOccludingPart} that occludes a certain set of {@link AxisAlignedBB}s.
+     *
+     * @see IMultipart
+     * @see Multipart
+     * @see IMultipartContainer
      */
     public static class NormallyOccludingPart extends Multipart implements INormallyOccludingPart {
 

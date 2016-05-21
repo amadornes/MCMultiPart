@@ -1,9 +1,16 @@
 package mcmultipart.microblock;
 
+import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.util.IWorldLocation;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.capabilities.Capability;
 
 /**
- * Interface implemented by TileEntities which want to act as microblock containers.
+ * Interface that represents a {@link TileEntity} which can contain microblocks (but not other multiparts). You can add this to your
+ * {@link TileEntity} using {@link Capability Capabilities}.
+ *
+ * @see IMicroblock
+ * @see IMultipartContainer
  */
 public interface IMicroblockContainerTile extends IWorldLocation {
 

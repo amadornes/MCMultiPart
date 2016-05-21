@@ -34,6 +34,12 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.common.property.Properties.PropertyAdapter;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 
+/**
+ * A default abstract implementation of {@link IMicroblock}.<br/>
+ * Includes everything required for basic microblock functionality, including {@link MicroblockDelegate} support.<br/>
+ *
+ * @see IMicroblock
+ */
 public abstract class Microblock extends Multipart implements IMicroblock, IRedstonePart, ISlottedRedstonePart {
 
     public static final IUnlistedProperty<?>[] PROPERTIES = new IUnlistedProperty[4];
@@ -105,7 +111,7 @@ public abstract class Microblock extends Multipart implements IMicroblock, IReds
     @Override
     public ResourceLocation getType() {
 
-        return getMicroClass().getFullQualifiedType();
+        return getMicroClass().getType();
     }
 
     @Override
@@ -176,7 +182,7 @@ public abstract class Microblock extends Multipart implements IMicroblock, IReds
 
         super.writeUpdatePacket(buf);
 
-        ByteBufUtils.writeUTF8String(buf, getMicroMaterial().getName());
+        ByteBufUtils.writeUTF8String(buf, getMicroMaterial().getType().toString());
         buf.writeInt(slot != null ? slot.ordinal() : -1);
         buf.writeInt(getSize());
         if (delegate != null) delegate.writeUpdatePacket(buf);
@@ -188,7 +194,7 @@ public abstract class Microblock extends Multipart implements IMicroblock, IReds
         super.readUpdatePacket(buf);
 
         IMicroMaterial oldMat = material;
-        material = MicroblockRegistry.getMaterial(ByteBufUtils.readUTF8String(buf));
+        material = MicroblockRegistry.getMaterial(new ResourceLocation(ByteBufUtils.readUTF8String(buf)));
         int iSlot = buf.readInt();
         slot = iSlot == -1 ? null : PartSlot.VALUES[iSlot];
         size = buf.readInt();
@@ -202,7 +208,7 @@ public abstract class Microblock extends Multipart implements IMicroblock, IReds
 
         tag = super.writeToNBT(tag);
 
-        tag.setString("material", getMicroMaterial().getName());
+        tag.setString("material", getMicroMaterial().getType().toString());
         tag.setInteger("slot", slot != null ? slot.ordinal() : -1);
         tag.setInteger("size", getSize());
         if (delegate != null) tag = delegate.writeToNBT(tag);
@@ -214,7 +220,7 @@ public abstract class Microblock extends Multipart implements IMicroblock, IReds
 
         super.readFromNBT(tag);
 
-        material = MicroblockRegistry.getMaterial(tag.getString("material"));
+        material = MicroblockRegistry.getMaterial(new ResourceLocation(tag.getString("material")));
         int iSlot = tag.getInteger("slot");
         slot = iSlot == -1 ? null : PartSlot.VALUES[iSlot];
         size = tag.getInteger("size");

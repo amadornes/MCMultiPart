@@ -3,8 +3,13 @@ package mcmultipart.multipart;
 import net.minecraft.util.EnumFacing;
 
 /**
- * Implement this interface to add redstone support to your {@link IMultipart}.<br/>
+ * Interface that adds redstone support to {@link IMultipart}.<br/>
  * If your part also implements {@link ISlottedPart}, you may want to implement {@link ISlottedRedstonePart} instead.
+ *
+ * @see IMultipart
+ * @see Multipart
+ * @see ISlottedPart
+ * @see ISlottedRedstonePart
  */
 public interface IRedstonePart extends IMultipart {
 
@@ -24,7 +29,12 @@ public interface IRedstonePart extends IMultipart {
     public int getStrongSignal(EnumFacing side);
 
     /**
-     * Implement this interface to add redstone support to your {@link ISlottedPart}.
+     * Interface used to add redstone support to {@link ISlottedPart}.
+     *
+     * @see IMultipart
+     * @see Multipart
+     * @see IRedstonePart
+     * @see ISlottedPart
      */
     public static interface ISlottedRedstonePart extends IRedstonePart, ISlottedPart {
 

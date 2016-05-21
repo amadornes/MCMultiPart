@@ -5,9 +5,16 @@ import java.util.UUID;
 
 import mcmultipart.capabilities.ISlottedCapabilityProvider;
 import mcmultipart.util.IWorldLocation;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.capabilities.Capability;
 
 /**
- * Interface that represents an object that can contain multiparts.
+ * Interface that represents an object that can contain multiparts. You can add this to your {@link TileEntity} using {@link Capability
+ * Capabilities}.<br/>
+ * For a default implementation of most of these methods and some helpers, you can use/extend {@link MultipartContainer} directly.
+ *
+ * @see IMultipart
+ * @see MultipartContainer
  */
 public interface IMultipartContainer extends IWorldLocation, ISlottedCapabilityProvider {
 
@@ -18,6 +25,8 @@ public interface IMultipartContainer extends IWorldLocation, ISlottedCapabilityP
 
     /**
      * Gets the part in the specificed {@link PartSlot}.
+     *
+     * @see PartSlot
      */
     public ISlottedPart getPartInSlot(PartSlot slot);
 
@@ -62,17 +71,5 @@ public interface IMultipartContainer extends IWorldLocation, ISlottedCapabilityP
      * container itself.
      */
     public boolean occlusionTest(IMultipart part, IMultipart... ignored);
-
-    public static interface IMultipartContainerListener {
-
-        public void onAddPartPre(IMultipart part);
-
-        public void onAddPartPost(IMultipart part);
-
-        public void onRemovePartPre(IMultipart part);
-
-        public void onRemovePartPost(IMultipart part);
-
-    }
 
 }

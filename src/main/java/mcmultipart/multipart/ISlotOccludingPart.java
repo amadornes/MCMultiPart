@@ -3,8 +3,11 @@ package mcmultipart.multipart;
 import java.util.EnumSet;
 
 /**
- * Implement this interface in your {@link IMultipart} if it occludes a slot it's not in.<br/>
+ * Interface that allows {@link IMultipart} to occlude a slot it doesn't occupy.<br/>
  * Used for occlusion testing in wires, pipes, and other connecting parts.
+ *
+ * @see IMultipart
+ * @see Multipart
  */
 public interface ISlotOccludingPart extends ISlottedPart {
 

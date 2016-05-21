@@ -221,7 +221,7 @@ public final class MultipartContainerSpecialRenderer {
                     } else {
                         IBlockState state = te.getWorldIn().getBlockState(te.getPosIn());
                         IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
-                                .getModelForState(te.getBlockType().getActualState(state, te.getWorldIn(), te.getPosIn()));
+                                .getModelForState(state.getActualState(te.getWorldIn(), te.getPosIn()));
                         if (model != null && model instanceof ModelMultipartContainer) model = ((ModelMultipartContainer) model).model;
                         if (model != null) {
                             model = (new SimpleBakedModel.Builder(state, model,

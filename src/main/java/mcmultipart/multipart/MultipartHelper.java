@@ -18,6 +18,10 @@ import net.minecraft.world.World;
 
 /**
  * A general use multipart helper with methods for part addition and placement checking.
+ *
+ * @see IMultipart
+ * @see Multipart
+ * @see IMultipartContainer
  */
 public class MultipartHelper {
 

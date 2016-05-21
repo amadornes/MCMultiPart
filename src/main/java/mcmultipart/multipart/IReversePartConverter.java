@@ -1,7 +1,10 @@
 package mcmultipart.multipart;
 
 /**
- * Implement this interface to allow reverse conversion of multiparts into blocks.
+ * Interface used to allow reverse conversion of multiparts into blocks.
+ *
+ * @see IMultipart
+ * @see MultipartRegistry
  */
 public interface IReversePartConverter {
 

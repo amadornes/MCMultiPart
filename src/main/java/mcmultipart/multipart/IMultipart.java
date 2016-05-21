@@ -4,13 +4,16 @@ import java.util.List;
 import java.util.Random;
 
 import mcmultipart.client.multipart.AdvancedParticleManager;
+import mcmultipart.client.multipart.MultipartStateMapper;
 import mcmultipart.multipart.IPartFactory.IAdvancedPartFactory;
 import mcmultipart.raytrace.PartMOP;
+import mcmultipart.raytrace.RayTraceUtils;
 import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResultPart;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -25,12 +28,15 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Interface that represents a multipart. This has all the methods required for a multipart to work properly.<br/>
- * For a simple, default implementation of most of these methods and some helpers, you can extend {@link Multipart} directly.
+ * For a default implementation of most of these methods and some helpers, you can extend {@link Multipart} directly.
+ *
+ * @see Multipart
  */
 public interface IMultipart {
 
@@ -46,11 +52,15 @@ public interface IMultipart {
 
     /**
      * Gets the {@link IMultipartContainer} that contains this part.
+     *
+     * @see IMultipartContainer
      */
     public IMultipartContainer getContainer();
 
     /**
      * Sets the {@link IMultipartContainer} that contains this part.
+     *
+     * @see IMultipartContainer
      */
     public void setContainer(IMultipartContainer container);
 
@@ -61,14 +71,29 @@ public interface IMultipart {
     public ResourceLocation getType();
 
     /**
-     * Gets the path to the model used by this part.
+     * Gets the path to the model used by this part. If the part requires a more advanced model loading system, you'll need to register your
+     * own {@link MultipartStateMapper}.
+     *
+     * @see ResourceLocation
+     * @see MultipartStateMapper
      */
     public ResourceLocation getModelPath();
+
+    /**
+     * Gets the path to the model used by this part depending on the blockstate. <b>For models whose paths don't match the registry ID, you
+     * must override {@link IMultipart#getModelPath()} as well so it gets loaded.</b>
+     *
+     * @see ResourceLocation
+     * @see ModelResourceLocation
+     * @see IMultipart#getModelPath()
+     */
+    public ModelResourceLocation getModelPath(IBlockState state);
 
     /**
      * Ray traces through the part's collision from start vector to end vector returning a ray trace hit.
      *
      * @return The closest hit to the start vector, if any.
+     * @see RayTraceUtils
      */
     public AdvancedRayTraceResultPart collisionRayTrace(Vec3d start, Vec3d end);
 
@@ -87,6 +112,8 @@ public interface IMultipart {
     /**
      * Performs an occlusion test against the specified part. Returning true means that they aren't occluding each other, returning false
      * means otherwise.
+     *
+     * @see OcclusionHelper
      */
     public boolean occlusionTest(IMultipart part);
 
@@ -102,11 +129,15 @@ public interface IMultipart {
 
     /**
      * Gets the items dropped by this part when broken.
+     *
+     * @see IMultipart#harvest(EntityPlayer, PartMOP)
      */
     public List<ItemStack> getDrops();
 
     /**
      * Harvests this part, removing it from the container it's in.
+     *
+     * @see IMultipart#getDrops()
      */
     public void harvest(EntityPlayer player, PartMOP hit);
 
@@ -209,16 +240,27 @@ public interface IMultipart {
 
     /**
      * Creates a {@link BlockState} for this part with the required properties.
+     *
+     * @see BlockStateContainer
+     * @see ExtendedBlockState
+     * @see IMultipart#getActualState(IBlockState)
+     * @see IMultipart#getExtendedState(IBlockState)
      */
     public BlockStateContainer createBlockState();
 
     /**
      * Gets the actual state of this part. <b>ONLY USED FOR RENDERING, THIS IS NOT WHERE YOU STORE DATA.</b>
+     *
+     * @see IMultipart#createBlockState()
+     * @see IMultipart#getExtendedState(IBlockState)
      */
     public IBlockState getActualState(IBlockState state);
 
     /**
      * Gets the extended state of this part. <b>ONLY USED FOR RENDERING, THIS IS NOT WHERE YOU STORE DATA.</b>
+     *
+     * @see IMultipart#createBlockState()
+     * @see IMultipart#getActualState(IBlockState)
      */
     public IBlockState getExtendedState(IBlockState state);
 
@@ -229,21 +271,50 @@ public interface IMultipart {
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox();
 
+    /**
+     * Called randomly every few client ticks to do things like spawning particles.
+     */
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(Random rand);
 
+    /**
+     * Adds the particle effects in the event of this part being broken.
+     */
     @SideOnly(Side.CLIENT)
     public boolean addDestroyEffects(AdvancedParticleManager particleManager);
 
+    /**
+     * Adds the particle effects while this part is hit.
+     */
     @SideOnly(Side.CLIENT)
     public boolean addHitEffects(PartMOP hit, AdvancedParticleManager particleManager);
 
+    /**
+     * Called when an entity is standing on this block.
+     *
+     * @see IMultipart#onEntityCollided(Entity)
+     */
     public void onEntityStanding(Entity entity);
 
+    /**
+     * Called when an entity is standing in this block.
+     *
+     * @see IMultipart#onEntityStanding(Entity)
+     */
     public void onEntityCollided(Entity entity);
 
+    /**
+     * Checks if the specified bounding box contains the material.
+     *
+     * @see IMultipart#isEntityInsideMaterial(Entity, double, Material, boolean)
+     */
     public Boolean isAABBInsideMaterial(AxisAlignedBB aabb, Material material);
 
+    /**
+     * Checks if an entity is inside the specified material.
+     *
+     * @see IMultipart#isAABBInsideMaterial(AxisAlignedBB, Material)
+     */
     public Boolean isEntityInsideMaterial(Entity entity, double yToTest, Material material, boolean testingHead);
 
 }
