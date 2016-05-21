@@ -11,6 +11,11 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.IStateMapper;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * The clientside multipart registry. Allows you to bind a {@link MultipartSpecialRenderer} to a part.
+ *
+ * @see MultipartSpecialRenderer
+ */
 public class MultipartRegistryClient {
 
     private static Map<ResourceLocation, IStateMapper> specialMappers = new HashMap<ResourceLocation, IStateMapper>();
@@ -33,6 +38,11 @@ public class MultipartRegistryClient {
         });
     }
 
+    /**
+     * Binds a {@link MultipartSpecialRenderer} to the specified part.
+     *
+     * @see MultipartSpecialRenderer
+     */
     public static <T extends IMultipart> void bindMultipartSpecialRenderer(Class<? extends T> clazz, MultipartSpecialRenderer<T> renderer) {
 
         specialRenderers.put(clazz, renderer);

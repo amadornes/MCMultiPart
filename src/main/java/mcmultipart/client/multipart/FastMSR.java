@@ -10,7 +10,11 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraftforge.client.model.animation.FastTESR;
 
+/**
+ * Multipart equivalent of {@link FastTESR}.
+ */
 public abstract class FastMSR<T extends IMultipart> extends MultipartSpecialRenderer<T> {
 
     @Override

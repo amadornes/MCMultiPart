@@ -5,6 +5,9 @@ import java.util.Map;
 
 import mcmultipart.microblock.IMicroMaterial;
 
+/**
+ * The clientside microblock registry. Allows you to register a custom {@link IMicroModelProvider} for a multipart.
+ */
 public class MicroblockRegistryClient {
 
     private static final Map<IMicroMaterial, IMicroModelProvider> materialModelProviders = new HashMap<IMicroMaterial, IMicroModelProvider>();
