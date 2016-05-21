@@ -1,8 +1,11 @@
 package mcmultipart.client.multipart;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.base.Predicate;
 
@@ -54,7 +57,8 @@ public class ModelMultipartContainer implements IBakedModel {
             return Collections.emptyList();
         }
 
-        List<BakedQuad> quads = new ArrayList<BakedQuad>();
+        List<BakedQuad> quads = new LinkedList<BakedQuad>();
+        List<Pair<PartState, IBakedModel>> models = new LinkedList<Pair<PartState, IBakedModel>>();
 
         if (model != null && layerFilter.apply(layer)) quads.addAll(model.getQuads(state, side, rand));
 
@@ -65,8 +69,13 @@ public class ModelMultipartContainer implements IBakedModel {
                     MultipartStateMapper.instance.getPropertyString(partState.state.getProperties()));
             IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager()
                     .getModel(modelLocation);
-            if (model != null) quads.addAll(model.getQuads(partState.extendedState, side, rand));
+            if (model != null) models.add(Pair.of(partState, model));
         }
+
+        Collections.sort(models, new WeightComparator(side, rand));
+
+        for (Pair<PartState, IBakedModel> p : models)
+            quads.addAll(p.getValue().getQuads(p.getKey().extendedState, side, rand));
 
         return quads;
     }
@@ -130,6 +139,28 @@ public class ModelMultipartContainer implements IBakedModel {
                 return ((BlockCoverable) state.getBlock()).canRenderInLayerDefault(state, layer);
             }
         });
+    }
+
+    private final class WeightComparator implements Comparator<Pair<PartState, IBakedModel>> {
+
+        private final EnumFacing side;
+        private final long rand;
+
+        public WeightComparator(EnumFacing side, long rand) {
+
+            this.side = side;
+            this.rand = rand;
+        }
+
+        @Override
+        public int compare(Pair<PartState, IBakedModel> a, Pair<PartState, IBakedModel> b) {
+
+            int wa = a.getValue() instanceof IWeightedBakedModel
+                    ? ((IWeightedBakedModel) a.getValue()).getWeight(a.getKey().extendedState, side, rand) : 0;
+            int wb = b.getValue() instanceof IWeightedBakedModel
+                    ? ((IWeightedBakedModel) b.getValue()).getWeight(b.getKey().extendedState, side, rand) : 0;
+            return Integer.compare(wb, wa);
+        }
     }
 
 }
