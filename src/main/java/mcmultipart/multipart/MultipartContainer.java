@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,7 +13,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableBiMap;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -63,21 +64,23 @@ public class MultipartContainer implements IMultipartContainer {
     private IMultipartContainerListener listener;
 
     private boolean canTurnIntoBlock;
-    private BiMap<UUID, IMultipart> partMap = HashBiMap.create();
-    private Map<PartSlot, ISlottedPart> slotMap = new HashMap<PartSlot, ISlottedPart>();
+    private BiMap<UUID, IMultipart> partMap;
+    private Map<PartSlot, ISlottedPart> slotMap;
 
     public MultipartContainer(IWorldLocation location, boolean canTurnIntoBlock) {
 
         this.location = location;
         this.canTurnIntoBlock = canTurnIntoBlock;
+        this.partMap = ImmutableBiMap.of();
+        this.slotMap = new HashMap<PartSlot, ISlottedPart>();
     }
 
     public MultipartContainer(IWorldLocation location, boolean canTurnIntoBlock, MultipartContainer container) {
 
         this.location = location;
         this.canTurnIntoBlock = canTurnIntoBlock;
-        this.partMap = HashBiMap.create(container.partMap);
-        this.slotMap = new HashMap<PartSlot, ISlottedPart>(container.slotMap);
+        this.partMap = container.partMap;
+        this.slotMap = container.slotMap;
         for (IMultipart part : partMap.values())
             part.setContainer(this);
     }
@@ -176,7 +179,7 @@ public class MultipartContainer implements IMultipartContainer {
 
         part.setContainer(this);
 
-        BiMap<UUID, IMultipart> partMap = HashBiMap.create(this.partMap);
+        Map<UUID, IMultipart> partMap = new LinkedHashMap<UUID, IMultipart>(this.partMap);
         Map<PartSlot, ISlottedPart> slotMap = new HashMap<PartSlot, ISlottedPart>(this.slotMap);
 
         partMap.put(id, part);
@@ -185,7 +188,7 @@ public class MultipartContainer implements IMultipartContainer {
                 slotMap.put(s, (ISlottedPart) part);
         }
 
-        this.partMap = partMap;
+        this.partMap = ImmutableBiMap.copyOf(partMap);
         this.slotMap = slotMap;
 
         if (postEvent) MinecraftForge.EVENT_BUS.post(new PartEvent.Add(part));
@@ -214,12 +217,13 @@ public class MultipartContainer implements IMultipartContainer {
         if (!getParts().contains(part))
             throw new IllegalArgumentException("Attempted to remove a part that doesn't exist from " + getPosIn() + " (" + part + ")");
 
-        BiMap<UUID, IMultipart> partMap = HashBiMap.create(this.partMap), oldPartMap = this.partMap;
+        Map<IMultipart, UUID> partMap = new LinkedHashMap<IMultipart, UUID>(this.partMap.inverse());
+        BiMap<UUID, IMultipart> oldPartMap = this.partMap;
         Map<PartSlot, ISlottedPart> slotMap = new HashMap<PartSlot, ISlottedPart>(this.slotMap), oldSlotMap = this.slotMap;
 
         if (listener != null) listener.onRemovePartPre(part);
 
-        partMap.inverse().remove(part);
+        partMap.remove(part);
         if (part instanceof ISlottedPart) {
             Iterator<Entry<PartSlot, ISlottedPart>> it = slotMap.entrySet().iterator();
             while (it.hasNext()) {
@@ -227,7 +231,7 @@ public class MultipartContainer implements IMultipartContainer {
             }
         }
 
-        this.partMap = partMap;
+        BiMap<UUID, IMultipart> iPartMap = this.partMap = ImmutableBiMap.copyOf(partMap).inverse();
         this.slotMap = slotMap;
 
         if (postEvent) MinecraftForge.EVENT_BUS.post(new PartEvent.Remove(part));
@@ -237,7 +241,7 @@ public class MultipartContainer implements IMultipartContainer {
             this.partMap = oldPartMap;
             this.slotMap = oldSlotMap;
             MessageMultipartChange.newPacket(getWorldIn(), getPosIn(), part, Type.REMOVE).send(getWorldIn());
-            this.partMap = partMap;
+            this.partMap = iPartMap;
             this.slotMap = slotMap;
         }
 
