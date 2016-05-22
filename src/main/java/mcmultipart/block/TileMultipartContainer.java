@@ -131,7 +131,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     @Override
     public void onAddPartPre(IMultipart part) {
 
-        if (part instanceof ITickable && !(this instanceof ITickable)) {
+        if (getWorld() != null && part instanceof ITickable && !(this instanceof ITickable)) {
             getWorld().setBlockState(getPos(),
                     MCMultiPartMod.multipart.getDefaultState().withProperty(BlockMultipartContainer.PROPERTY_TICKING, true));
             TileEntity te = getWorld().getTileEntity(getPos());
@@ -152,7 +152,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     @Override
     public void onRemovePartPre(IMultipart part) {
 
-        if (part instanceof ITickable && getParts().size() > 1) {
+        if (getWorld() != null && part instanceof ITickable && getParts().size() > 1) {
             boolean shouldTick = false;
             for (IMultipart p : getParts()) {
                 if (p != part && p instanceof ITickable) {
