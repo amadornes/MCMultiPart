@@ -136,6 +136,14 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
         return null;
     }
 
+    @Override
+    public boolean isReplaceable(IBlockAccess world, BlockPos pos) {
+
+        TileMultipartContainer te = getMultipartTile(world, pos);
+        if (te == null || te.getParts().isEmpty()) return true;
+        return super.isReplaceable(world, pos);
+    }
+
     private TileMultipartContainer brokenTile = null;
 
     @Override

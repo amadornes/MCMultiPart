@@ -440,7 +440,7 @@ public class MultipartContainer implements IMultipartContainer {
 
     public void readFromNBT(NBTTagCompound tag) {
 
-        partMap.clear();
+        partMap = ImmutableBiMap.of();
         slotMap.clear();
 
         NBTTagList partList = tag.getTagList("partList", new NBTTagCompound().getId());
