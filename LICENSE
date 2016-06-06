@@ -1,6 +1,6 @@
 The MIT License (MIT)
 
-Copyright (c) 2015 amadornes
+Copyright (c) 2015-2016 amadornes
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,3 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+-------------------------------------------------------------------------------------
+
+This mod is allowed in modpacks, but experimental builds are NOT supported. You can
+add them at your own risk but if something breaks at any point, I don't want my repo
+overflowing with bug reports - it's your fault for using non-recommented builds and
+you must take care of it.
