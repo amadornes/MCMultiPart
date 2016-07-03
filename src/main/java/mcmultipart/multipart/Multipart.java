@@ -196,16 +196,17 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
         if (hardness < 0.0F) return 0.0F;
         else if (hardness == 0.0F) return 1.0F;
 
-        Material mat = getMaterial();
-        ItemStack stack = player.getHeldItemMainhand();
-        boolean effective = mat == null || mat.isToolNotRequired();
-        if (!effective && stack != null) for (String tool : stack.getItem().getToolClasses(stack))
-            if (effective = isToolEffective(tool, stack.getItem().getHarvestLevel(stack, tool))) break;
+        // Material mat = getMaterial();
+        // ItemStack stack = player.getHeldItemMainhand();
+        // boolean effective = mat == null || mat.isToolNotRequired();
+        // if (!effective && stack != null) for (String tool : stack.getItem().getToolClasses(stack))
+        // if (effective = isToolEffective(tool, stack.getItem().getHarvestLevel(stack, tool))) break;
 
-        float breakSpeed = player.getDigSpeed(getExtendedState(MultipartRegistry.getDefaultState(this).getBaseState()), getPos());
+        float breakSpeed = 1;// player.getDigSpeed(getExtendedState(MultipartRegistry.getDefaultState(this).getBaseState()), getPos());
 
-        if (!effective) return breakSpeed / hardness / 100F;
-        else return breakSpeed / hardness / 30F;
+        // if (!effective) return breakSpeed / hardness / 100F;
+        // else
+        return breakSpeed / hardness / 30F;
     }
 
     @Override

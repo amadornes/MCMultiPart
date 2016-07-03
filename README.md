@@ -1,5 +1,5 @@
 # MCMultiPart
-A universal multipart API for Minecraft 1.8.9.
+A universal multipart API for Minecraft 1.8, 1.9 and 1.10.
 
 Suggestions are welcome, but bear in mind this is not the mod that will be adding microblocks, just the library that they will be built on top of.
 
