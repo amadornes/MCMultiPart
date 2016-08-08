@@ -30,7 +30,7 @@ public class MCMPEventHandler {
                     ev.getRight().add("");
                     ev.getRight().add(mop.partHit.getType().toString());
 
-                    IBlockState state = mop.partHit.getExtendedState(MultipartRegistry.getDefaultState(mop.partHit).getBaseState());
+                    IBlockState state = mop.partHit.getActualState(MultipartRegistry.getDefaultState(mop.partHit).getBaseState());
                     for (Entry<IProperty<?>, Comparable<?>> entry : state.getProperties().entrySet()) {
                         String s = entry.getValue().toString();
 
