@@ -396,6 +396,7 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
         if (side == null) return false;
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
+        if (container == null) return false;
         if (container.getPartContainer().canConnectRedstone(side)) return true;
         return canConnectRedstoneDefault(state, world, pos, side, container);
     }
