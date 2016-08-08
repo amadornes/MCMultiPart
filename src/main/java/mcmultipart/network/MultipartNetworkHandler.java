@@ -24,6 +24,9 @@ public class MultipartNetworkHandler {
 
     public static void sendToAllWatching(IMessage message, World world, BlockPos pos) {
 
+        if (!(world instanceof WorldServer))
+            return;
+
         PlayerChunkMap manager = ((WorldServer) world).getPlayerChunkMap();
         for (EntityPlayer player : world.playerEntities)
             if (manager.isPlayerWatchingChunk((EntityPlayerMP) player, pos.getX() >> 4, pos.getZ() >> 4))
