@@ -160,4 +160,13 @@ public class MultipartHelper {
         }
     }
 
+	public static IMultipart getPartFromHash(int hashCode, IMultipartContainer container) {
+		for (IMultipart part : container.getParts()) {
+			if (part != null && container.getPartID(part).hashCode() == hashCode) {
+				return part;
+			}
+		}
+		return null;
+	}
+
 }

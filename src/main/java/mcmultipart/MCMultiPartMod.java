@@ -9,10 +9,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 @Mod(modid = MCMultiPartMod.MODID, name = MCMultiPartMod.NAME, version = MCMultiPartMod.VERSION, acceptedMinecraftVersions = "[1.9,1.9.4]")
@@ -23,6 +25,9 @@ public class MCMultiPartMod {
     @SidedProxy(serverSide = MODID + ".MCMPCommonProxy", clientSide = MODID + ".client.MCMPClientProxy")
     public static MCMPCommonProxy proxy;
 
+	@Instance(MCMultiPartMod.MODID)
+	public static MCMultiPartMod instance;
+	
     public static BlockMultipartContainer multipart;
 
     @EventHandler
@@ -47,6 +52,8 @@ public class MCMultiPartMod {
         MultipartNetworkHandler.init();
 
         proxy.init();
+        
+    	NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
     }
 
     @EventHandler
