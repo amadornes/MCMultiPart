@@ -121,7 +121,9 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
 
     public AxisAlignedBB getSelectedBoundingBoxDefault(IBlockState state, World worldIn, BlockPos pos) {
 
-        return super.getSelectedBoundingBox(state, worldIn, pos);
+        // This code is copied over from Block#getSelectedBoundingBox.
+        // We can't call the superclass because said method is client-side only.
+        return state.getBoundingBox(worldIn, pos).offset(pos);
     }
 
     @Override
