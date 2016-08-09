@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
+import javax.annotation.Nullable;
 
 import mcmultipart.MCMultiPartMod;
 import mcmultipart.capabilities.PartAttachCapabilitiesEvent;
@@ -379,6 +381,21 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
     @Override
     public void onEntityStanding(Entity entity) {
 
+    }
+    
+    @Nullable
+    public UUID getMultipartUUID(){
+    	
+    	IMultipartContainer container = getContainer();
+    	return container==null ? null : container.getPartID(this);
+    }
+    
+    protected void openMultipartGui(EntityPlayer player){
+    	
+    	UUID uuid = getMultipartUUID();
+    	if(uuid!=null){
+        	player.openGui(MCMultiPartMod.instance, uuid.hashCode(), getWorld(), getPos().getX(), getPos().getY(), getPos().getZ());
+    	}
     }
 
     protected void markRenderUpdate() {
