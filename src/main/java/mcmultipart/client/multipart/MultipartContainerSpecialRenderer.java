@@ -5,6 +5,7 @@ import org.lwjgl.opengl.GL11;
 import mcmultipart.block.TileCoverable;
 import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.multipart.IMultipart;
+import mcmultipart.multipart.IMultipart2;
 import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.raytrace.PartMOP;
@@ -127,6 +128,7 @@ public final class MultipartContainerSpecialRenderer {
         Tessellator.getInstance().getBuffer().noColor();
     }
 
+    @SuppressWarnings("deprecation")
     private static void renderBreaking(IMultipart part, IVertexConsumer consumer, double x, double y, double z, float partialTicks,
             int destroyStage, TileEntityRendererDispatcher rendererDispatcher) {
 
@@ -137,7 +139,11 @@ public final class MultipartContainerSpecialRenderer {
         } else {
             if (MinecraftForgeClient.getRenderPass() == 1) {
                 ResourceLocation path = part.getModelPath();
-                IBlockState state = part.getExtendedState(MultipartRegistry.getDefaultState(part).getBaseState());
+                IBlockState state = part.getActualState(MultipartRegistry.getDefaultState(part).getBaseState());
+                if (part instanceof IMultipart2 && ((IMultipart2) part).shouldBreakingUseExtendedState()) {
+                    state = part instanceof IMultipart2 ? ((IMultipart2) part).getExtendedState(state, part.getWorld(), part.getPos())
+                            : part.getExtendedState(state);
+                }
                 IBakedModel model = path == null ? null
                         : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getModel(
                                 new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
@@ -205,11 +211,13 @@ public final class MultipartContainerSpecialRenderer {
 
     public static class TileCoverableSpecialRenderer<T extends TileCoverable> extends TileEntitySpecialRenderer<T> {
 
+        @SuppressWarnings("deprecation")
         @Override
         public void renderTileEntityAt(T te, double x, double y, double z, float partialTicks, int destroyStage) {
 
             if (destroyStage >= 0) {
-                if (MinecraftForgeClient.getRenderPass() != 1) return;
+                if (MinecraftForgeClient.getRenderPass() != 1)
+                    return;
 
                 RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
                 if (mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK && mop.getBlockPos() != null
@@ -222,7 +230,8 @@ public final class MultipartContainerSpecialRenderer {
                         IBlockState state = te.getWorldIn().getBlockState(te.getPosIn());
                         IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes()
                                 .getModelForState(te.getBlockType().getActualState(state, te.getWorldIn(), te.getPosIn()));
-                        if (model != null && model instanceof ModelMultipartContainer) model = ((ModelMultipartContainer) model).model;
+                        if (model != null && model instanceof ModelMultipartContainer)
+                            model = ((ModelMultipartContainer) model).model;
                         if (model != null) {
                             model = (new SimpleBakedModel.Builder(state, model,
                                     Minecraft.getMinecraft().getTextureMapBlocks()
@@ -239,7 +248,8 @@ public final class MultipartContainerSpecialRenderer {
                 }
             }
 
-            if (renderMultipartContainerAt(te.getMicroblockContainer(), x, y, z, partialTicks, destroyStage, rendererDispatcher)) return;
+            if (renderMultipartContainerAt(te.getMicroblockContainer(), x, y, z, partialTicks, destroyStage, rendererDispatcher))
+                return;
             renderTileEntityAtDefault(te, x, y, z, partialTicks, destroyStage);
         }
 

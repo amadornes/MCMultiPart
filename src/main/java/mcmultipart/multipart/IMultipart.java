@@ -24,6 +24,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -219,7 +220,10 @@ public interface IMultipart {
 
     /**
      * Gets the extended state of this part. <b>ONLY USED FOR RENDERING, THIS IS NOT WHERE YOU STORE DATA.</b>
+     *
+     * @deprecated You should now use {@link IMultipart2#getExtendedState(IBlockState, IBlockAccess, BlockPos)}
      */
+    @Deprecated
     public IBlockState getExtendedState(IBlockState state);
 
     /**

@@ -32,6 +32,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -49,7 +50,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * {@link MultipartRegistry}, though custom types can be used if your part is created by a custom {@link IPartFactory} or
  * {@link IAdvancedPartFactory}.
  */
-public abstract class Multipart implements IMultipart, ICapabilitySerializable<NBTTagCompound> {
+public abstract class Multipart implements IMultipart, IMultipart2, ICapabilitySerializable<NBTTagCompound> {
 
     protected static final AxisAlignedBB DEFAULT_RENDER_BOUNDS = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
 
@@ -327,9 +328,22 @@ public abstract class Multipart implements IMultipart, ICapabilitySerializable<N
     }
 
     @Override
+    @Deprecated
     public IBlockState getExtendedState(IBlockState state) {
 
         return state;
+    }
+
+    @Override
+    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
+
+        return getExtendedState(state);
+    }
+
+    @Override
+    public boolean shouldBreakingUseExtendedState() {
+
+        return false;
     }
 
     @SideOnly(Side.CLIENT)

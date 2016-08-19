@@ -5,6 +5,8 @@ import java.util.EnumSet;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import scala.collection.mutable.StringBuilder;
 
 /**
@@ -24,17 +26,39 @@ public class PartState {
         this.modelPath = modelPath;
     }
 
+    @Deprecated
     public static PartState fromPart(IMultipart part) {
 
         ResourceLocation path = part.getModelPath();
-        if (path == null) return null;
+        if (path == null)
+            return null;
 
         EnumSet<BlockRenderLayer> renderLayers = EnumSet.noneOf(BlockRenderLayer.class);
         for (BlockRenderLayer layer : BlockRenderLayer.values())
-            if (part.canRenderInLayer(layer)) renderLayers.add(layer);
+            if (part.canRenderInLayer(layer))
+                renderLayers.add(layer);
 
         IBlockState state = part.getActualState(MultipartRegistry.getDefaultState(part).getBaseState());
         IBlockState extendedState = part.getExtendedState(state);
+
+        return new PartState(state, extendedState, renderLayers, path);
+    }
+
+    @SuppressWarnings("deprecation")
+    public static PartState fromPart(IMultipart part, IBlockAccess world, BlockPos pos) {
+
+        ResourceLocation path = part.getModelPath();
+        if (path == null)
+            return null;
+
+        EnumSet<BlockRenderLayer> renderLayers = EnumSet.noneOf(BlockRenderLayer.class);
+        for (BlockRenderLayer layer : BlockRenderLayer.values())
+            if (part.canRenderInLayer(layer))
+                renderLayers.add(layer);
+
+        IBlockState state = part.getActualState(MultipartRegistry.getDefaultState(part).getBaseState());
+        IBlockState extendedState = part instanceof IMultipart2 ? ((IMultipart2) part).getExtendedState(state, world, pos)
+                : part.getExtendedState(state);
 
         return new PartState(state, extendedState, renderLayers, path);
     }

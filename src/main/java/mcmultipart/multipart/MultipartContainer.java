@@ -482,7 +482,7 @@ public class MultipartContainer implements IMultipartContainer {
 
         List<PartState> states = new ArrayList<PartState>();
         for (IMultipart part : getParts()) {
-            PartState state = PartState.fromPart(part);
+            PartState state = PartState.fromPart(part, world, pos);
             if (state != null) states.add(state);
         }
         return states;

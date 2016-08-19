@@ -11,6 +11,7 @@ import mcmultipart.client.multipart.MultipartStateMapper;
 import mcmultipart.microblock.IMicroblockContainerTile;
 import mcmultipart.microblock.MicroblockContainer;
 import mcmultipart.multipart.IMultipart;
+import mcmultipart.multipart.IMultipart2;
 import mcmultipart.multipart.Multipart;
 import mcmultipart.multipart.MultipartContainer;
 import mcmultipart.multipart.MultipartRegistry;
@@ -193,10 +194,13 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     @Override
     public final List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
 
-        if (harvestingWrapper) return getDropsDefault(world, pos, state, fortune);
+        if (harvestingWrapper)
+            return getDropsDefault(world, pos, state, fortune);
         IMicroblockContainerTile brokenTile = getMicroblockTile(world, pos);
-        if (brokenTile == null) brokenTile = this.brokenTile;
-        if (brokenTile == null) return getDropsDefault(world, pos, state, fortune);
+        if (brokenTile == null)
+            brokenTile = this.brokenTile;
+        if (brokenTile == null)
+            return getDropsDefault(world, pos, state, fortune);
         List<ItemStack> drops = new ArrayList<ItemStack>();
         drops.addAll(getDropsDefault(world, pos, state, fortune));
         return drops;
@@ -213,7 +217,8 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
         RayTraceResult hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
             IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-            if (tile != null) tile.getMicroblockContainer().getPartContainer().harvest(player, (PartMOP) hit);
+            if (tile != null)
+                tile.getMicroblockContainer().getPartContainer().harvest(player, (PartMOP) hit);
             return false;
         } else {
             IMicroblockContainerTile tile = getMicroblockTile(world, pos);
@@ -221,9 +226,11 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
             if (container.getParts().isEmpty()) {
                 return removedByPlayerDefault(state, world, pos, player, willHarvest);
             } else {
-                if (!removedByPlayerDefault(state, world, pos, player, willHarvest)) return false;
+                if (!removedByPlayerDefault(state, world, pos, player, willHarvest))
+                    return false;
                 world.removeTileEntity(pos);
-                if (!world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState(), 0)) return false;
+                if (!world.setBlockState(pos, MCMultiPartMod.multipart.getDefaultState(), 0))
+                    return false;
                 world.removeTileEntity(pos);
                 world.setTileEntity(pos, new TileMultipartContainer(container));
                 world.notifyBlockUpdate(pos, state, MCMultiPartMod.multipart.getDefaultState(), 0);
@@ -284,7 +291,8 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
         RayTraceResult hit = reTraceAll(world, pos, player);
         if (hit instanceof PartMOP) {
             IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-            if (tile != null) tile.getMicroblockContainer().getPartContainer().onClicked(player, (PartMOP) hit);
+            if (tile != null)
+                tile.getMicroblockContainer().getPartContainer().onClicked(player, (PartMOP) hit);
         } else {
             onBlockClickedDefault(world, pos, player);
         }
@@ -299,7 +307,8 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     public final void neighborChanged(IBlockState state, World world, BlockPos pos, Block neighborBlock) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-        if (tile != null) tile.getMicroblockContainer().getPartContainer().onNeighborBlockChange(neighborBlock);
+        if (tile != null)
+            tile.getMicroblockContainer().getPartContainer().onNeighborBlockChange(neighborBlock);
         onNeighborBlockChangeDefault(world, pos, state, neighborBlock);
     }
 
@@ -312,8 +321,9 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     public final void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-        if (tile != null) tile.getMicroblockContainer().getPartContainer().onNeighborTileChange(
-                EnumFacing.getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ() - pos.getZ()));
+        if (tile != null)
+            tile.getMicroblockContainer().getPartContainer().onNeighborTileChange(EnumFacing
+                    .getFacingFromVector(neighbor.getX() - pos.getX(), neighbor.getY() - pos.getY(), neighbor.getZ() - pos.getZ()));
         onNeighborChangeDefault(world, pos, neighbor);
     }
 
@@ -327,7 +337,8 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
 
         onEntityWalkDefault(world, pos, entity);
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-        if (tile == null) return;
+        if (tile == null)
+            return;
         tile.getMicroblockContainer().getPartContainer().onEntityStanding(entity);
     }
 
@@ -341,7 +352,8 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
 
         onEntityCollidedWithBlockDefault(world, pos, state, entity);
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-        if (tile == null) return;
+        if (tile == null)
+            return;
         tile.getMicroblockContainer().getPartContainer().onEntityCollided(entity);
     }
 
@@ -355,10 +367,13 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         Boolean def = isAABBInsideMaterialDefault(world, pos, aabb, material);
-        if (tile == null) return def;
+        if (tile == null)
+            return def;
         Boolean is = tile.getMicroblockContainer().getPartContainer().isAABBInsideMaterial(aabb, material);
-        if ((def != null && def == true) || (is != null && is == true)) return true;
-        if ((def != null && def == false) || (is != null && is == false)) return false;
+        if ((def != null && def == true) || (is != null && is == true))
+            return true;
+        if ((def != null && def == false) || (is != null && is == false))
+            return false;
         return null;
     }
 
@@ -373,10 +388,13 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         Boolean def = isEntityInsideMaterialDefault(world, pos, state, entity, yToTest, material, testingHead);
-        if (tile == null) return def;
+        if (tile == null)
+            return def;
         Boolean is = tile.getMicroblockContainer().getPartContainer().isEntityInsideMaterial(entity, yToTest, material, testingHead);
-        if ((def != null && def == true) || (is != null && is == true)) return true;
-        if ((def != null && def == false) || (is != null && is == false)) return false;
+        if ((def != null && def == true) || (is != null && is == true))
+            return true;
+        if ((def != null && def == false) || (is != null && is == false))
+            return false;
         return null;
     }
 
@@ -395,11 +413,14 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     @Override
     public final boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 
-        if (side == null) return false;
+        if (side == null)
+            return false;
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
-        if (container == null) return false;
-        if (container.getPartContainer().canConnectRedstone(side)) return true;
+        if (container == null)
+            return false;
+        if (container.getPartContainer().canConnectRedstone(side))
+            return true;
         return canConnectRedstoneDefault(state, world, pos, side, container);
     }
 
@@ -412,10 +433,12 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     @Override
     public final int getWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 
-        if (side == null) return 0;
+        if (side == null)
+            return 0;
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
-        if (container == null) return getWeakPowerDefault(state, world, pos, side, null);
+        if (container == null)
+            return getWeakPowerDefault(state, world, pos, side, null);
         return Math.max(container.getPartContainer().getWeakSignal(side), getWeakPowerDefault(state, world, pos, side, container));
     }
 
@@ -428,10 +451,12 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     @Override
     public final int getStrongPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 
-        if (side == null) return 0;
+        if (side == null)
+            return 0;
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
-        if (container == null) return getStrongPowerDefault(state, world, pos, side, null);
+        if (container == null)
+            return getStrongPowerDefault(state, world, pos, side, null);
         return Math.max(container.getPartContainer().getStrongSignal(side), getStrongPowerDefault(state, world, pos, side, container));
     }
 
@@ -446,7 +471,8 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
-        if (container == null) return false;
+        if (container == null)
+            return false;
         return container.getPartContainer().isSideSolid(side) || isSideSolidDefault(state, world, pos, side);
     }
 
@@ -460,7 +486,8 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
-        if (container == null) return false;
+        if (container == null)
+            return false;
         return container.getPartContainer().canPlaceTorchOnTop() || canPlaceTorchOnTopDefault(state, world, pos);
     }
 
@@ -476,7 +503,8 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
         randomDisplayTickDefault(state, world, pos, rand);
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
         MicroblockContainer container = tile != null ? tile.getMicroblockContainer() : null;
-        if (container != null) container.getPartContainer().randomDisplayTick(rand);
+        if (container != null)
+            container.getPartContainer().randomDisplayTick(rand);
     }
 
     @SideOnly(Side.CLIENT)
@@ -485,16 +513,22 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
         super.randomDisplayTick(state, world, pos, rand);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     @SideOnly(Side.CLIENT)
     public final boolean addDestroyEffects(World world, BlockPos pos, ParticleManager particleManager) {
 
         PartMOP hit = reTrace(world, pos, MCMultiPartMod.proxy.getPlayer());
         if (hit != null) {
-            if (hit.partHit.addDestroyEffects(AdvancedParticleManager.getInstance(particleManager))) return true;
+            if (hit.partHit.addDestroyEffects(AdvancedParticleManager.getInstance(particleManager)))
+                return true;
 
             ResourceLocation path = hit.partHit.getModelPath();
-            IBlockState state = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
+            IBlockState state = hit.partHit.getActualState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
+            if (hit.partHit instanceof IMultipart2 && ((IMultipart2) hit.partHit).shouldBreakingUseExtendedState()) {
+                state = hit.partHit instanceof IMultipart2 ? ((IMultipart2) hit.partHit).getExtendedState(state, world, pos)
+                        : hit.partHit.getExtendedState(state);
+            }
             IBakedModel model = path == null ? null
                     : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getModel(
                             new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(state.getProperties())));
@@ -516,16 +550,23 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
         return super.addDestroyEffects(world, pos, particleManager);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     @SideOnly(Side.CLIENT)
     public final boolean addHitEffects(IBlockState state, World world, RayTraceResult target, ParticleManager particleManager) {
 
         PartMOP hit = target instanceof PartMOP ? (PartMOP) target : null;
         if (hit != null) {
-            if (hit.partHit.addHitEffects(hit, AdvancedParticleManager.getInstance(particleManager))) return true;
+            if (hit.partHit.addHitEffects(hit, AdvancedParticleManager.getInstance(particleManager)))
+                return true;
 
             ResourceLocation path = hit.partHit.getModelPath();
-            IBlockState partState = hit.partHit.getExtendedState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
+            IBlockState partState = hit.partHit.getActualState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
+            if (hit.partHit instanceof IMultipart2 && ((IMultipart2) hit.partHit).shouldBreakingUseExtendedState()) {
+                partState = hit.partHit instanceof IMultipart2
+                        ? ((IMultipart2) hit.partHit).getExtendedState(partState, world, hit.getBlockPos())
+                        : hit.partHit.getExtendedState(partState);
+            }
             IBakedModel model = path == null ? null
                     : Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager().getModel(
                             new ModelResourceLocation(path, MultipartStateMapper.instance.getPropertyString(partState.getProperties())));
@@ -558,7 +599,8 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     private PartMOP reTrace(World world, BlockPos pos, EntityPlayer player) {
 
         IMicroblockContainerTile tile = getMicroblockTile(world, pos);
-        if (tile == null) return null;
+        if (tile == null)
+            return null;
         Vec3d start = RayTraceUtils.getStart(player);
         Vec3d end = RayTraceUtils.getEnd(player);
         AdvancedRayTraceResultPart result = tile.getMicroblockContainer().getPartContainer().collisionRayTrace(start, end);
@@ -577,10 +619,14 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
         Vec3d start = RayTraceUtils.getStart(player);
         PartMOP partMOP = reTrace(world, pos, player);
         RayTraceResult blockMOP = reTraceBlock(world, pos, player);
-        if (partMOP == null && blockMOP == null) return null;
-        if (partMOP == null && blockMOP != null) return blockMOP;
-        if (partMOP != null && blockMOP == null) return partMOP;
-        if (partMOP.hitVec.squareDistanceTo(start) <= blockMOP.hitVec.squareDistanceTo(start)) return partMOP;
+        if (partMOP == null && blockMOP == null)
+            return null;
+        if (partMOP == null && blockMOP != null)
+            return blockMOP;
+        if (partMOP != null && blockMOP == null)
+            return partMOP;
+        if (partMOP.hitVec.squareDistanceTo(start) <= blockMOP.hitVec.squareDistanceTo(start))
+            return partMOP;
         return blockMOP;
     }
 
@@ -651,7 +697,7 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
         return super.canRenderInLayer(layer);
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGH)
+    @SubscribeEvent(priority = EventPriority.LOW)
     @SideOnly(Side.CLIENT)
     public final void onDrawBlockHighlight(DrawBlockHighlightEvent event) {
 
