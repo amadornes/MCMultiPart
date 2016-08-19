@@ -182,7 +182,8 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 
-        if (super.hasCapability(capability, facing)) return true;
+        if (super.hasCapability(capability, facing))
+            return true;
         return MultipartCapabilityHelper.hasCapability(container, capability, facing);
     }
 
@@ -190,7 +191,8 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
 
         T impl = super.getCapability(capability, facing);
-        if (impl != null) return impl;
+        if (impl != null)
+            return impl;
         return MultipartCapabilityHelper.getCapability(container, capability, facing);
     }
 
@@ -240,7 +242,14 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     @Override
     public NBTTagCompound getUpdateTag() {
 
-        return container.writeToNBT(super.getUpdateTag());
+        NBTTagCompound tag = super.getUpdateTag();
+        return container.writeDescription(tag);
+    }
+
+    @Override
+    public void handleUpdateTag(NBTTagCompound tag) {
+
+        container.readDescription(tag);
     }
 
     @Override
@@ -252,7 +261,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 
-        readFromNBT(pkt.getNbtCompound());
+        handleUpdateTag(pkt.getNbtCompound());
     }
 
     @Override
@@ -274,11 +283,14 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         for (IMultipart part : getParts()) {
             AxisAlignedBB bb = part.getRenderBoundingBox();
             if (bb != null) {
-                if (bounds == null) bounds = bb;
-                else bounds = bounds.union(bb);
+                if (bounds == null)
+                    bounds = bb;
+                else
+                    bounds = bounds.union(bb);
             }
         }
-        if (bounds == null) bounds = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
+        if (bounds == null)
+            bounds = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
         return bounds.offset(getPosIn().getX(), getPosIn().getY(), getPosIn().getZ());
     }
 
@@ -308,7 +320,8 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
             }
 
             for (IMultipart part : getParts())
-                if (part instanceof ITickable) ((ITickable) part).update();
+                if (part instanceof ITickable)
+                    ((ITickable) part).update();
         }
 
     }

@@ -61,7 +61,8 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
     @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 
-        if (super.hasCapability(capability, facing)) return true;
+        if (super.hasCapability(capability, facing))
+            return true;
         return MultipartCapabilityHelper.hasCapability(container, capability, facing);
     }
 
@@ -69,7 +70,8 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
     public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
 
         T impl = super.getCapability(capability, facing);
-        if (impl != null) return impl;
+        if (impl != null)
+            return impl;
         return MultipartCapabilityHelper.getCapability(container, capability, facing);
     }
 
@@ -119,7 +121,13 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
     @Override
     public NBTTagCompound getUpdateTag() {
 
-        return getMicroblockContainer().getPartContainer().writeToNBT(super.getUpdateTag());
+        return getMicroblockContainer().getPartContainer().writeDescription(super.getUpdateTag());
+    }
+
+    @Override
+    public void handleUpdateTag(NBTTagCompound tag) {
+
+        getMicroblockContainer().getPartContainer().readDescription(tag);
     }
 
     @Override
@@ -131,7 +139,7 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 
-        readFromNBT(pkt.getNbtCompound());
+        handleUpdateTag(pkt.getNbtCompound());
     }
 
     @Override
@@ -152,7 +160,8 @@ public class TileCoverable extends TileEntity implements IMicroblockContainerTil
         AxisAlignedBB bounds = super.getRenderBoundingBox().offset(-getPosIn().getX(), -getPosIn().getY(), -getPosIn().getZ());
         for (IMultipart part : getMicroblockContainer().getParts()) {
             AxisAlignedBB bb = part.getRenderBoundingBox();
-            if (bb != null) bounds = bounds.union(bb);
+            if (bb != null)
+                bounds = bounds.union(bb);
         }
         return bounds.offset(getPosIn().getX(), getPosIn().getY(), getPosIn().getZ());
     }
