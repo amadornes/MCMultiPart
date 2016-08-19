@@ -9,6 +9,7 @@ import mcmultipart.MCMultiPartMod;
 import mcmultipart.client.multipart.AdvancedParticleManager;
 import mcmultipart.client.multipart.ICustomHighlightPart;
 import mcmultipart.client.multipart.MultipartStateMapper;
+import mcmultipart.multipart.IMaterialPart;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipart2;
 import mcmultipart.multipart.Multipart;
@@ -65,6 +66,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * implement {@link IMultipart}. If you only need microblock support, look into {@link BlockCoverable}.
  */
 public final class BlockMultipartContainer extends Block implements ITileEntityProvider {
+
+    public static IMaterialPart breakingPart;
 
     private AxisAlignedBB bounds = FULL_BLOCK_AABB;
 
@@ -186,6 +189,18 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
         if (hit == null)
             return 0;
         return tile.getPartContainer().getHardness(player, hit);
+    }
+
+    @Override
+    public boolean isToolEffective(String type, IBlockState state) {
+
+        return breakingPart != null ? breakingPart.isToolEffective(type) : super.isToolEffective(type, state);
+    }
+
+    @Override
+    public int getHarvestLevel(IBlockState state) {
+
+        return breakingPart != null ? breakingPart.getHarvestLevel() : super.getHarvestLevel(state);
     }
 
     @Override

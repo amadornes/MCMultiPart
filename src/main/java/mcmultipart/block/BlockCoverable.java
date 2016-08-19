@@ -266,6 +266,30 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     }
 
     @Override
+    public final boolean isToolEffective(String type, IBlockState state) {
+
+        return BlockMultipartContainer.breakingPart != null ? BlockMultipartContainer.breakingPart.isToolEffective(type)
+                : isToolEffectiveDefault(type, state);
+    }
+
+    public boolean isToolEffectiveDefault(String type, IBlockState state) {
+
+        return super.isToolEffective(type, state);
+    }
+
+    @Override
+    public final int getHarvestLevel(IBlockState state) {
+
+        return BlockMultipartContainer.breakingPart != null ? BlockMultipartContainer.breakingPart.getHarvestLevel()
+                : getHarvestLevelDefault(state);
+    }
+
+    public int getHarvestLevelDefault(IBlockState state) {
+
+        return super.getHarvestLevel(state);
+    }
+
+    @Override
     public final boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
             ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 

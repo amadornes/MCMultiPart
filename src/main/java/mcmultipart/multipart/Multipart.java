@@ -50,7 +50,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * {@link MultipartRegistry}, though custom types can be used if your part is created by a custom {@link IPartFactory} or
  * {@link IAdvancedPartFactory}.
  */
-public abstract class Multipart implements IMultipart, IMultipart2, ICapabilitySerializable<NBTTagCompound> {
+public abstract class Multipart implements IMultipart, IMultipart2, IMaterialPart, ICapabilitySerializable<NBTTagCompound> {
 
     protected static final AxisAlignedBB DEFAULT_RENDER_BOUNDS = new AxisAlignedBB(0, 0, 0, 1, 1, 1);
 
@@ -169,6 +169,7 @@ public abstract class Multipart implements IMultipart, IMultipart2, ICapabilityS
      * Gets the hardness of this part. Similar to {@link Block#getBlockHardness(World, BlockPos)}, not to be confused with
      * {@link IMultipart#getStrength(EntityPlayer, PartMOP)}.
      */
+    @Override
     public float getHardness(PartMOP hit) {
 
         return 0;
@@ -177,6 +178,7 @@ public abstract class Multipart implements IMultipart, IMultipart2, ICapabilityS
     /**
      * Gets the material this part is made of. Used for harvest speed checks.
      */
+    @Override
     public Material getMaterial() {
 
         return null;
@@ -184,30 +186,50 @@ public abstract class Multipart implements IMultipart, IMultipart2, ICapabilityS
 
     /**
      * Checks if the specified tool is strong enough to harvest this part at full speed.
+     *
+     * @deprecated Use {@link #isToolEffective(String)} and {@link #getHarvestLevel()}
      */
+    @Deprecated
     public boolean isToolEffective(String type, int level) {
 
         return true;
     }
 
     @Override
+    public boolean isToolEffective(String type) {
+
+        return isToolEffective(type, -1);
+    }
+
+    @Override
+    public int getHarvestLevel() {
+
+        return 0;
+    }
+
+    @Override
     public float getStrength(EntityPlayer player, PartMOP hit) {
 
         float hardness = getHardness(hit);
-        if (hardness < 0.0F) return 0.0F;
-        else if (hardness == 0.0F) return 1.0F;
+        if (hardness < 0.0F)
+            return 0.0F;
+        else if (hardness == 0.0F)
+            return 1.0F;
 
-        // Material mat = getMaterial();
-        // ItemStack stack = player.getHeldItemMainhand();
-        // boolean effective = mat == null || mat.isToolNotRequired();
-        // if (!effective && stack != null) for (String tool : stack.getItem().getToolClasses(stack))
-        // if (effective = isToolEffective(tool, stack.getItem().getHarvestLevel(stack, tool))) break;
+        Material mat = getMaterial();
+        ItemStack stack = player.getHeldItemMainhand();
+        boolean effective = mat == null || mat.isToolNotRequired();
+        if (!effective && stack != null)
+            for (String tool : stack.getItem().getToolClasses(stack))
+                if (effective = isToolEffective(tool, stack.getItem().getHarvestLevel(stack, tool)))
+                    break;
 
-        float breakSpeed = 1;// player.getDigSpeed(getExtendedState(MultipartRegistry.getDefaultState(this).getBaseState()), getPos());
+        float breakSpeed = player.getDigSpeed(getActualState(MultipartRegistry.getDefaultState(this).getBaseState()), getPos());
 
-        // if (!effective) return breakSpeed / hardness / 100F;
-        // else
-        return breakSpeed / hardness / 30F;
+        if (!effective)
+            return breakSpeed / hardness / 100F;
+        else
+            return breakSpeed / hardness / 30F;
     }
 
     @Override
@@ -305,8 +327,9 @@ public abstract class Multipart implements IMultipart, IMultipart2, ICapabilityS
      */
     public void sendUpdatePacket(boolean reRender) {
 
-        if (getWorld() instanceof WorldServer) MessageMultipartChange.newPacket(getWorld(), getPos(), this,
-                reRender ? MessageMultipartChange.Type.UPDATE_RERENDER : MessageMultipartChange.Type.UPDATE).send(getWorld());
+        if (getWorld() instanceof WorldServer)
+            MessageMultipartChange.newPacket(getWorld(), getPos(), this,
+                    reRender ? MessageMultipartChange.Type.UPDATE_RERENDER : MessageMultipartChange.Type.UPDATE).send(getWorld());
     }
 
     @Override
@@ -399,7 +422,8 @@ public abstract class Multipart implements IMultipart, IMultipart2, ICapabilityS
 
         World world = getWorld();
         BlockPos pos = getPos();
-        if (world != null) world.markBlockRangeForRenderUpdate(pos, pos);
+        if (world != null)
+            world.markBlockRangeForRenderUpdate(pos, pos);
     }
 
     protected void markDirty() {
@@ -415,27 +439,31 @@ public abstract class Multipart implements IMultipart, IMultipart2, ICapabilityS
     protected void markLightingUpdate() {
 
         World world = getWorld();
-        if (world != null) world.checkLight(getPos());
+        if (world != null)
+            world.checkLight(getPos());
     }
 
     protected void notifyBlockUpdate() {
 
         World world = getWorld();
         BlockPos pos = getPos();
-        if (world != null) world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
+        if (world != null)
+            world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
     }
 
     protected void notifyPartUpdate() {
 
         IMultipartContainer container = getContainer();
-        if (container != null) for (IMultipart part : container.getParts())
-            part.onPartChanged(this);
+        if (container != null)
+            for (IMultipart part : container.getParts())
+                part.onPartChanged(this);
     }
 
     @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 
-        if (getCapability(capability, facing) != null) return true;
+        if (getCapability(capability, facing) != null)
+            return true;
         return capabilities == null ? false : capabilities.hasCapability(capability, facing);
     }
 

@@ -16,6 +16,7 @@ import com.google.common.collect.HashBiMap;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import mcmultipart.block.BlockMultipartContainer;
 import mcmultipart.capabilities.CapabilityWrapperRegistry;
 import mcmultipart.capabilities.ISlottedCapabilityProvider;
 import mcmultipart.event.PartEvent;
@@ -347,7 +348,12 @@ public class MultipartContainer implements IMultipartContainer {
     public float getHardness(EntityPlayer player, PartMOP hit) {
 
         if (!partMap.values().contains(hit.partHit)) return -1;
-        return hit.partHit.getStrength(player, hit);
+        BlockMultipartContainer.breakingPart =  hit.partHit instanceof IMaterialPart ? (IMaterialPart) hit.partHit : null;
+        try {
+            return hit.partHit.getStrength(player, hit);
+        } finally {
+            BlockMultipartContainer.breakingPart =  null;
+        }
     }
 
     public void onNeighborBlockChange(Block block) {
