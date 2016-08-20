@@ -1,5 +1,6 @@
 package mcmultipart.client.multipart;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,34 +39,61 @@ public class ModelMultipartContainer implements IBakedModel {
     public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand) {
 
         if (state == null) {
-            if (model != null) return model.getQuads(state, side, rand);
+            if (model != null)
+                return model.getQuads(state, side, rand);
             return Collections.emptyList();
         }
         BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
         if (!(state instanceof IExtendedBlockState) || !((IExtendedBlockState) state).getUnlistedProperties()
                 .containsKey(BlockMultipartContainer.PROPERTY_MULTIPART_CONTAINER)) {
-            if (model != null && layerFilter.apply(layer)) return model.getQuads(state, side, rand);
+            if (model != null && layerFilter.apply(layer))
+                return model.getQuads(state, side, rand);
             return Collections.emptyList();
         }
         List<PartState> partStates = ((IExtendedBlockState) state).getValue(BlockMultipartContainer.PROPERTY_MULTIPART_CONTAINER);
 
         if (partStates == null) {
-            if (model != null) model.getQuads(state, side, rand);
+            if (model != null)
+                model.getQuads(state, side, rand);
             return Collections.emptyList();
         }
 
         List<BakedQuad> quads = new ArrayList<BakedQuad>();
 
-        if (model != null && layerFilter.apply(layer)) quads.addAll(model.getQuads(state, side, rand));
+        if (model != null && layerFilter.apply(layer))
+            quads.addAll(model.getQuads(state, side, rand));
 
         for (PartState partState : partStates) {
-            if (!partState.renderLayers.contains(MinecraftForgeClient.getRenderLayer())) continue;
+            if (!partState.renderLayers.contains(MinecraftForgeClient.getRenderLayer()))
+                continue;
 
             ModelResourceLocation modelLocation = new ModelResourceLocation(partState.modelPath,
                     MultipartStateMapper.instance.getPropertyString(partState.state.getProperties()));
             IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelManager()
                     .getModel(modelLocation);
-            if (model != null) quads.addAll(model.getQuads(partState.extendedState, side, rand));
+            if (model != null) {
+                if (partState.colorProvider != null) {
+                    for (BakedQuad quad : model.getQuads(partState.extendedState, side, rand)) {
+                        if (quad.hasTintIndex()) {
+                            int tint = partState.colorProvider.colorMultiplier(partState.extendedState, quad.getTintIndex());
+                            Color tintColor = new Color(tint, false);
+                            int[] data = quad.getVertexData().clone();
+                            for (int i = 0; i < 4; i++) {
+                                Color color = new Color(data[i * 7 + 3]);
+                                data[i * 7 + 3] = (color.getAlpha() << 24) | (((color.getRed() * tintColor.getBlue()) / 255) << 16)
+                                        | (((color.getGreen() * tintColor.getGreen()) / 255) << 8)
+                                        | (((color.getBlue() * tintColor.getRed()) / 255) << 0);
+                            }
+                            quads.add(new BakedQuad(data, 0, quad.getFace(), quad.getSprite(), quad.shouldApplyDiffuseLighting(),
+                                    quad.getFormat()));
+                        } else {
+                            quads.add(quad);
+                        }
+                    }
+                } else {
+                    quads.addAll(model.getQuads(partState.extendedState, side, rand));
+                }
+            }
         }
 
         return quads;

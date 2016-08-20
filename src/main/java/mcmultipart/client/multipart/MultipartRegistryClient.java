@@ -15,6 +15,7 @@ public class MultipartRegistryClient {
 
     private static Map<ResourceLocation, IStateMapper> specialMappers = new HashMap<ResourceLocation, IStateMapper>();
     private static Map<Class<?>, MultipartSpecialRenderer<?>> specialRenderers = new HashMap<Class<?>, MultipartSpecialRenderer<?>>();
+    private static Map<ResourceLocation, IMultipartColor> colorProviders = new HashMap<ResourceLocation, IMultipartColor>();
 
     public static void registerSpecialPartStateMapper(ResourceLocation part, IStateMapper mapper) {
 
@@ -48,4 +49,15 @@ public class MultipartRegistryClient {
 
         return specialMappers.get(part);
     }
+
+    public static void registerColorProvider(ResourceLocation part, IMultipartColor color) {
+
+        colorProviders.put(part, color);
+    }
+
+    public static IMultipartColor getColorProvider(ResourceLocation part) {
+
+        return colorProviders.get(part);
+    }
+
 }

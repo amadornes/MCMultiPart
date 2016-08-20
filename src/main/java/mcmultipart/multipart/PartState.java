@@ -2,6 +2,8 @@ package mcmultipart.multipart;
 
 import java.util.EnumSet;
 
+import mcmultipart.client.multipart.IMultipartColor;
+import mcmultipart.client.multipart.MultipartRegistryClient;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
@@ -17,13 +19,16 @@ public class PartState {
     public final IBlockState state, extendedState;
     public final EnumSet<BlockRenderLayer> renderLayers;
     public final ResourceLocation modelPath;
+    public final IMultipartColor colorProvider;
 
-    public PartState(IBlockState state, IBlockState extendedState, EnumSet<BlockRenderLayer> renderLayers, ResourceLocation modelPath) {
+    public PartState(IBlockState state, IBlockState extendedState, EnumSet<BlockRenderLayer> renderLayers, ResourceLocation modelPath,
+            IMultipartColor colorProvider) {
 
         this.state = state;
         this.extendedState = extendedState;
         this.renderLayers = renderLayers;
         this.modelPath = modelPath;
+        this.colorProvider = colorProvider;
     }
 
     @Deprecated
@@ -41,7 +46,7 @@ public class PartState {
         IBlockState state = part.getActualState(MultipartRegistry.getDefaultState(part).getBaseState());
         IBlockState extendedState = part.getExtendedState(state);
 
-        return new PartState(state, extendedState, renderLayers, path);
+        return new PartState(state, extendedState, renderLayers, path, MultipartRegistryClient.getColorProvider(part.getType()));
     }
 
     @SuppressWarnings("deprecation")
@@ -60,7 +65,7 @@ public class PartState {
         IBlockState extendedState = part instanceof IMultipart2 ? ((IMultipart2) part).getExtendedState(state, world, pos)
                 : part.getExtendedState(state);
 
-        return new PartState(state, extendedState, renderLayers, path);
+        return new PartState(state, extendedState, renderLayers, path, MultipartRegistryClient.getColorProvider(part.getType()));
     }
 
     @Override
