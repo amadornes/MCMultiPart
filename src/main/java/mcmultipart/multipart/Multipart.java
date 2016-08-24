@@ -192,7 +192,8 @@ public abstract class Multipart implements IMultipart, IMultipart2, IMaterialPar
     @Deprecated
     public boolean isToolEffective(String type, int level) {
 
-        return true;
+        String t = getHarvestTool();
+        return (t == null && type == null) || type.equals(t);
     }
 
     @Override
@@ -205,6 +206,12 @@ public abstract class Multipart implements IMultipart, IMultipart2, IMaterialPar
     public int getHarvestLevel() {
 
         return 0;
+    }
+
+    @Override
+    public String getHarvestTool() {
+
+        return null;
     }
 
     @Override

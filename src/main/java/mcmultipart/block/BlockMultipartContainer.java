@@ -200,7 +200,13 @@ public final class BlockMultipartContainer extends Block implements ITileEntityP
     @Override
     public int getHarvestLevel(IBlockState state) {
 
-        return breakingPart != null ? breakingPart.getHarvestLevel() : super.getHarvestLevel(state);
+        return breakingPart != null ? breakingPart.getHarvestLevel() : 0;
+    }
+
+    @Override
+    public String getHarvestTool(IBlockState state) {
+
+        return breakingPart != null ? breakingPart.getHarvestTool() : null;
     }
 
     @Override

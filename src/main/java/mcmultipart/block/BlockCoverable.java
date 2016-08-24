@@ -290,6 +290,18 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
     }
 
     @Override
+    public final String getHarvestTool(IBlockState state) {
+
+        return BlockMultipartContainer.breakingPart != null ? BlockMultipartContainer.breakingPart.getHarvestTool()
+                : getHarvestToolDefault(state);
+    }
+
+    public String getHarvestToolDefault(IBlockState state) {
+
+        return super.getHarvestTool(state);
+    }
+
+    @Override
     public final boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
             ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 

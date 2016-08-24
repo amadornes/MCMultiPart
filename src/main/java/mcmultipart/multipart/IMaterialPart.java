@@ -13,4 +13,6 @@ public interface IMaterialPart extends IMultipart {
 
     public int getHarvestLevel();
 
+    public String getHarvestTool();
+
 }

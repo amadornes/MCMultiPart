@@ -1,6 +1,13 @@
 {
+	"forge_marker": 1,
+	"defaults": {
+		"model": "mcmultipart:multipart"
+	},
     "variants": {
-        "normal": { "model": "mcmultipart:multipart" },
-        "inventory": { "model": "mcmultipart:multipart" }
+        "ticking": {
+        	"true": {},
+        	"false": {}
+        },
+        "inventory": { }
     }
 }
