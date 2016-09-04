@@ -9,7 +9,6 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import scala.collection.mutable.StringBuilder;
 
 /**
  * Representation of a part's state. Used for rendering purposes.
