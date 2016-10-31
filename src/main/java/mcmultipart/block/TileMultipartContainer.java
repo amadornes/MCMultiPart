@@ -177,6 +177,10 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     @Override
     public void onRemovePartPost(IMultipart part) {
 
+        if (!getWorldIn().isRemote && getParts().isEmpty()) {
+            getWorldIn().setBlockToAir(getPosIn());
+            return;
+        }
     }
 
     @Override
@@ -210,6 +214,11 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
     @Override
     public void onLoad() {
+
+        if (!getWorldIn().isRemote && getParts().isEmpty()) {
+            getWorldIn().setBlockToAir(getPosIn());
+            return;
+        }
 
         super.onLoad();
         for (IMultipart part : getParts())
