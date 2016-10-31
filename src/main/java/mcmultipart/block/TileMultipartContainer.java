@@ -215,11 +215,6 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     @Override
     public void onLoad() {
 
-        if (!getWorldIn().isRemote && getParts().isEmpty()) {
-            getWorldIn().setBlockToAir(getPosIn());
-            return;
-        }
-
         super.onLoad();
         for (IMultipart part : getParts())
             part.onLoaded();
