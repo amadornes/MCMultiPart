@@ -255,7 +255,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     @Override
     public SPacketUpdateTileEntity getUpdatePacket() {
 
-        return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), getUpdateTag());
+        return new SPacketUpdateTileEntity(getPos(), 0, getUpdateTag());
     }
 
     @Override
