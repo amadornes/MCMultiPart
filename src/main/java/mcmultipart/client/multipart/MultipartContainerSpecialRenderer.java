@@ -139,7 +139,9 @@ public final class MultipartContainerSpecialRenderer {
         } else {
             if (MinecraftForgeClient.getRenderPass() == 1) {
                 ResourceLocation path = part.getModelPath();
-                IBlockState state = part.getActualState(MultipartRegistry.getDefaultState(part).getBaseState());
+                IBlockState state = part instanceof IMultipart2 ? ((IMultipart2) part)
+                        .getActualState(MultipartRegistry.getDefaultState(part).getBaseState(), part.getWorld(), part.getPos())
+                        : part.getActualState(MultipartRegistry.getDefaultState(part).getBaseState());
                 if (part instanceof IMultipart2 && ((IMultipart2) part).shouldBreakingUseExtendedState()) {
                     state = part instanceof IMultipart2 ? ((IMultipart2) part).getExtendedState(state, part.getWorld(), part.getPos())
                             : part.getExtendedState(state);

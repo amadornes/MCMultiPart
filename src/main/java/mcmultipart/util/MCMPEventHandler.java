@@ -2,6 +2,7 @@ package mcmultipart.util;
 
 import java.util.Map.Entry;
 
+import mcmultipart.multipart.IMultipart2;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.raytrace.PartMOP;
 import net.minecraft.block.properties.IProperty;
@@ -16,6 +17,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class MCMPEventHandler {
 
+    @SuppressWarnings("deprecation")
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onDrawGameOverlay(RenderGameOverlayEvent event) {
@@ -30,7 +32,10 @@ public class MCMPEventHandler {
                     ev.getRight().add("");
                     ev.getRight().add(mop.partHit.getType().toString());
 
-                    IBlockState state = mop.partHit.getActualState(MultipartRegistry.getDefaultState(mop.partHit).getBaseState());
+                    IBlockState state = mop.partHit instanceof IMultipart2
+                            ? ((IMultipart2) mop.partHit).getActualState(MultipartRegistry.getDefaultState(mop.partHit).getBaseState(),
+                                    Minecraft.getMinecraft().theWorld, hit.getBlockPos())
+                            : mop.partHit.getActualState(MultipartRegistry.getDefaultState(mop.partHit).getBaseState());
                     for (Entry<IProperty<?>, Comparable<?>> entry : state.getProperties().entrySet()) {
                         String s = entry.getValue().toString();
 

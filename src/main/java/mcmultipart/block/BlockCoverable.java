@@ -560,7 +560,9 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
                 return true;
 
             ResourceLocation path = hit.partHit.getModelPath();
-            IBlockState state = hit.partHit.getActualState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
+            IBlockState state = hit.partHit instanceof IMultipart2
+                    ? ((IMultipart2) hit.partHit).getActualState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState(), world, pos)
+                    : hit.partHit.getActualState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
             if (hit.partHit instanceof IMultipart2 && ((IMultipart2) hit.partHit).shouldBreakingUseExtendedState()) {
                 state = hit.partHit instanceof IMultipart2 ? ((IMultipart2) hit.partHit).getExtendedState(state, world, pos)
                         : hit.partHit.getExtendedState(state);
@@ -597,7 +599,10 @@ public class BlockCoverable extends Block implements ITileEntityProvider {
                 return true;
 
             ResourceLocation path = hit.partHit.getModelPath();
-            IBlockState partState = hit.partHit.getActualState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
+            IBlockState partState = hit.partHit instanceof IMultipart2
+                    ? ((IMultipart2) hit.partHit).getActualState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState(), world,
+                            target.getBlockPos())
+                    : hit.partHit.getActualState(MultipartRegistry.getDefaultState(hit.partHit).getBaseState());
             if (hit.partHit instanceof IMultipart2 && ((IMultipart2) hit.partHit).shouldBreakingUseExtendedState()) {
                 partState = hit.partHit instanceof IMultipart2
                         ? ((IMultipart2) hit.partHit).getExtendedState(partState, world, hit.getBlockPos())

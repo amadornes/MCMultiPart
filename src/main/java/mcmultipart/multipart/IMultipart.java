@@ -215,7 +215,10 @@ public interface IMultipart {
 
     /**
      * Gets the actual state of this part. <b>ONLY USED FOR RENDERING, THIS IS NOT WHERE YOU STORE DATA.</b>
+     *
+     * @deprecated You should now use {@link IMultipart2#getActualState(IBlockState, IBlockAccess, BlockPos)}
      */
+    @Deprecated
     public IBlockState getActualState(IBlockState state);
 
     /**

@@ -7,6 +7,11 @@ import net.minecraft.world.IBlockAccess;
 public interface IMultipart2 extends IMultipart {
 
     /**
+     * Gets the actual state of this part. <b>ONLY USED FOR RENDERING, THIS IS NOT WHERE YOU STORE DATA.</b>
+     */
+    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos);
+
+    /**
      * Gets the extended state of this part. <b>ONLY USED FOR RENDERING, THIS IS NOT WHERE YOU STORE DATA.</b>
      */
     public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos);

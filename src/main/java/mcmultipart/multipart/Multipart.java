@@ -226,12 +226,13 @@ public abstract class Multipart implements IMultipart, IMultipart2, IMaterialPar
         Material mat = getMaterial();
         ItemStack stack = player.getHeldItemMainhand();
         boolean effective = mat == null || mat.isToolNotRequired();
+        IBlockState state = getActualState(MultipartRegistry.getDefaultState(this).getBaseState(), getWorld(), getPos());
         if (!effective && stack != null)
             for (String tool : stack.getItem().getToolClasses(stack))
-                if (effective = isToolEffective(tool, stack.getItem().getHarvestLevel(stack, tool)))
+                if (effective = isToolEffective(tool, stack.getItem().getHarvestLevel(stack, tool, player, state)))
                     break;
 
-        float breakSpeed = player.getDigSpeed(getActualState(MultipartRegistry.getDefaultState(this).getBaseState()), getPos());
+        float breakSpeed = player.getDigSpeed(state, getPos());
 
         if (!effective)
             return breakSpeed / hardness / 100F;
@@ -352,9 +353,16 @@ public abstract class Multipart implements IMultipart, IMultipart2, IMaterialPar
     }
 
     @Override
+    @Deprecated
     public IBlockState getActualState(IBlockState state) {
 
         return state;
+    }
+
+    @Override
+    public IBlockState getActualState(IBlockState state, IBlockAccess world, BlockPos pos) {
+
+        return getActualState(state);
     }
 
     @Override

@@ -60,7 +60,9 @@ public class PartState {
             if (part.canRenderInLayer(layer))
                 renderLayers.add(layer);
 
-        IBlockState state = part.getActualState(MultipartRegistry.getDefaultState(part).getBaseState());
+        IBlockState state = part instanceof IMultipart2
+                ? ((IMultipart2) part).getActualState(MultipartRegistry.getDefaultState(part).getBaseState(), world, pos)
+                : part.getActualState(MultipartRegistry.getDefaultState(part).getBaseState());
         IBlockState extendedState = part instanceof IMultipart2 ? ((IMultipart2) part).getExtendedState(state, world, pos)
                 : part.getExtendedState(state);
 
