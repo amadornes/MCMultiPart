@@ -21,7 +21,7 @@ plugins {
 }
 */
 
-String modversion = "1.3.0"
+String modversion = "2.0.0"
 
 if (System.getenv("BUILD_NUMBER") != null && System.getenv("SHOW_BUILD_NUMBER") != null) {
 	version = modversion + "_" + System.getenv("BUILD_NUMBER")
