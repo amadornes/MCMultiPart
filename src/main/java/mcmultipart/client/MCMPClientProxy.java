@@ -1,20 +1,25 @@
 package mcmultipart.client;
 
+import java.util.Optional;
+
 import mcmultipart.MCMPCommonProxy;
-import mcmultipart.MCMultiPartMod;
-import mcmultipart.block.TileCoverable;
+import mcmultipart.MCMultiPart;
+import mcmultipart.block.BlockMultipartContainer;
 import mcmultipart.block.TileMultipartContainer;
-import mcmultipart.client.multipart.ModelMultipartContainer;
-import mcmultipart.client.multipart.MultipartContainerSpecialRenderer.TileCoverableSpecialRenderer;
-import mcmultipart.client.multipart.MultipartContainerSpecialRenderer.TileMultipartSpecialRenderer;
-import mcmultipart.client.multipart.MultipartStateMapper;
-import net.minecraft.block.Block;
+import mcmultipart.multipart.PartInfo;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.World;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -22,42 +27,71 @@ public class MCMPClientProxy extends MCMPCommonProxy {
 
     @Override
     public void preInit() {
-
-        super.preInit();
-
-        // Register the MCMultiPart state mapper to be able to load multipart json models
-        ModelLoader.setCustomStateMapper(MCMultiPartMod.multipart, MultipartStateMapper.instance);
-    }
-
-    @Override
-    public void init() {
-
-        super.init();
-
-        // Register tile entity renderers, for breaking animations and dynamic rendering
-        ClientRegistry.bindTileEntitySpecialRenderer(TileMultipartContainer.class, new TileMultipartSpecialRenderer());
-        ClientRegistry.bindTileEntitySpecialRenderer(TileCoverable.class, new TileCoverableSpecialRenderer<TileCoverable>());
-
-        // Sets up the proxy as an event handler so it can listen to model bake events
-        MinecraftForge.EVENT_BUS.register(this);
-    }
-
-    @SubscribeEvent
-    public void onModelBake(ModelBakeEvent event) {
-
-        // Link the custom ISmartBlockModel to the multipart block
-        event.getModelRegistry().putObject(
-                new ModelResourceLocation(Block.REGISTRY.getNameForObject(MCMultiPartMod.multipart), "ticking=false"),
-                new ModelMultipartContainer(null, null));
-        event.getModelRegistry().putObject(
-                new ModelResourceLocation(Block.REGISTRY.getNameForObject(MCMultiPartMod.multipart), "ticking=true"),
-                new ModelMultipartContainer(null, null));
+        ClientRegistry.bindTileEntitySpecialRenderer(TileMultipartContainer.class, new TESRMultipartContainer());
     }
 
     @Override
     public EntityPlayer getPlayer() {
+        return Minecraft.getMinecraft().player;
+    }
 
-        return FMLClientHandler.instance().getClientPlayerEntity();
+    @SubscribeEvent
+    public void onModelBake(ModelBakeEvent event) {
+        event.getModelRegistry().putObject(new ModelResourceLocation(MCMultiPart.multipart.getRegistryName(), "ticking=false"),
+                new ModelMultipartContainer());
+        event.getModelRegistry().putObject(new ModelResourceLocation(MCMultiPart.multipart.getRegistryName(), "ticking=true"),
+                new ModelMultipartContainer());
+    }
+
+    @SubscribeEvent
+    public void onDrawHighlight(DrawBlockHighlightEvent event) {
+
+        RayTraceResult hit = event.getTarget();
+        if (hit.typeOfHit != RayTraceResult.Type.BLOCK) {
+            return;
+        }
+
+        BlockPos pos = hit.getBlockPos();
+        EntityPlayer player = event.getPlayer();
+        World world = player.world;
+
+        if (world.getBlockState(pos).getBlock() == MCMultiPart.multipart) {
+            Optional<TileMultipartContainer> tile = BlockMultipartContainer.getTile(world, pos);
+            if (!tile.isPresent()) {
+                return;
+            }
+
+            PartInfo info = tile.get().getParts().get(MCMultiPart.slotRegistry.getObjectById(hit.subHit));
+            hit = (RayTraceResult) hit.hitInfo;
+            if (info == null) {
+                return;
+            }
+
+            float partialTicks = event.getPartialTicks();
+            if (!ForgeHooksClient.onDrawBlockHighlight(event.getContext(), player, hit, 0, partialTicks)) {
+                GlStateManager.enableBlend();
+                GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                GlStateManager.glLineWidth(2.0F);
+                GlStateManager.disableTexture2D();
+                GlStateManager.depthMask(false);
+                IBlockState state = info.getState();
+
+                if (state.getMaterial() != Material.AIR && world.getWorldBorder().contains(pos)) {
+                    double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
+                    double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
+                    double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
+                    RenderGlobal.drawSelectionBoundingBox(state.getSelectedBoundingBox(world, pos).expandXyz(0.002).offset(-x, -y, -z),
+                            0.0F, 0.0F, 0.0F, 0.4F);
+                }
+
+                GlStateManager.depthMask(true);
+                GlStateManager.enableTexture2D();
+                GlStateManager.disableBlend();
+            }
+
+            event.setCanceled(true);
+        }
     }
 
 }

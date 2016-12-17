@@ -4,10 +4,11 @@
 		"model": "mcmultipart:multipart"
 	},
     "variants": {
+        "normal": [{}],
         "ticking": {
         	"true": {},
         	"false": {}
         },
-        "inventory": { }
+        "inventory": [{}]
     }
 }
