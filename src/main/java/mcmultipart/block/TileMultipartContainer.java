@@ -353,7 +353,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
         return parts.values().stream().map(IPartInfo::getTile).filter(t -> t != null)//
-                .reduce(super.getRenderBoundingBox(), (a, b) -> b.getRenderBoundingBox(), AxisAlignedBB::union);
+                .reduce(super.getRenderBoundingBox(), (a, b) -> a.union(b.getRenderBoundingBox()), (a, b) -> b);
     }
 
     @Override
