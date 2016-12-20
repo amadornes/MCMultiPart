@@ -516,8 +516,8 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
         Pair<Vec3d, Vec3d> vectors = RayTraceHelper.getRayTraceVectors(player);
         RayTraceResult hit = collisionRayTrace(getDefaultState(), world, pos, vectors.getLeft(), vectors.getRight());
         if (hit != null) {
-            getTile(world, pos).map(t -> t.get(MCMultiPart.slotRegistry.getObjectById(hit.subHit)).get())
-                    .ifPresent(i -> i.getPart().onPartActivated(i, player, hand, ((RayTraceResult) hit.hitInfo)));
+            return getTile(world, pos).map(t -> t.get(MCMultiPart.slotRegistry.getObjectById(hit.subHit)).get())
+                    .map(i -> i.getPart().onPartActivated(i, player, hand, ((RayTraceResult) hit.hitInfo))).orElse(false);
         }
         return false;
     }
