@@ -35,7 +35,7 @@ minecraft {
     version = "1.11-13.19.0.2162"
     runDir = "run"
     
-    mappings = "snapshot_20161127"
+    mappings = "snapshot_20161217"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 	
 	replace "%VERSION%", project.version
