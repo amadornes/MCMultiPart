@@ -73,11 +73,11 @@ public class ItemBlockMultipart extends ItemBlock {
             float hitX, float hitY, float hitZ, IBlockPlacementInfo stateProvider, int meta, IMultipart multipartBlock,
             IBlockPlacementLogic blockLogic, IPartPlacementLogic partLogic) {
         IBlockState state = stateProvider.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, player, hand);
-        if (!world.checkNoEntityCollision(state.getCollisionBoundingBox(world, pos).offset(pos))
+        if (world.checkNoEntityCollision(state.getCollisionBoundingBox(world, pos).offset(pos))
                 && blockLogic.place(stack, player, world, pos, facing, hitX, hitY, hitZ, state)) {
             return true;
         }
-        if (!world.checkNoEntityCollision(multipartBlock.getCollisionBoundingBox(state, world, pos).offset(pos))
+        if (world.checkNoEntityCollision(multipartBlock.getCollisionBoundingBox(state, world, pos).offset(pos))
                 && partLogic.placePart(stack, player, hand, world, pos, facing, hitX, hitY, hitZ, multipartBlock, state)) {
             return true;
         }
