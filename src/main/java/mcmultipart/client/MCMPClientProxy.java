@@ -53,7 +53,13 @@ public class MCMPClientProxy extends MCMPCommonProxy {
 
         BlockPos pos = hit.getBlockPos();
         EntityPlayer player = event.getPlayer();
+        if (player == null) {
+            return;
+        }
         World world = player.world;
+        if (world == null) {
+            return;
+        }
 
         if (world.getBlockState(pos).getBlock() == MCMultiPart.multipart) {
             Optional<TileMultipartContainer> tile = BlockMultipartContainer.getTile(world, pos);
