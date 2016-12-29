@@ -1,5 +1,6 @@
 package mcmultipart.api.container;
 
+import java.util.Map;
 import java.util.Optional;
 
 import com.google.common.base.Preconditions;
@@ -32,6 +33,8 @@ public interface IMultipartContainer extends ISlottedContainer<IPartInfo> {
     public default Optional<IBlockState> getState(IPartSlot slot) {
         return get(slot).map(IPartInfo::getState);
     }
+
+    public Map<IPartSlot, ? extends IPartInfo> getParts();
 
     public default boolean canAddPart(IPartSlot slot, IBlockState state) {
         IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
