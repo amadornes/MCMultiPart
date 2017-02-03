@@ -16,6 +16,8 @@ import mcmultipart.api.world.IMultipartWorld;
 import mcmultipart.api.world.IWorldView;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.PartInfo;
+import mcmultipart.network.MultipartNetworkHandler;
+import mcmultipart.network.PacketMultipartChange;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -249,7 +251,7 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
                 });
             }
             if ((flags & 0b00010) != 0) {
-                notifyBlockUpdate(pos, oldState, newState, flags);// TODO: Check. Probably it, but I have no clue :D
+                MultipartNetworkHandler.sendToAllWatching(new PacketMultipartChange(part), part.getActualWorld(), pos);
             }
             if ((flags & 0b00100) == 0) {
                 markBlockRangeForRenderUpdate(pos, pos);

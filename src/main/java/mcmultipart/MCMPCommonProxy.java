@@ -9,9 +9,12 @@ import mcmultipart.multipart.MultipartRegistry.WrappedBlock;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.util.EnumActionResult;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class MCMPCommonProxy {
 
@@ -20,6 +23,16 @@ public class MCMPCommonProxy {
 
     public EntityPlayer getPlayer() {
         return null;
+    }
+
+    public NetworkManager getNetworkManager() {
+        return null;
+    }
+
+    public void scheduleTick(Runnable runnable, Side side) {
+        if (side == Side.SERVER) {
+            FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(runnable);
+        }
     }
 
     @SubscribeEvent

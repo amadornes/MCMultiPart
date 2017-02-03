@@ -34,7 +34,7 @@ public final class MultipartHelper {
         IMultipartTile tile = part.createMultipartTile(world, slot, state);
 
         Optional<IMultipartContainer> containerOpt = getOrConvertContainer(world, pos);
-        if (!containerOpt.isPresent()) {
+        if (!containerOpt.isPresent() || containerOpt.get().getParts().isEmpty()) {
             return false;
         }
         IMultipartContainer container = containerOpt.orElseGet(() -> createTile.apply(world, pos));

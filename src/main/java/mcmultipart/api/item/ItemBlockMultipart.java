@@ -19,6 +19,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -73,11 +74,13 @@ public class ItemBlockMultipart extends ItemBlock {
             float hitX, float hitY, float hitZ, IBlockPlacementInfo stateProvider, int meta, IMultipart multipartBlock,
             IBlockPlacementLogic blockLogic, IPartPlacementLogic partLogic) {
         IBlockState state = stateProvider.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, player, hand);
-        if (world.checkNoEntityCollision(state.getCollisionBoundingBox(world, pos).offset(pos))
+        AxisAlignedBB bb = state.getCollisionBoundingBox(world, pos);
+        if ((bb == null || world.checkNoEntityCollision(bb.offset(pos)))
                 && blockLogic.place(stack, player, world, pos, facing, hitX, hitY, hitZ, state)) {
             return true;
         }
-        if (world.checkNoEntityCollision(multipartBlock.getCollisionBoundingBox(state, world, pos).offset(pos))
+        bb = multipartBlock.getCollisionBoundingBox(state, world, pos);
+        if ((bb == null || world.checkNoEntityCollision(bb.offset(pos)))
                 && partLogic.placePart(stack, player, hand, world, pos, facing, hitX, hitY, hitZ, multipartBlock, state)) {
             return true;
         }

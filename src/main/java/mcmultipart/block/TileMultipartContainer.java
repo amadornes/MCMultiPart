@@ -20,6 +20,9 @@ import mcmultipart.api.multipart.MultipartHelper;
 import mcmultipart.api.slot.IPartSlot;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.PartInfo;
+import mcmultipart.network.MultipartNetworkHandler;
+import mcmultipart.network.PacketMultipartAdd;
+import mcmultipart.network.PacketMultipartRemove;
 import mcmultipart.slot.SlotUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
@@ -43,6 +46,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     private final Map<IPartSlot, PartInfo> parts = new HashMap<>();
     private Map<IPartSlot, NBTTagCompound> missingParts;
     private World loadingWorld;
+    private boolean notifyClients = true;
 
     private TileMultipartContainer(World world, BlockPos pos) {
         setWorld(world);
@@ -109,7 +113,13 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
                     BlockMultipartContainer.PROPERTY_TICKING, this instanceof TileMultipartContainer.Ticking || tile instanceof ITickable));
             TileMultipartContainer container = (TileMultipartContainer) MultipartHelper.getContainer(getWorld(), getPos()).get();
             copyTo(container);
-            container.addPart(slot, state, tile);
+            container.notifyClients = false;
+            try {
+                container.addPart(slot, state, tile);
+            } finally {
+                container.notifyClients = true;
+            }
+
             return;
         }
 
@@ -130,15 +140,18 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
             tile.validate();
         }
 
-        if (notify) {
+        if (notify && !getWorld().isRemote) {
             parts.values().forEach(i -> {
                 if (i != info) {
                     i.getPart().onPartChanged(i, info);
                 }
             });
             IBlockState st = getWorld().getBlockState(getPos());
-            getWorld().notifyBlockUpdate(getPos(), st, st, 3);
+            getWorld().notifyBlockUpdate(getPos(), st, st, 1);
             getWorld().checkLight(getPos());
+            if (notifyClients) {
+                MultipartNetworkHandler.sendToAllWatching(new PacketMultipartAdd(info), getWorld(), getPos());
+            }
         }
     }
 
@@ -162,15 +175,17 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
                 getWorld().setTileEntity(getPos(), te);
             }
         } else if (prev.get().getTile() != null && prev.get().getTile() instanceof ITickable && !hasTickingParts()) {
-            getWorld().setBlockState(getPos(),
-                    MCMultiPart.multipart.getDefaultState().withProperty(BlockMultipartContainer.PROPERTY_TICKING, false));
+            newState = MCMultiPart.multipart.getDefaultState().withProperty(BlockMultipartContainer.PROPERTY_TICKING, false);
+            getWorld().setBlockState(getPos(), newState);
             TileMultipartContainer container = (TileMultipartContainer) MultipartHelper.getContainer(getWorld(), getPos()).get();
             copyTo(container);
             getWorld().checkLight(getPos());
-            return;
         }
-        getWorld().notifyBlockUpdate(getPos(), state, newState, 3);
-        getWorld().checkLight(getPos());
+        if (!getWorld().isRemote) {
+            getWorld().notifyBlockUpdate(getPos(), state, newState, 1);
+            getWorld().checkLight(getPos());
+            MultipartNetworkHandler.sendToAllWatching(new PacketMultipartRemove(getPos(), slot), getWorld(), getPos());
+        }
     }
 
     private boolean hasTickingParts() {
@@ -193,6 +208,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         container.parts.values().forEach(i -> i.setContainer(container));
     }
 
+    @Override
     public Map<IPartSlot, PartInfo> getParts() {
         return parts;
     }
@@ -211,17 +227,6 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     }
 
     @Override
-    public SPacketUpdateTileEntity getUpdatePacket() {
-        return new SPacketUpdateTileEntity(getPos(), 0, getUpdateTag());
-    }
-
-    @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
-        handleUpdateTag(pkt.getNbtCompound());
-        getWorld().markBlockRangeForRenderUpdate(getPos(), getPos());
-    }
-
-    @Override
     public NBTTagCompound getUpdateTag() {
         NBTTagCompound tag = super.getUpdateTag();
         writeParts(tag, true);
@@ -234,12 +239,21 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         readParts(tag, true, getWorld());
     }
 
+    @Override
+    public SPacketUpdateTileEntity getUpdatePacket() {
+        return new SPacketUpdateTileEntity(getPos(), 0, getUpdateTag());
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+        handleUpdateTag(pkt.getNbtCompound());
+    }
+
     private NBTTagCompound writeParts(NBTTagCompound tag, boolean update) {
-        ObjectIntIdentityMap<IBlockState> stateMap = GameData.getBlockStateIDMap();
         NBTTagCompound parts = new NBTTagCompound();
         this.parts.forEach((s, i) -> {
             NBTTagCompound t = new NBTTagCompound();
-            t.setInteger("state", stateMap.get(i.getState()));
+            t.setInteger("state", MCMultiPart.stateMap.get(i.getState()));
             IMultipartTile tile = i.getTile();
             if (tile != null) {
                 if (update) {

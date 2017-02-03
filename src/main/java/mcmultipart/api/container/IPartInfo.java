@@ -29,4 +29,8 @@ public interface IPartInfo {
 
     public IMultipartTile getTile();
 
+    public default void remove() {
+        getContainer().removePart(getSlot());
+    }
+
 }

@@ -4,7 +4,7 @@ import mcmultipart.api.multipart.IMultipartRegistry;
 
 public interface IMCMPAddon {
 
-    public default void preInit(IMultipartRegistry registry) {
+    public default void registerParts(IMultipartRegistry registry) {
 
     }
 

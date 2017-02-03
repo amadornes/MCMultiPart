@@ -8,26 +8,29 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class MultipartNetworkHandler {
 
     public static final SimpleNetworkWrapper wrapper = NetworkRegistry.INSTANCE.newSimpleChannel(MCMultiPart.MODID);
 
     public static void init() {
-        // wrapper.registerMessage(MessageMultipartChange.class, MessageMultipartChange.class, 0, Side.CLIENT);
-        // wrapper.registerMessage(MessageWrappedPartPlacement.class, MessageWrappedPartPlacement.class, 1, Side.SERVER);
+        wrapper.registerMessage(PacketMultipartChange.class, PacketMultipartChange.class, 0, Side.CLIENT);
+        wrapper.registerMessage(PacketMultipartAdd.class, PacketMultipartAdd.class, 1, Side.CLIENT);
+        wrapper.registerMessage(PacketMultipartRemove.class, PacketMultipartRemove.class, 2, Side.CLIENT);
     }
 
-    public static void sendToAllWatching(IMessage message, World world, BlockPos pos) {
+    public static void sendToAllWatching(Packet<?> message, World world, BlockPos pos) {
         PlayerChunkMap manager = ((WorldServer) world).getPlayerChunkMap();
-        for (EntityPlayer player : world.playerEntities)
-            if (manager.isPlayerWatchingChunk((EntityPlayerMP) player, pos.getX() >> 4, pos.getZ() >> 4))
+        for (EntityPlayer player : world.playerEntities) {
+            if (manager.isPlayerWatchingChunk((EntityPlayerMP) player, pos.getX() >> 4, pos.getZ() >> 4)) {
                 wrapper.sendTo(message, (EntityPlayerMP) player);
+            }
+        }
     }
 
-    public static void sendToServer(IMessage message) {
+    public static void sendToServer(Packet<?> message) {
         wrapper.sendToServer(message);
     }
 

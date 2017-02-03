@@ -14,12 +14,15 @@ import mcmultipart.MCMultiPart;
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.multipart.IMultipart;
 import mcmultipart.api.multipart.IMultipartTile;
+import mcmultipart.api.multipart.MultipartHelper;
 import mcmultipart.api.slot.IPartSlot;
 import mcmultipart.api.world.IWorldView;
 import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.util.MCMPBlockAccessWrapper;
 import mcmultipart.util.MCMPWorldWrapper;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
@@ -27,35 +30,26 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-public class PartInfo implements IPartInfo {
+public final class PartInfo implements IPartInfo {
 
     private static final List<BlockRenderLayer> RENDER_LAYERS = Arrays.asList(BlockRenderLayer.values());
 
     private TileMultipartContainer container;
     private final IPartSlot slot;
-    private final IMultipart part;
+    private IMultipart part;
     private IBlockState state;
     private IMultipartTile tile;
 
-    private Set<Long> scheduledTicks;
+    private IWorldView view;
+    private MCMPWorldWrapper world;
 
-    private final IWorldView view;
-    private final MCMPWorldWrapper world;
+    private Set<Long> scheduledTicks;
 
     public PartInfo(TileMultipartContainer container, IPartSlot slot, IMultipart part, IBlockState state, IMultipartTile tile) {
         this.container = container;
         this.slot = slot;
-        this.part = part;
-        this.state = state;
-        this.tile = tile;
-
-        this.view = container != null && part.shouldWrapWorld() ? part.getWorldView(this) : null;
-        this.world = this.view != null ? new MCMPWorldWrapper(this, this.view) : null;
-
-        if (container != null && this.tile != null) {
-            this.tile.setWorld(getWorld());
-            this.tile.setPos(getPos());
-        }
+        setState(state, false);
+        setTile(tile);
     }
 
     @Override
@@ -93,11 +87,33 @@ public class PartInfo implements IPartInfo {
     }
 
     public void setState(IBlockState state) {
+        setState(state, true);
+    }
+
+    private void setState(IBlockState state, boolean checkTE) {
+        if (state == this.state) {
+            return;
+        }
+        IBlockState oldState = this.state;
         this.state = state;
+
+        if (oldState == null || oldState.getBlock() != state.getBlock()) {
+            this.part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
+            this.view = container != null && part.shouldWrapWorld() ? part.getWorldView(this) : null;
+            this.world = this.view != null ? new MCMPWorldWrapper(this, this.view) : null;
+        }
+
+        if (checkTE && (this.tile == null || this.tile.shouldRefresh(getWorld(), getPos(), oldState, state))) {
+            setTile(part.createMultipartTile(getWorld(), getSlot(), state));
+        }
     }
 
     public void setTile(IMultipartTile tile) {
         this.tile = tile;
+        if (this.container != null && this.tile != null) {
+            this.tile.setWorld(getWorld());
+            this.tile.setPos(getPos());
+        }
     }
 
     public IBlockAccess wrapAsNeeded(IBlockAccess world) {
@@ -181,6 +197,81 @@ public class PartInfo implements IPartInfo {
         IPartSlot slot = part.getSlotFromWorld(world, pos, state);
         IMultipartTile tile = Optional.ofNullable(te).map(part::convertToMultipartTile).orElse(null);
         return new PartInfo(null, slot, part, state, tile);
+    }
+
+    public static void handleAdditionPacket(World world, BlockPos pos, IPartSlot slot, IBlockState state, NBTTagCompound tag) {
+        MultipartHelper.getInfo(world, pos, slot).ifPresent(IPartInfo::remove);
+        TileMultipartContainer tile = (TileMultipartContainer) MultipartHelper.getOrConvertContainer(world, pos).orElse(null);
+        if (tile != null) {
+            tile.addPart(slot, state);
+            tile = (TileMultipartContainer) MultipartHelper.getOrConvertContainer(world, pos).orElse(null);
+            PartInfo info = (PartInfo) tile.get(slot).orElse(null);
+            if (info != null) {
+                if (tag != null) {
+                    if (info.getTile() != null) {
+                        info.getTile().handleUpdateTag(tag);
+                    } else {
+                        MCMultiPart.log.error("Failed to handle the addition of the part " + state.getBlock().getRegistryName());
+                        return;
+                    }
+                }
+            } else {
+                MCMultiPart.log.error("Failed to handle the addition of the part " + state.getBlock().getRegistryName());
+                return;
+            }
+        } else {
+            MCMultiPart.log.error("Failed to handle the addition of the part " + state.getBlock().getRegistryName());
+            return;
+        }
+        world.markBlockRangeForRenderUpdate(pos, pos);
+    }
+
+    public static void handleUpdatePacket(World world, BlockPos pos, IPartSlot slot, IBlockState state, SPacketUpdateTileEntity pkt) {
+        PartInfo info = (PartInfo) MultipartHelper.getInfo(world, pos, slot).orElse(null);
+        if (info != null) {
+            info.setState(state);
+            if (pkt != null) {
+                if (info.getTile() == null) {
+                    info.setTile(info.part.createMultipartTile(world, slot, state));
+                }
+                if (info.getTile() != null) {
+                    info.getTile().onDataPacket(MCMultiPart.proxy.getNetworkManager(), pkt);
+                }
+            } else {
+                info.setTile(info.part.createMultipartTile(world, slot, state));
+            }
+        } else {
+            TileMultipartContainer tile = (TileMultipartContainer) MultipartHelper.getOrConvertContainer(world, pos).orElse(null);
+            if (tile != null) {
+                tile.addPart(slot, state);
+                tile = (TileMultipartContainer) MultipartHelper.getOrConvertContainer(world, pos).orElse(null);
+                info = (PartInfo) tile.get(slot).orElse(null);
+                if (info != null) {
+                    if (pkt != null) {
+                        if (info.getTile() != null) {
+                            info.getTile().onDataPacket(MCMultiPart.proxy.getNetworkManager(), pkt);
+                        } else {
+                            MCMultiPart.log.error("Failed to handle update packet for part " + state.getBlock().getRegistryName());
+                            return;
+                        }
+                    }
+                } else {
+                    MCMultiPart.log.error("Failed to handle update packet for part " + state.getBlock().getRegistryName());
+                    return;
+                }
+            } else {
+                MCMultiPart.log.error("Failed to handle update packet for part " + state.getBlock().getRegistryName());
+                return;
+            }
+        }
+        world.markBlockRangeForRenderUpdate(pos, pos);
+    }
+
+    public static void handleRemovalPacket(World world, BlockPos pos, IPartSlot slot) {
+        MultipartHelper.getInfo(world, pos, slot).ifPresent(info -> {
+            info.remove();
+            world.markBlockRangeForRenderUpdate(pos, pos);
+        });
     }
 
 }
