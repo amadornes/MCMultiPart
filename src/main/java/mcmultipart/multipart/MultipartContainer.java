@@ -161,10 +161,16 @@ public class MultipartContainer implements IMultipartContainer {
     public void addPart(IMultipart part) {
 
         if (getWorldIn().isRemote) throw new IllegalStateException("Attempted to add a part on the client!");
-        addPart(part, true, true, true, true, UUID.randomUUID());
+        addPart(part, true, true, UUID.randomUUID());
     }
 
+    @Deprecated
     public void addPart(IMultipart part, boolean notifyPart, boolean notifyNeighbors, boolean tryConvert, boolean postEvent, UUID id) {
+        
+        addPart(part, notifyPart || notifyNeighbors, true, id);
+    }
+
+    public void addPart(IMultipart part, boolean notify, boolean sendPacket, UUID id) {
 
         if (part == null) throw new NullPointerException("Attempted to add a null part at " + getPosIn());
         if (getParts().contains(part))
@@ -186,17 +192,16 @@ public class MultipartContainer implements IMultipartContainer {
         this.partMap = partMap;
         this.slotMap = slotMap;
 
-        if (postEvent) MinecraftForge.EVENT_BUS.post(new PartEvent.Add(part));
-
-        if (notifyPart) part.onAdded();
-        if (notifyNeighbors) {
+        if (notify) {
+            MinecraftForge.EVENT_BUS.post(new PartEvent.Add(part));
+            part.onAdded();
             notifyPartChanged(part);
             getWorldIn().checkLight(getPosIn());
         }
 
         if (listener != null) listener.onAddPartPost(part);
 
-        if (getWorldIn() != null && !getWorldIn().isRemote && (!canTurnIntoBlock || !tryConvert || !MultipartRegistry.convertToBlock(this)))
+        if (sendPacket && getWorldIn() != null && !getWorldIn().isRemote && (!canTurnIntoBlock || !notify || !MultipartRegistry.convertToBlock(this)))
             MessageMultipartChange.newPacket(getWorldIn(), getPosIn(), part, Type.ADD).send(getWorldIn());
     }
 
@@ -265,7 +270,7 @@ public class MultipartContainer implements IMultipartContainer {
     @Override
     public void addPart(UUID id, IMultipart part) {
 
-        addPart(part, true, true, true, true, id);
+        addPart(part, true, true, id);
     }
 
     @Override
@@ -447,7 +452,7 @@ public class MultipartContainer implements IMultipartContainer {
             NBTTagCompound t = partList.getCompoundTagAt(i);
             UUID id = UUID.fromString(t.getString("__partID"));
             IMultipart part = MultipartRegistry.createPart(new ResourceLocation(t.getString("__partType")), t);
-            if (part != null) addPart(part, false, false, false, false, id);
+            if (part != null) addPart(part, false, false, id);
         }
     }
 
@@ -477,7 +482,7 @@ public class MultipartContainer implements IMultipartContainer {
             if (part == null) {
                 part = MultipartRegistry.createPart(new ResourceLocation(t.getString("__partType")),
                         new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
-                addPart(part, false, false, false, false, id);
+                addPart(part, false, false, id);
             } else {
                 part.readUpdatePacket(new PacketBuffer(Unpooled.copiedBuffer(t.getByteArray("data"))));
             }
