@@ -20,6 +20,7 @@ public class MultipartNetworkHandler {
 
         wrapper.registerMessage(MessageMultipartChange.class, MessageMultipartChange.class, 0, Side.CLIENT);
         wrapper.registerMessage(MessageWrappedPartPlacement.class, MessageWrappedPartPlacement.class, 1, Side.SERVER);
+        wrapper.registerMessage(MessageSplit.class, MessageSplit.class, 2, Side.CLIENT);
     }
 
     public static void sendToAllWatching(IMessage message, World world, BlockPos pos) {

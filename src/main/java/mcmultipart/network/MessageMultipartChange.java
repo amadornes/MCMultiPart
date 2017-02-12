@@ -139,7 +139,7 @@ public class MessageMultipartChange implements IMessage, IMessageHandler<Message
 
     public void send(World world) {
 
-        MultipartNetworkHandler.sendToAllWatching(this, world, pos);
+        for(IMessage packet : MessageSplit.split(this)) MultipartNetworkHandler.sendToAllWatching(packet, world, pos);
     }
 
     public static MessageMultipartChange newPacket(World world, BlockPos pos, IMultipart part, Type type) {
