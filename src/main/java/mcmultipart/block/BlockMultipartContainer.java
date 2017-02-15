@@ -80,8 +80,8 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     @Override
     public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox,
-            List<AxisAlignedBB> collidingBoxes, Entity entity) {
-        forEach(world, pos, i -> i.getPart().addCollisionBoxToList(i, entityBox, collidingBoxes, entity));
+            List<AxisAlignedBB> collidingBoxes, Entity entity, boolean unknown) {
+        forEach(world, pos, i -> i.getPart().addCollisionBoxToList(i, entityBox, collidingBoxes, entity, unknown));
     }
 
     @Override

@@ -275,8 +275,9 @@ public interface IMultipart {
         part.getState().getBlock().updateTick(part.getWorld(), part.getPos(), part.getState(), rand);
     }
 
-    public default void addCollisionBoxToList(IPartInfo part, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entity) {
-        part.getState().addCollisionBoxToList(part.getWorld(), part.getPos(), entityBox, collidingBoxes, entity);
+    public default void addCollisionBoxToList(IPartInfo part, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entity,
+            boolean unknown) {
+        part.getState().addCollisionBoxToList(part.getWorld(), part.getPos(), entityBox, collidingBoxes, entity, unknown);
     }
 
     public default AxisAlignedBB getCollisionBoundingBox(IBlockState state, World world, BlockPos pos) {

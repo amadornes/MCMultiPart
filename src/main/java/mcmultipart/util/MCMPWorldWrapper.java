@@ -74,7 +74,7 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     public MCMPWorldWrapper(PartInfo part, IWorldView view) {
         super(part.getActualWorld().getSaveHandler(), part.getActualWorld().getWorldInfo(), part.getActualWorld().provider,
-                part.getActualWorld().theProfiler, part.getActualWorld().isRemote);
+                part.getActualWorld().profiler, part.getActualWorld().isRemote);
         this.part = part;
         this.view = view;
     }
@@ -503,11 +503,6 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
     @Override
     public List<AxisAlignedBB> getCollisionBoxes(Entity entityIn, AxisAlignedBB aabb) {
         return getActualWorld().getCollisionBoxes(entityIn, aabb);
-    }
-
-    @Override
-    public boolean isInsideBorder(WorldBorder worldBorderIn, Entity entityIn) {
-        return getActualWorld().isInsideBorder(worldBorderIn, entityIn);
     }
 
     @Override

@@ -19,7 +19,7 @@ public abstract class Packet<T extends Packet<T>> implements IMessage, IMessageH
             if (ctx.side == Side.CLIENT) {
                 message.handleClient(MCMultiPart.proxy.getPlayer());
             } else {
-                message.handleServer(ctx.getServerHandler().playerEntity);
+                message.handleServer(ctx.getServerHandler().player);
             }
         }, ctx.side);
         return null;
