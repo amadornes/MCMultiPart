@@ -100,7 +100,7 @@ public final class PartInfo implements IPartInfo {
         if (oldState == null || oldState.getBlock() != state.getBlock()) {
             this.part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
             this.view = container != null && part.shouldWrapWorld() ? part.getWorldView(this) : null;
-            this.world = this.view != null ? new MCMPWorldWrapper(this, this.view) : null;
+            this.world = this.view != null ? new MCMPWorldWrapper(this, this, this.view) : null;
         }
 
         if (checkTE && (this.tile == null || this.tile.shouldRefresh(getWorld(), getPos(), oldState, state))) {
@@ -118,10 +118,10 @@ public final class PartInfo implements IPartInfo {
 
     public IBlockAccess wrapAsNeeded(IBlockAccess world) {
         if (view != null) {
-            if (world == this.world) {
+            if (world == this.world || world == this.world.getActualWorld()) {
                 return this.world;
             } else {
-                return new MCMPBlockAccessWrapper(world, view);
+                return new MCMPBlockAccessWrapper(world, this, view);
             }
         }
         return world;

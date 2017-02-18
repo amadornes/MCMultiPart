@@ -11,6 +11,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSetMultimap;
 
+import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.multipart.IMultipart;
 import mcmultipart.api.world.IMultipartWorld;
 import mcmultipart.api.world.IWorldView;
@@ -70,18 +71,25 @@ import net.minecraftforge.common.capabilities.Capability;
 public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     private final PartInfo part;
+    private final PartInfo partInfo;
     private final IWorldView view;
 
-    public MCMPWorldWrapper(PartInfo part, IWorldView view) {
+    public MCMPWorldWrapper(PartInfo part, PartInfo partInfo, IWorldView view) {
         super(part.getActualWorld().getSaveHandler(), part.getActualWorld().getWorldInfo(), part.getActualWorld().provider,
                 part.getActualWorld().profiler, part.getActualWorld().isRemote);
         this.part = part;
+        this.partInfo = partInfo;
         this.view = view;
     }
 
     @Override
     public World getActualWorld() {
         return part.getActualWorld();
+    }
+
+    @Override
+    public IPartInfo getPartInfo() {
+        return partInfo;
     }
 
     @Override

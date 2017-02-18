@@ -1,7 +1,9 @@
 package mcmultipart.util;
 
+import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.world.IMultipartBlockAccess;
 import mcmultipart.api.world.IWorldView;
+import mcmultipart.multipart.PartInfo;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -13,16 +15,23 @@ import net.minecraft.world.biome.Biome;
 public class MCMPBlockAccessWrapper implements IBlockAccess, IMultipartBlockAccess {
 
     private final IBlockAccess parent;
+    private final PartInfo partInfo;
     private final IWorldView view;
 
-    public MCMPBlockAccessWrapper(IBlockAccess parent, IWorldView view) {
+    public MCMPBlockAccessWrapper(IBlockAccess parent, PartInfo partInfo, IWorldView view) {
         this.parent = parent;
+        this.partInfo = partInfo;
         this.view = view;
     }
 
     @Override
     public IBlockAccess getActualWorld() {
         return parent;
+    }
+
+    @Override
+    public IPartInfo getPartInfo() {
+        return partInfo;
     }
 
     @Override
