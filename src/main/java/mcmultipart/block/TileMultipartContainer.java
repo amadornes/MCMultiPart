@@ -121,8 +121,9 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     @Override
     public void addPart(IPartSlot slot, IBlockState state, IMultipartTile tile) {
         if ((tile != null && tile.isTickable() && !(this instanceof TileMultipartContainer.Ticking)) || !isInWorld) {
-            getWorld().setBlockState(getPos(), MCMultiPart.multipart.getDefaultState().withProperty(
-                    BlockMultipartContainer.PROPERTY_TICKING, this instanceof TileMultipartContainer.Ticking || tile.isTickable()));
+            getWorld().setBlockState(getPos(),
+                    MCMultiPart.multipart.getDefaultState().withProperty(BlockMultipartContainer.PROPERTY_TICKING,
+                            this instanceof TileMultipartContainer.Ticking || (tile != null && tile.isTickable())));
             TileMultipartContainer container = (TileMultipartContainer) MultipartHelper.getContainer(getWorld(), getPos()).get();
             copyTo(container);
             container.notifyClients = false;
