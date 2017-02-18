@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import mcmultipart.api.capability.MCMPCapabilityHelper;
 import mcmultipart.api.capability.MCMPCapabilities;
+import mcmultipart.api.capability.MCMPCapabilityHelper;
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.slot.IPartSlot;
 import mcmultipart.api.world.IWorldView;
@@ -53,9 +53,8 @@ public interface IMultipart {
     }
 
     public default IMultipartTile convertToMultipartTile(TileEntity tileEntity) {
-        return MCMPCapabilityHelper.optional(tileEntity, MCMPCapabilities.MULTIPART_TILE, null)
-                .orElseThrow(() -> new IllegalStateException(
-                        "The block " + getBlock().getRegistryName() + " is multipart-compatible but its TileEntity isn't!"));
+        return MCMPCapabilityHelper.optional(tileEntity, MCMPCapabilities.MULTIPART_TILE, null).orElseThrow(() -> new IllegalStateException(
+                "The block " + getBlock().getRegistryName() + " is multipart-compatible but its TileEntity isn't!"));
     }
 
     public default IMultipartTile createMultipartTile(World world, IPartSlot slot, IBlockState state) {
@@ -248,6 +247,10 @@ public interface IMultipart {
 
     public default void onPartClicked(IPartInfo part, EntityPlayer player, RayTraceResult hit) {
         part.getState().getBlock().onBlockClicked(part.getWorld(), part.getPos(), player);
+    }
+
+    public default void neighborChanged(IPartInfo part, Block neighborBlock, BlockPos neighborPos) {
+        part.getState().neighborChanged(part.getWorld(), part.getPos(), neighborBlock, neighborPos);
     }
 
     public default boolean onPartActivated(IPartInfo part, EntityPlayer player, EnumHand hand, RayTraceResult hit) {
