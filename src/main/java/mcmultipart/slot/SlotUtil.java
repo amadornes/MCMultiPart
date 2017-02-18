@@ -43,7 +43,7 @@ public class SlotUtil {
                         if (mergeList != null) {
                             mergeList.add(value);
                             return joiner.apply(mergeList);
-                        } else if (startVal != null) {
+                        } else if (startVal != null || !ignoreNull) {
                             return joiner.apply(Arrays.asList(startVal, value));
                         } else {
                             return value;
@@ -54,7 +54,9 @@ public class SlotUtil {
                     if (value != null) {
                         if (mergeList == null) {
                             mergeList = new LinkedList<>();
-                            mergeList.add(startVal);
+                            if (startVal != null || !ignoreNull) {
+                                mergeList.add(startVal);
+                            }
                         }
                         mergeList.add(value);
                     }
@@ -63,7 +65,7 @@ public class SlotUtil {
                     if (mergeList != null) {
                         mergeList.add(value);
                         return joiner.apply(mergeList);
-                    } else if (startVal != null) {
+                    } else if (startVal != null || !ignoreNull) {
                         return joiner.apply(Arrays.asList(startVal, value));
                     } else {
                         return value;
