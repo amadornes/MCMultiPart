@@ -3,12 +3,13 @@ package mcmultipart.block;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 
 import mcmultipart.MCMultiPart;
 import mcmultipart.api.capability.MCMPCapabilities;
@@ -17,6 +18,7 @@ import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.multipart.IMultipart;
 import mcmultipart.api.multipart.IMultipartTile;
 import mcmultipart.api.multipart.MultipartHelper;
+import mcmultipart.api.multipart.OcclusionHelper;
 import mcmultipart.api.slot.IPartSlot;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.PartInfo;
@@ -93,15 +95,20 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         PartInfo info = new PartInfo(this, slot, part, state, tile);
 
         // If any of the slots required by this multipart aren't empty, fail.
-        if (Stream.concat(part.getGhostSlots(world, pos, info).stream(), Stream.of(slot)).anyMatch(parts::containsKey)) {
+        Set<IPartSlot> partSlots = Sets.newIdentityHashSet();
+        partSlots.addAll(part.getGhostSlots(world, pos, info));
+        partSlots.add(slot);
+        if (partSlots.stream().anyMatch(parts::containsKey) || parts.values().stream()
+                .map(i -> i.getPart().getGhostSlots(i.getWorld(), i.getPos(), i)).flatMap(Set::stream).anyMatch(partSlots::contains)) {
+            partSlots.clear();
             return false;
         }
+        partSlots.clear();
+
         // If the occlusion boxes of this part intesect with any other parts', fail.
-        // if (parts.values().stream().anyMatch(i -> OcclusionHelper.testIntersection(world, pos, info, i))) {
-        // return false;
-        // }
-        // If the collision boxes of this part intersect with an entity in the world, fail.
-        // TODO: Collision testing
+        if (parts.values().stream().anyMatch(i -> OcclusionHelper.testIntersection(world, pos, info, i))) {
+            return false;
+        }
 
         return true;
     }
@@ -176,15 +183,17 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
             }
         } else if (prev.get().getTile() != null && prev.get().getTile() instanceof ITickable && !hasTickingParts()) {
             newState = MCMultiPart.multipart.getDefaultState().withProperty(BlockMultipartContainer.PROPERTY_TICKING, false);
-            getWorld().setBlockState(getPos(), newState);
+            getWorld().setBlockState(getPos(), newState, 0);
             TileMultipartContainer container = (TileMultipartContainer) MultipartHelper.getContainer(getWorld(), getPos()).get();
             copyTo(container);
-            getWorld().checkLight(getPos());
         }
         if (!getWorld().isRemote) {
-            getWorld().notifyBlockUpdate(getPos(), state, newState, 1);
+            getWorld().markAndNotifyBlock(getPos(), getWorld().getChunkFromBlockCoords(getPos()), state, newState, 3);
             getWorld().checkLight(getPos());
             MultipartNetworkHandler.sendToAllWatching(new PacketMultipartRemove(getPos(), slot), getWorld(), getPos());
+        } else {
+            getWorld().markAndNotifyBlock(getPos(), getWorld().getChunkFromBlockCoords(getPos()), state, newState, 2);
+            getWorld().checkLight(getPos());
         }
     }
 
