@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import org.lwjgl.opengl.GL11;
+
 import mcmultipart.MCMultiPart;
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.multipart.IMultipartTile;
@@ -12,6 +14,7 @@ import mcmultipart.block.TileMultipartContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -21,13 +24,14 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
 
 public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultipartContainer> {
+
+    public static int pass = 0;
 
     @Override
     public void renderTileEntityAt(TileMultipartContainer te, double x, double y, double z, float partialTicks, int destroyStage) {
@@ -81,25 +85,52 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
             }
         }
 
-        Set<TileEntity> fast = new HashSet<>(), slow = new HashSet<>();
+        Set<IMultipartTile> fast = new HashSet<>(), slow = new HashSet<>();
         te.getParts().values().forEach(p -> {
             if (p.getTile() != null) {
-                (p.getTile().hasFastRenderer() ? fast : slow).add(p.getTile().getTileEntity());
+                (p.getTile().hasFastRenderer() ? fast : slow).add(p.getTile());
             }
         });
 
         if (!fast.isEmpty()) {
-            Tessellator.getInstance().getBuffer().begin(7, DefaultVertexFormats.BLOCK);
-            Tessellator.getInstance().getBuffer().setTranslation(0, 0, 0);
+            Tessellator tessellator = Tessellator.getInstance();
+            VertexBuffer buffer = tessellator.getBuffer();
+            this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+            RenderHelper.disableStandardItemLighting();
+            GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GlStateManager.enableBlend();
+            GlStateManager.disableCull();
 
-            VertexBuffer buffer = Tessellator.getInstance().getBuffer();
-            fast.forEach(t -> TileEntityRendererDispatcher.instance.getSpecialRenderer(t).renderTileEntityFast(t, x, y, z, partialTicks,
-                    destroyStage, buffer));
+            if (Minecraft.isAmbientOcclusionEnabled()) {
+                GlStateManager.shadeModel(GL11.GL_SMOOTH);
+            } else {
+                GlStateManager.shadeModel(GL11.GL_FLAT);
+            }
 
-            Tessellator.getInstance().draw();
+            buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+
+            fast.forEach(t -> {
+                if (t.shouldRenderInPass(pass)) {
+                    buffer.setTranslation(0, 0, 0);
+                    TileEntityRendererDispatcher.instance.getSpecialRenderer(t.getTileEntity()).renderTileEntityFast(t.getTileEntity(), x,
+                            y, z, partialTicks, destroyStage, buffer);
+                }
+            });
+
+            if (pass > 0) {
+                buffer.sortVertexData((float) TileEntityRendererDispatcher.staticPlayerX,
+                        (float) TileEntityRendererDispatcher.staticPlayerY, (float) TileEntityRendererDispatcher.staticPlayerZ);
+            }
+
+            tessellator.draw();
+            RenderHelper.enableStandardItemLighting();
         }
 
-        slow.forEach(t -> TileEntityRendererDispatcher.instance.renderTileEntityAt(t, x, y, z, partialTicks, destroyStage));
+        slow.forEach(t -> {
+            if (t.shouldRenderInPass(pass)) {
+                TileEntityRendererDispatcher.instance.renderTileEntityAt(t.getTileEntity(), x, y, z, partialTicks, destroyStage);
+            }
+        });
     }
 
     @Override
@@ -107,7 +138,7 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
             VertexBuffer buffer) {
         te.getParts().values().forEach(p -> {
             IMultipartTile t = p.getTile();
-            if (t != null && t.hasFastRenderer()) {
+            if (t != null && t.hasFastRenderer() && t.shouldRenderInPass(pass)) {
                 TileEntityRendererDispatcher.instance.getSpecialRenderer(t.getTileEntity()).renderTileEntityFast(t.getTileEntity(), x, y, z,
                         partialTicks, destroyStage, buffer);
             }

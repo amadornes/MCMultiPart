@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import com.google.common.base.Preconditions;
@@ -21,6 +20,7 @@ import mcmultipart.api.multipart.MultipartHelper;
 import mcmultipart.api.multipart.OcclusionHelper;
 import mcmultipart.api.slot.IPartSlot;
 import mcmultipart.capability.CapabilityJoiner;
+import mcmultipart.client.TESRMultipartContainer;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.PartInfo;
 import mcmultipart.network.MultipartNetworkHandler;
@@ -28,6 +28,7 @@ import mcmultipart.network.PacketMultipartAdd;
 import mcmultipart.network.PacketMultipartRemove;
 import mcmultipart.slot.SlotUtil;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
@@ -41,7 +42,10 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.GameData;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class TileMultipartContainer extends TileEntity implements IMultipartContainer {
 
@@ -356,13 +360,6 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     }
 
     @Override
-    public boolean shouldRenderInPass(int pass) {
-        AtomicBoolean should = new AtomicBoolean(false);
-        forEachTile(te -> should.compareAndSet(false, te.shouldRenderInPass(pass)));
-        return should.get();
-    }
-
-    @Override
     public void updateContainingBlockInfo() {
         super.updateContainingBlockInfo();
         forEachTile(IMultipartTile::updateContainingBlockInfo);
@@ -383,6 +380,38 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     @Override
     public boolean canRenderBreaking() {
         return true;
+    }
+
+    @Override
+    public boolean hasFastRenderer() {
+        if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+            return hasFastRendererC();
+        }
+        return true;
+    }
+
+    @SideOnly(Side.CLIENT)
+    private boolean hasFastRendererC() {
+        for (IPartInfo info : parts.values()) {
+            TileEntity te = info.getTile() != null ? info.getTile().getTileEntity() : null;
+            if (te != null && TileEntityRendererDispatcher.instance.getSpecialRenderer(te) != null && !te.hasFastRenderer()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean shouldRenderInPass(int pass) {
+        if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+            shouldRenderInPassC(pass);
+        }
+        return true;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void shouldRenderInPassC(int pass) {
+        TESRMultipartContainer.pass = pass;
     }
 
     @Override
