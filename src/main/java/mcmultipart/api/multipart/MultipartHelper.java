@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import com.google.common.base.Preconditions;
 
-import mcmultipart.api.capability.CapabilityHelper;
+import mcmultipart.api.capability.MCMPCapabilityHelper;
 import mcmultipart.api.capability.MCMPCapabilities;
 import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.container.IMultipartContainerBlock;
@@ -78,7 +78,7 @@ public final class MultipartHelper {
         if (world.getBlockState(pos).getBlock() instanceof IMultipartContainerBlock) {
             TileEntity te = world.getTileEntity(pos);
             if (te != null) {
-                return CapabilityHelper.optional(te, MCMPCapabilities.CAPABILITY_MULTIPART_CONTAINER, null);
+                return MCMPCapabilityHelper.optional(te, MCMPCapabilities.MULTIPART_CONTAINER, null);
             }
         }
         return Optional.empty();
@@ -89,7 +89,7 @@ public final class MultipartHelper {
         if (state.getBlock() instanceof IMultipartContainerBlock) {
             TileEntity te = world.getTileEntity(pos);
             if (te != null) {
-                return CapabilityHelper.optional(te, MCMPCapabilities.CAPABILITY_MULTIPART_CONTAINER, null);
+                return MCMPCapabilityHelper.optional(te, MCMPCapabilities.MULTIPART_CONTAINER, null);
             }
         } else {
             IMultipart part = getPart.apply(state.getBlock());

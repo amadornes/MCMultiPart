@@ -2,6 +2,7 @@ package mcmultipart;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -11,6 +12,7 @@ import com.google.common.base.Throwables;
 
 import mcmultipart.api.addon.IMCMPAddon;
 import mcmultipart.api.addon.MCMPAddon;
+import mcmultipart.api.capability.MCMPCapabilityHelper;
 import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.microblock.MicroMaterial;
 import mcmultipart.api.microblock.MicroblockType;
@@ -23,6 +25,8 @@ import mcmultipart.api.slot.EnumFaceSlot;
 import mcmultipart.api.slot.IPartSlot;
 import mcmultipart.block.BlockMultipartContainer;
 import mcmultipart.block.TileMultipartContainer;
+import mcmultipart.capability.CapabilityJoiner;
+import mcmultipart.capability.CapabilityJoiner.JoinedItemHandler;
 import mcmultipart.capability.CapabilityMultipartContainer;
 import mcmultipart.capability.CapabilityMultipartTile;
 import mcmultipart.multipart.MultipartRegistry;
@@ -35,6 +39,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -46,6 +51,7 @@ import net.minecraftforge.fml.common.registry.GameData;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.common.registry.RegistryBuilder;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 @Mod(modid = MCMultiPart.MODID, name = MCMultiPart.NAME, version = MCMultiPart.VERSION)
 public class MCMultiPart {
@@ -109,6 +115,8 @@ public class MCMultiPart {
         CapabilityMultipartContainer.register();
         CapabilityMultipartTile.register();
 
+        MCMPCapabilityHelper.registerCapabilityJoiner(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, JoinedItemHandler::join);
+
         MultipartNetworkHandler.init();
 
         MinecraftForge.EVENT_BUS.register(proxy);
@@ -138,7 +146,7 @@ public class MCMultiPart {
 
     }
 
-    public void initAPI() throws Exception {
+    public <T> void initAPI() throws Exception {
         ReflectionHelper.setPrivateValue(MultipartHelper.class, null, //
                 (BiFunction<World, BlockPos, IMultipartContainer>) TileMultipartContainer::createTileFromWorldInfo,
                 "createTileFromWorldInfo");
@@ -146,6 +154,9 @@ public class MCMultiPart {
                 (BiFunction<World, BlockPos, IMultipartContainer>) TileMultipartContainer::createTile, "createTile");
         ReflectionHelper.setPrivateValue(MultipartHelper.class, null, //
                 (Function<Block, IMultipart>) MultipartRegistry.INSTANCE::getPart, "getPart");
+
+        ReflectionHelper.setPrivateValue(MCMPCapabilityHelper.class, null, //
+                (BiConsumer<Capability<T>, Function<List<T>, T>>) CapabilityJoiner::registerCapabilityJoiner, "registerJoiner");
     }
 
 }

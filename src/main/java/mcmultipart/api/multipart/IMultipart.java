@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import mcmultipart.api.capability.CapabilityHelper;
+import mcmultipart.api.capability.MCMPCapabilityHelper;
 import mcmultipart.api.capability.MCMPCapabilities;
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.slot.IPartSlot;
@@ -53,7 +53,7 @@ public interface IMultipart {
     }
 
     public default IMultipartTile convertToMultipartTile(TileEntity tileEntity) {
-        return CapabilityHelper.optional(tileEntity, MCMPCapabilities.CAPABILITY_MULTIPART_TE, null)
+        return MCMPCapabilityHelper.optional(tileEntity, MCMPCapabilities.MULTIPART_TILE, null)
                 .orElseThrow(() -> new IllegalStateException(
                         "The block " + getBlock().getRegistryName() + " is multipart-compatible but its TileEntity isn't!"));
     }

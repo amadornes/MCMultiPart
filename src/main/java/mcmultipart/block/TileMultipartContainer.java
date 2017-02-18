@@ -20,6 +20,7 @@ import mcmultipart.api.multipart.IMultipartTile;
 import mcmultipart.api.multipart.MultipartHelper;
 import mcmultipart.api.multipart.OcclusionHelper;
 import mcmultipart.api.slot.IPartSlot;
+import mcmultipart.capability.CapabilityJoiner;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.PartInfo;
 import mcmultipart.network.MultipartNetworkHandler;
@@ -386,7 +387,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
     @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-        if (capability == MCMPCapabilities.CAPABILITY_MULTIPART_CONTAINER) {
+        if (capability == MCMPCapabilities.MULTIPART_CONTAINER) {
             return true;
         }
         if (SlotUtil.viewContainer(this, i -> i.getTile() != null && i.getTile().hasCapability(capability, facing),
@@ -399,14 +400,14 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-        if (capability == MCMPCapabilities.CAPABILITY_MULTIPART_CONTAINER) {
+        if (capability == MCMPCapabilities.MULTIPART_CONTAINER) {
             return (T) this;
         }
         T val = SlotUtil
                 .viewContainer(this,
                         i -> i.getTile() != null && i.getTile().hasCapability(capability, facing)
                                 ? i.getTile().getCapability(capability, facing) : null,
-                        l -> l.stream().findFirst().orElse(null), null, facing);
+                        l -> CapabilityJoiner.join(capability, l), null, facing);
         if (val != null) {
             return val;
         }

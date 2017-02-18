@@ -29,7 +29,7 @@ public class MicroMaterialBlock extends MicroMaterial {
 
     public MicroMaterialBlock(IBlockState state) {
         this(state,
-                ((Float) ReflectionHelper.getPrivateValue(Block.class, state.getBlock(), "blockHardness", "field_149782_v")).floatValue());
+                ((Float) ReflectionHelper.getPrivateValue(Block.class, state.getBlock(), "field_149782_v", "blockHardness")).floatValue());
     }
 
     public MicroMaterialBlock(IBlockState state, float hardness) {
