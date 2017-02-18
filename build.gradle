@@ -21,7 +21,7 @@ if (System.getenv("BUILD_NUMBER") != null && System.getenv("SHOW_BUILD_NUMBER") 
 } else {
 	version = modversion
 }
-group = "MCMultiPart"
+group = "MCMultiPart2"
 archivesBaseName = "MCMultiPart"
 
 minecraft {
