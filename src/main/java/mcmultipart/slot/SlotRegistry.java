@@ -21,12 +21,15 @@ public enum SlotRegistry {
 
     private final Map<EnumFacing, List<Entry<IPartSlot, EnumSlotAccess>>> accessFace = new IdentityHashMap<>();
     private final Map<EnumEdgeSlot, Map<EnumFacing, List<Entry<IPartSlot, EnumSlotAccess>>>> accessEdge = new IdentityHashMap<>();
+    private final List<Entry<IPartSlot, EnumSlotAccess>> mergeAll = new ArrayList<>();
 
     private FMLControlledNamespacedRegistry<IPartSlot> slotRegistry;
     private List<IPartSlot> allSlots;
 
     public void computeAccess() {
         List<IPartSlot> slots = getSlots();
+
+        slots.forEach(s -> mergeAll.add(new AbstractMap.SimpleEntry<>(s, EnumSlotAccess.MERGE)));
 
         for (EnumFacing face : EnumFacing.VALUES) {
             List<Entry<IPartSlot, EnumSlotAccess>> accesses = new ArrayList<>();
@@ -60,11 +63,11 @@ public enum SlotRegistry {
     }
 
     public List<Entry<IPartSlot, EnumSlotAccess>> getAccessPriorities(EnumFacing face) {
-        return accessFace.get(face);
+        return face == null ? mergeAll : accessFace.get(face);
     }
 
     public List<Entry<IPartSlot, EnumSlotAccess>> getAccessPriorities(EnumEdgeSlot edge, EnumFacing face) {
-        return accessEdge.get(edge).get(face);
+        return face == null || edge == null ? mergeAll : accessEdge.get(edge).get(face);
     }
 
     public List<IPartSlot> getSlots() {
@@ -72,7 +75,7 @@ public enum SlotRegistry {
             slotRegistry = (FMLControlledNamespacedRegistry<IPartSlot>) GameRegistry.findRegistry(IPartSlot.class);
         }
         if (allSlots == null) {
-            allSlots = Collections.unmodifiableList(slotRegistry.getValues()); 
+            allSlots = Collections.unmodifiableList(slotRegistry.getValues());
         }
         return allSlots;
     }
