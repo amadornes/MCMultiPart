@@ -271,7 +271,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
         return getTile(world, pos)
                 .map(t -> SlotUtil.viewContainer(t, i -> i.getPart().canConnectRedstone(((PartInfo) i).wrapAsNeeded(world), pos, i, side),
-                        l -> l.stream().anyMatch(c -> c), false, side.getOpposite()))
+                        l -> l.stream().anyMatch(c -> c), false, true, side.getOpposite()))
                 .orElse(false);
     }
 
@@ -279,7 +279,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     public int getWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
         return getTile(world, pos)
                 .map(t -> SlotUtil.viewContainer(t, i -> i.getPart().getWeakPower(((PartInfo) i).wrapAsNeeded(world), pos, i, side),
-                        l -> l.stream().max(Integer::compare).get(), 0, side.getOpposite()))
+                        l -> l.stream().max(Integer::compare).get(), 0, true, side.getOpposite()))
                 .orElse(0);
     }
 
@@ -287,7 +287,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     public int getStrongPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
         return getTile(world, pos)
                 .map(t -> SlotUtil.viewContainer(t, i -> i.getPart().getStrongPower(((PartInfo) i).wrapAsNeeded(world), pos, i, side),
-                        l -> l.stream().max(Integer::compare).get(), 0, side.getOpposite()))
+                        l -> l.stream().max(Integer::compare).get(), 0, true, side.getOpposite()))
                 .orElse(0);
     }
 

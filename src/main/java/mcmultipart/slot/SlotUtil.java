@@ -16,22 +16,25 @@ import net.minecraft.util.EnumFacing;
 public class SlotUtil {
 
     public static <T, O> O viewContainer(ISlottedContainer<T> container, Function<T, O> converter, Function<List<O>, O> joiner, O startVal,
-            EnumFacing face) {
-        return viewContainer(container, converter, joiner, startVal, SlotRegistry.INSTANCE.getAccessPriorities(face));
+            boolean ignoreNull, EnumFacing face) {
+        return viewContainer(container, converter, joiner, startVal, ignoreNull, SlotRegistry.INSTANCE.getAccessPriorities(face));
     }
 
     public static <T, O> O viewContainer(ISlottedContainer<T> container, Function<T, O> converter, Function<List<O>, O> joiner, O startVal,
-            EnumEdgeSlot edge, EnumFacing face) {
-        return viewContainer(container, converter, joiner, startVal, SlotRegistry.INSTANCE.getAccessPriorities(edge, face));
+            boolean ignoreNull, EnumEdgeSlot edge, EnumFacing face) {
+        return viewContainer(container, converter, joiner, startVal, ignoreNull, SlotRegistry.INSTANCE.getAccessPriorities(edge, face));
     }
 
     public static <T, O> O viewContainer(ISlottedContainer<T> container, Function<T, O> converter, Function<List<O>, O> joiner, O startVal,
-            List<Entry<IPartSlot, EnumSlotAccess>> accessPriorities) {
+            boolean ignoreNull, List<Entry<IPartSlot, EnumSlotAccess>> accessPriorities) {
         List<O> mergeList = null;
         for (Entry<IPartSlot, EnumSlotAccess> slot : accessPriorities) {
             Optional<T> element = container.get(slot.getKey());
             if (element.isPresent()) {
                 O value = converter.apply(element.get());
+                if (ignoreNull && value == null) {
+                    continue;
+                }
                 switch (slot.getValue()) {
                 case NONE:// Shouldn't happen
                     break;

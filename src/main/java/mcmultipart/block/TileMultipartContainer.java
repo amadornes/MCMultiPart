@@ -391,7 +391,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
             return true;
         }
         if (SlotUtil.viewContainer(this, i -> i.getTile() != null && i.getTile().hasCapability(capability, facing),
-                l -> l.stream().anyMatch(a -> a), false, facing)) {
+                l -> l.stream().anyMatch(a -> a), false, true, facing)) {
             return true;
         }
         return super.hasCapability(capability, facing);
@@ -403,11 +403,10 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         if (capability == MCMPCapabilities.MULTIPART_CONTAINER) {
             return (T) this;
         }
-        T val = SlotUtil
-                .viewContainer(this,
-                        i -> i.getTile() != null && i.getTile().hasCapability(capability, facing)
-                                ? i.getTile().getCapability(capability, facing) : null,
-                        l -> CapabilityJoiner.join(capability, l), null, facing);
+        T val = SlotUtil.viewContainer(
+                this, i -> i.getTile() != null && i.getTile().hasCapability(capability, facing)
+                        ? i.getTile().getCapability(capability, facing) : null,
+                l -> CapabilityJoiner.join(capability, l), null, true, facing);
         if (val != null) {
             return val;
         }
