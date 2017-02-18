@@ -142,11 +142,10 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     @Override
     public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
-        TileMultipartContainer container = getTile(world, pos).orElseThrow(NullPointerException::new);
-        List<PartInfo.ClientInfo> info = container.getParts().values()//
+        List<PartInfo.ClientInfo> info = getTile(world, pos).map(c -> c.getParts().values()//
                 .stream()//
                 .map(i -> i.getInfo(world, pos))//
-                .collect(Collectors.toList());
+                .collect(Collectors.toList())).orElse(Collections.emptyList());
         return ((IExtendedBlockState) super.getExtendedState(state, world, pos)).withProperty(PROPERTY_INFO, info);
     }
 
