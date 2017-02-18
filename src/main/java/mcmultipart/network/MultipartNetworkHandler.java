@@ -22,10 +22,12 @@ public class MultipartNetworkHandler {
     }
 
     public static void sendToAllWatching(Packet<?> message, World world, BlockPos pos) {
-        PlayerChunkMap manager = ((WorldServer) world).getPlayerChunkMap();
-        for (EntityPlayer player : world.playerEntities) {
-            if (manager.isPlayerWatchingChunk((EntityPlayerMP) player, pos.getX() >> 4, pos.getZ() >> 4)) {
-                wrapper.sendTo(message, (EntityPlayerMP) player);
+        if (world instanceof WorldServer) {
+            PlayerChunkMap manager = ((WorldServer) world).getPlayerChunkMap();
+            for (EntityPlayer player : world.playerEntities) {
+                if (manager.isPlayerWatchingChunk((EntityPlayerMP) player, pos.getX() >> 4, pos.getZ() >> 4)) {
+                    wrapper.sendTo(message, (EntityPlayerMP) player);
+                }
             }
         }
     }
