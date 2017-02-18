@@ -6,6 +6,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -20,6 +21,14 @@ public interface IMultipartTile {
             throw new IllegalStateException("This multipart tile isn't a TileEntity. Override IMultipartTile#getTileEntity()!");
         }
         return (TileEntity) this;
+    }
+
+    public default boolean isTickable() {
+        return getTickable() != null;
+    }
+
+    public default ITickable getTickable() {
+        return getTileEntity() instanceof ITickable ? (ITickable) getTileEntity() : null;
     }
 
     public default World getWorld() {
