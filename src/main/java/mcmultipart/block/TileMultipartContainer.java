@@ -107,7 +107,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         partSlots.clear();
 
         // If the occlusion boxes of this part intesect with any other parts', fail.
-        if (parts.values().stream().anyMatch(i -> OcclusionHelper.testIntersection(world, pos, info, i))) {
+        if (OcclusionHelper.testContainerPartIntersection(this, info)) {
             return false;
         }
 

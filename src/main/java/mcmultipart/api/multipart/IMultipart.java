@@ -81,7 +81,7 @@ public interface IMultipart {
     }
 
     public default boolean testIntersection(IBlockAccess world, BlockPos pos, IPartInfo self, IPartInfo otherPart) {
-        return OcclusionHelper.testIntersection(this.getOcclusionBoxes(world, pos, self),
+        return OcclusionHelper.testBoxIntersection(this.getOcclusionBoxes(world, pos, self),
                 otherPart.getPart().getOcclusionBoxes(world, pos, otherPart));
     }
 
