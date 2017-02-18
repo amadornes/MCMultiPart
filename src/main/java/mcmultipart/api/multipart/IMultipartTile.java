@@ -1,5 +1,6 @@
 package mcmultipart.api.multipart;
 
+import mcmultipart.api.container.IPartInfo;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -29,6 +30,9 @@ public interface IMultipartTile {
 
     public default ITickable getTickable() {
         return getTileEntity() instanceof ITickable ? (ITickable) getTileEntity() : null;
+    }
+
+    public default void setPartInfo(IPartInfo info) {
     }
 
     public default World getWorld() {

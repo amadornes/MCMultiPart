@@ -113,6 +113,7 @@ public final class PartInfo implements IPartInfo {
         if (this.container != null && this.tile != null) {
             this.tile.setWorld(getWorld());
             this.tile.setPos(getPos());
+            this.tile.setPartInfo(this);
         }
     }
 
