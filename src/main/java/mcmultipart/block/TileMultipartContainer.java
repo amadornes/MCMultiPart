@@ -153,9 +153,10 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         }
 
         if (notify && !getWorld().isRemote) {
+            info.getPart().onAdded(info);
             parts.values().forEach(i -> {
                 if (i != info) {
-                    i.getPart().onPartChanged(i, info);
+                    i.getPart().onPartAdded(i, info);
                 }
             });
             IBlockState st = getWorld().getBlockState(getPos());
@@ -175,6 +176,10 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         }
         remove(slot);
 
+        IPartInfo info = prev.get();
+        info.getPart().onRemoved(info);
+        parts.values().forEach(i -> i.getPart().onPartRemoved(i, info));
+
         IBlockState state = getWorld().getBlockState(getPos()), newState = state;
         if (parts.size() == 1) {
             PartInfo part = parts.values().iterator().next();
@@ -186,7 +191,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
                 te.validate();
                 getWorld().setTileEntity(getPos(), te);
             }
-        } else if (prev.get().getTile() != null && prev.get().getTile().isTickable() && !hasTickingParts()) {
+        } else if (info.getTile() != null && info.getTile().isTickable() && !hasTickingParts()) {
             newState = MCMultiPart.multipart.getDefaultState().withProperty(BlockMultipartContainer.PROPERTY_TICKING, false);
             getWorld().setBlockState(getPos(), newState, 0);
             TileMultipartContainer container = (TileMultipartContainer) MultipartHelper.getContainer(getWorld(), getPos()).get();

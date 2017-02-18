@@ -33,4 +33,8 @@ public interface IPartInfo {
         getContainer().removePart(getSlot());
     }
 
+    public default void notifyChange() {
+        getContainer().notifyChange(this);
+    }
+
 }

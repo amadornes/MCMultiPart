@@ -20,6 +20,7 @@ public interface IMultipartContainer extends ISlottedContainer<IPartInfo> {
 
     public BlockPos getPos();
 
+    @Override
     public Optional<IPartInfo> get(IPartSlot slot);
 
     public default Optional<IMultipart> getPart(IPartSlot slot) {
@@ -55,5 +56,13 @@ public interface IMultipartContainer extends ISlottedContainer<IPartInfo> {
     public void addPart(IPartSlot slot, IBlockState state, IMultipartTile tile);
 
     public void removePart(IPartSlot slot);
+
+    public default void notifyChange(IPartInfo part) {
+        for (IPartInfo info : getParts().values()) {
+            if (info != part) {
+                info.getPart().onPartChanged(info, part);
+            }
+        }
+    }
 
 }

@@ -271,6 +271,20 @@ public interface IMultipart {
         part.getState().getBlock().randomTick(part.getWorld(), part.getPos(), part.getState(), random);
     }
 
+    public default void onAdded(IPartInfo part) {
+    }
+
+    public default void onRemoved(IPartInfo part) {
+    }
+
+    public default void onPartAdded(IPartInfo part, IPartInfo otherPart) {
+        onPartChanged(part, otherPart);
+    }
+
+    public default void onPartRemoved(IPartInfo part, IPartInfo otherPart) {
+        onPartChanged(part, otherPart);
+    }
+
     public default void onPartChanged(IPartInfo part, IPartInfo otherPart) {
     }
 
