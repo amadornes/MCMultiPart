@@ -201,7 +201,7 @@ public final class PartInfo implements IPartInfo {
     }
 
     public static void handleAdditionPacket(World world, BlockPos pos, IPartSlot slot, IBlockState state, NBTTagCompound tag) {
-        MultipartHelper.getInfo(world, pos, slot).ifPresent(IPartInfo::remove);
+        MultipartHelper.getInfo(world, pos, slot).map(i -> i instanceof PartInfo ? (PartInfo) i : null).ifPresent(IPartInfo::remove);
         TileMultipartContainer tile = (TileMultipartContainer) MultipartHelper.getOrConvertContainer(world, pos).orElse(null);
         if (tile != null) {
             tile.addPart(slot, state);
@@ -228,7 +228,7 @@ public final class PartInfo implements IPartInfo {
     }
 
     public static void handleUpdatePacket(World world, BlockPos pos, IPartSlot slot, IBlockState state, SPacketUpdateTileEntity pkt) {
-        PartInfo info = (PartInfo) MultipartHelper.getInfo(world, pos, slot).orElse(null);
+        PartInfo info = MultipartHelper.getInfo(world, pos, slot).map(i -> i instanceof PartInfo ? (PartInfo) i : null).orElse(null);
         if (info != null) {
             info.setState(state);
             if (pkt != null) {
@@ -269,7 +269,7 @@ public final class PartInfo implements IPartInfo {
     }
 
     public static void handleRemovalPacket(World world, BlockPos pos, IPartSlot slot) {
-        MultipartHelper.getInfo(world, pos, slot).ifPresent(info -> {
+        MultipartHelper.getInfo(world, pos, slot).map(i -> i instanceof PartInfo ? (PartInfo) i : null).ifPresent(info -> {
             info.remove();
             world.markBlockRangeForRenderUpdate(pos, pos);
         });
