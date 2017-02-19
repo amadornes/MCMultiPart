@@ -460,7 +460,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     @Override
     public boolean isFertile(World world, BlockPos pos) {
-        return anyMatch(world, pos, i -> i.getPart().isFertile(world, pos, i));
+        return anyMatch(world, pos, i -> i.getPart().isFertile(i));
     }
 
     @Override
