@@ -1,13 +1,17 @@
 package mcmultipart.api.multipart;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 
-import mcmultipart.api.capability.MCMPCapabilityHelper;
 import mcmultipart.api.capability.MCMPCapabilities;
+import mcmultipart.api.capability.MCMPCapabilityHelper;
 import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.container.IMultipartContainerBlock;
 import mcmultipart.api.container.IPartInfo;
@@ -49,7 +53,16 @@ public final class MultipartHelper {
     }
 
     public static Optional<IPartInfo> getInfo(IBlockAccess world, BlockPos pos, IPartSlot slot) {
-        return getContainer(world, pos).map(c -> c.get(slot)).orElseGet(Optional::empty);
+        return getContainer(world, pos).map(c -> c.get(slot)).orElseGet(() -> {
+            if (world instanceof World) {
+                IBlockState state = world.getBlockState(pos);
+                IMultipart part = getPart.apply(state.getBlock());
+                if (part != null && part.getSlotFromWorld(world, pos, state) == slot) {
+                    return Optional.of(new DummyPartInfo((World) world, pos, slot, state, part));
+                }
+            }
+            return Optional.empty();
+        });
     }
 
     public static Optional<IMultipart> getPart(IBlockAccess world, BlockPos pos, IPartSlot slot) {
@@ -80,6 +93,12 @@ public final class MultipartHelper {
             if (te != null) {
                 return MCMPCapabilityHelper.optional(te, MCMPCapabilities.MULTIPART_CONTAINER, null);
             }
+        } else {
+            IBlockState state = world.getBlockState(pos);
+            IMultipart part = getPart.apply(state.getBlock());
+            if (part != null) {
+                return Optional.of(new DummyPartInfo((World) world, pos, part.getSlotFromWorld(world, pos, state), state, part));
+            }
         }
         return Optional.empty();
     }
@@ -98,6 +117,96 @@ public final class MultipartHelper {
             }
         }
         return Optional.empty();
+    }
+
+    private static final class DummyPartInfo implements IPartInfo, IMultipartContainer {
+
+        private final World world;
+        private final BlockPos pos;
+        private final IPartSlot slot;
+        private final IBlockState state;
+        private final IMultipart part;
+        private final Supplier<IMultipartTile> tile;
+        private final Supplier<Map<IPartSlot, ? extends IPartInfo>> parts;
+
+        public DummyPartInfo(World world, BlockPos pos, IPartSlot slot, IBlockState state, IMultipart part) {
+            this.world = world;
+            this.pos = pos;
+            this.slot = slot;
+            this.state = state;
+            this.part = part;
+            this.tile = Suppliers.memoize(() -> {
+                TileEntity te = world.getTileEntity(pos);
+                if (te != null) {
+                    return this.part.convertToMultipartTile(te);
+                }
+                return null;
+            });
+            this.parts = Suppliers.memoize(() -> Collections.singletonMap(this.slot, this));
+        }
+
+        @Override
+        public World getWorld() {
+            return this.world;
+        }
+
+        @Override
+        public BlockPos getPos() {
+            return this.pos;
+        }
+
+        @Override
+        public IMultipartContainer getContainer() {
+            return this;
+        }
+
+        @Override
+        public IPartSlot getSlot() {
+            return this.slot;
+        }
+
+        @Override
+        public IMultipart getPart() {
+            return this.part;
+        }
+
+        @Override
+        public IBlockState getState() {
+            return this.state;
+        }
+
+        @Override
+        public IMultipartTile getTile() {
+            return this.tile.get();
+        }
+
+        @Override
+        public Optional<IPartInfo> get(IPartSlot slot) {
+            return slot == this.slot ? Optional.of(this) : Optional.empty();
+        }
+
+        @Override
+        public Map<IPartSlot, ? extends IPartInfo> getParts() {
+            return this.parts.get();
+        }
+
+        @Override
+        public boolean canAddPart(IPartSlot slot, IBlockState state, IMultipartTile tile) {
+            return MultipartHelper.addPart(this.world, this.pos, slot, state, true);
+        }
+
+        @Override
+        public void addPart(IPartSlot slot, IBlockState state, IMultipartTile tile) {
+            MultipartHelper.addPart(this.world, this.pos, slot, state, false);
+        }
+
+        @Override
+        public void removePart(IPartSlot slot) {
+            if (slot == this.slot) {
+                world.setBlockToAir(this.pos);
+            }
+        }
+
     }
 
 }
