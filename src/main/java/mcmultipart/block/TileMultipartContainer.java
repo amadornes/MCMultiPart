@@ -306,6 +306,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
                         NBTTagCompound tileTag = t.getCompoundTag("tile");
                         if (update) {
                             tile = part.createMultipartTile(world, slot, state);
+                            tile.setWorld(world);
                             tile.handleUpdateTag(tileTag);
                         } else {
                             tile = part.loadMultipartTile(world, tileTag);
