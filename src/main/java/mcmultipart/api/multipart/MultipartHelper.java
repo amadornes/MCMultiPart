@@ -92,7 +92,7 @@ public final class MultipartHelper {
             if (te != null) {
                 return MultipartCapabilityHelper.optional(te, MCMPCapabilities.MULTIPART_CONTAINER, null);
             }
-        } else {
+        } else if (world instanceof World) {
             IBlockState state = world.getBlockState(pos);
             IMultipart part = getPart.apply(state.getBlock());
             if (part != null) {
