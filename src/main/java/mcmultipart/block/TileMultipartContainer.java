@@ -92,19 +92,16 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         Preconditions.checkNotNull(slot);
         Preconditions.checkNotNull(state);
 
-        World world = getWorld();
-        BlockPos pos = getPos();
-
         IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
         Preconditions.checkState(part != null, "The blockstate " + state + " could not be converted to a multipart!");
         PartInfo info = new PartInfo(this, slot, part, state, tile);
 
         // If any of the slots required by this multipart aren't empty, fail.
         Set<IPartSlot> partSlots = Sets.newIdentityHashSet();
-        partSlots.addAll(part.getGhostSlots(world, pos, info));
+        partSlots.addAll(part.getGhostSlots(info));
         partSlots.add(slot);
-        if (partSlots.stream().anyMatch(parts::containsKey) || parts.values().stream()
-                .map(i -> i.getPart().getGhostSlots(i.getWorld(), i.getPos(), i)).flatMap(Set::stream).anyMatch(partSlots::contains)) {
+        if (partSlots.stream().anyMatch(parts::containsKey)
+                || parts.values().stream().map(i -> i.getPart().getGhostSlots(i)).flatMap(Set::stream).anyMatch(partSlots::contains)) {
             partSlots.clear();
             return false;
         }

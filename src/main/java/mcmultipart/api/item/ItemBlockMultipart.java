@@ -79,7 +79,7 @@ public class ItemBlockMultipart extends ItemBlock {
                 && blockLogic.place(stack, player, world, pos, facing, hitX, hitY, hitZ, state)) {
             return true;
         }
-        bb = multipartBlock.getCollisionBoundingBox(state, world, pos);
+        bb = multipartBlock.getCollisionBoundingBox(world, pos, state);
         if ((bb == null || world.checkNoEntityCollision(bb.offset(pos)))
                 && partLogic.placePart(stack, player, hand, world, pos, facing, hitX, hitY, hitZ, multipartBlock, state)) {
             return true;

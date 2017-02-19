@@ -71,17 +71,16 @@ public interface IMultipart {
 
     public IPartSlot getSlotFromWorld(IBlockAccess world, BlockPos pos, IBlockState state);
 
-    public default Set<IPartSlot> getGhostSlots(IBlockAccess world, BlockPos pos, IPartInfo part) {
+    public default Set<IPartSlot> getGhostSlots(IPartInfo part) {
         return Collections.emptySet();
     }
 
-    public default List<AxisAlignedBB> getOcclusionBoxes(IBlockAccess world, BlockPos pos, IPartInfo part) {
-        return Collections.singletonList(part.getState().getBoundingBox(world, pos));
+    public default List<AxisAlignedBB> getOcclusionBoxes(IPartInfo part) {
+        return Collections.singletonList(part.getState().getBoundingBox(part.getWorld(), part.getPos()));
     }
 
-    public default boolean testIntersection(IBlockAccess world, BlockPos pos, IPartInfo self, IPartInfo otherPart) {
-        return OcclusionHelper.testBoxIntersection(this.getOcclusionBoxes(world, pos, self),
-                otherPart.getPart().getOcclusionBoxes(world, pos, otherPart));
+    public default boolean testIntersection(IPartInfo self, IPartInfo otherPart) {
+        return OcclusionHelper.testBoxIntersection(this.getOcclusionBoxes(self), otherPart.getPart().getOcclusionBoxes(otherPart));
     }
 
     public default RayTraceResult collisionRayTrace(IPartInfo part, Vec3d start, Vec3d end) {
@@ -217,8 +216,8 @@ public interface IMultipart {
         return part.getState().getBlock().isEntityInsideMaterial(world, pos, part.getState(), entity, yToTest, material, testingHead);
     }
 
-    public default boolean isFertile(World world, BlockPos pos, IPartInfo part) {
-        return part.getState().getBlock().isFertile(world, pos);
+    public default boolean isFertile(IPartInfo part) {
+        return part.getState().getBlock().isFertile(part.getWorld(), part.getPos());
     }
 
     public default boolean isFireSource(IPartInfo part, EnumFacing side) {
@@ -297,7 +296,7 @@ public interface IMultipart {
         part.getState().addCollisionBoxToList(part.getWorld(), part.getPos(), entityBox, collidingBoxes, entity, unknown);
     }
 
-    public default AxisAlignedBB getCollisionBoundingBox(IBlockState state, World world, BlockPos pos) {
+    public default AxisAlignedBB getCollisionBoundingBox(World world, BlockPos pos, IBlockState state) {
         return state.getCollisionBoundingBox(world, pos);
     }
 
