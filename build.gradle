@@ -56,7 +56,6 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 jar {
-    classifier = "universal"
 }
 task deobfJar(type: Jar) {
     from(sourceSets.main.output) {
