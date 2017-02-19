@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import mcmultipart.MCMPCommonProxy;
 import mcmultipart.MCMultiPart;
+import mcmultipart.api.event.DrawMultipartHighlightEvent;
 import mcmultipart.block.BlockMultipartContainer;
 import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.multipart.PartInfo;
@@ -19,9 +20,9 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -61,7 +62,9 @@ public class MCMPClientProxy extends MCMPCommonProxy {
 
     @SubscribeEvent
     public void onDrawHighlight(DrawBlockHighlightEvent event) {
-
+        if (event instanceof DrawMultipartHighlightEvent) {
+            return;
+        }
         RayTraceResult hit = event.getTarget();
         if (hit.typeOfHit != RayTraceResult.Type.BLOCK) {
             return;
@@ -83,14 +86,16 @@ public class MCMPClientProxy extends MCMPCommonProxy {
                 return;
             }
 
-            PartInfo info = tile.get().getParts().get(MCMultiPart.slotRegistry.getObjectById(hit.subHit));
-            hit = (RayTraceResult) hit.hitInfo;
-            if (info == null) {
+            int slotID = hit.subHit;
+            PartInfo info = tile.get().getParts().get(MCMultiPart.slotRegistry.getObjectById(slotID));
+            if (info == null || !(hit.hitInfo instanceof RayTraceResult)) {
                 return;
             }
+            hit = (RayTraceResult) hit.hitInfo;
 
             float partialTicks = event.getPartialTicks();
-            if (!ForgeHooksClient.onDrawBlockHighlight(event.getContext(), player, hit, 0, partialTicks)) {
+            if (!MinecraftForge.EVENT_BUS
+                    .post(new DrawMultipartHighlightEvent(event.getContext(), player, hit, slotID, partialTicks, info))) {
                 GlStateManager.enableBlend();
                 GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                         GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
