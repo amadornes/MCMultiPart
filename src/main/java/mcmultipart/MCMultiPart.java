@@ -137,11 +137,11 @@ public class MCMultiPart {
                 throw Throwables.propagate(e);
             }
         });
-        addons.forEach(a -> a.registerParts(MultipartRegistry.INSTANCE));
     }
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
+        addons.forEach(a -> a.registerParts(MultipartRegistry.INSTANCE));
         MultipartRegistry.INSTANCE.computeBlocks();
         SlotRegistry.INSTANCE.computeAccess();
     }
