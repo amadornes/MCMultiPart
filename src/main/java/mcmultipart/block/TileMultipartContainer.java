@@ -11,14 +11,15 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
 import mcmultipart.MCMultiPart;
-import mcmultipart.api.capability.MCMPCapabilities;
 import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.multipart.IMultipart;
 import mcmultipart.api.multipart.IMultipartTile;
 import mcmultipart.api.multipart.MultipartHelper;
-import mcmultipart.api.multipart.OcclusionHelper;
+import mcmultipart.api.multipart.MultipartOcclusionHelper;
+import mcmultipart.api.ref.MCMPCapabilities;
 import mcmultipart.api.slot.IPartSlot;
+import mcmultipart.api.slot.SlotUtil;
 import mcmultipart.capability.CapabilityJoiner;
 import mcmultipart.client.TESRMultipartContainer;
 import mcmultipart.multipart.MultipartRegistry;
@@ -26,7 +27,6 @@ import mcmultipart.multipart.PartInfo;
 import mcmultipart.network.MultipartNetworkHandler;
 import mcmultipart.network.PacketMultipartAdd;
 import mcmultipart.network.PacketMultipartRemove;
-import mcmultipart.slot.SlotUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.nbt.NBTTagCompound;
@@ -108,7 +108,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         partSlots.clear();
 
         // If the occlusion boxes of this part intesect with any other parts', fail.
-        if (OcclusionHelper.testContainerPartIntersection(this, info)) {
+        if (MultipartOcclusionHelper.testContainerPartIntersection(this, info)) {
             return false;
         }
 

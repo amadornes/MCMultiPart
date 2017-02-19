@@ -10,11 +10,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 
-import mcmultipart.api.capability.MCMPCapabilities;
-import mcmultipart.api.capability.MCMPCapabilityHelper;
 import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.container.IMultipartContainerBlock;
 import mcmultipart.api.container.IPartInfo;
+import mcmultipart.api.ref.MCMPCapabilities;
 import mcmultipart.api.slot.IPartSlot;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -91,7 +90,7 @@ public final class MultipartHelper {
         if (world.getBlockState(pos).getBlock() instanceof IMultipartContainerBlock) {
             TileEntity te = world.getTileEntity(pos);
             if (te != null) {
-                return MCMPCapabilityHelper.optional(te, MCMPCapabilities.MULTIPART_CONTAINER, null);
+                return MultipartCapabilityHelper.optional(te, MCMPCapabilities.MULTIPART_CONTAINER, null);
             }
         } else {
             IBlockState state = world.getBlockState(pos);
@@ -108,7 +107,7 @@ public final class MultipartHelper {
         if (state.getBlock() instanceof IMultipartContainerBlock) {
             TileEntity te = world.getTileEntity(pos);
             if (te != null) {
-                return MCMPCapabilityHelper.optional(te, MCMPCapabilities.MULTIPART_CONTAINER, null);
+                return MultipartCapabilityHelper.optional(te, MCMPCapabilities.MULTIPART_CONTAINER, null);
             }
         } else {
             IMultipart part = getPart.apply(state.getBlock());

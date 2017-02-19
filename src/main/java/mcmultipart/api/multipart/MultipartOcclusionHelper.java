@@ -12,7 +12,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
-public class OcclusionHelper {
+public class MultipartOcclusionHelper {
 
     private static final Predicate<IPartSlot> NEVER = a -> false;
 

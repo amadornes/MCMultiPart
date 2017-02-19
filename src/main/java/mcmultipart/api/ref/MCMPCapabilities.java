@@ -1,4 +1,4 @@
-package mcmultipart.api.capability;
+package mcmultipart.api.ref;
 
 import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.multipart.IMultipartTile;

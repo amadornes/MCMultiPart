@@ -1,5 +1,7 @@
 package mcmultipart;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -12,17 +14,19 @@ import com.google.common.base.Throwables;
 
 import mcmultipart.api.addon.IMCMPAddon;
 import mcmultipart.api.addon.MCMPAddon;
-import mcmultipart.api.capability.MCMPCapabilityHelper;
 import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.microblock.MicroMaterial;
 import mcmultipart.api.microblock.MicroblockType;
 import mcmultipart.api.multipart.IMultipart;
+import mcmultipart.api.multipart.MultipartCapabilityHelper;
 import mcmultipart.api.multipart.MultipartHelper;
 import mcmultipart.api.slot.EnumCenterSlot;
 import mcmultipart.api.slot.EnumCornerSlot;
 import mcmultipart.api.slot.EnumEdgeSlot;
 import mcmultipart.api.slot.EnumFaceSlot;
 import mcmultipart.api.slot.IPartSlot;
+import mcmultipart.api.slot.ISlottedContainer;
+import mcmultipart.api.slot.SlotUtil;
 import mcmultipart.block.BlockMultipartContainer;
 import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.capability.CapabilityJoiner;
@@ -34,6 +38,7 @@ import mcmultipart.network.MultipartNetworkHandler;
 import mcmultipart.slot.SlotRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ObjectIntIdentityMap;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -115,7 +120,7 @@ public class MCMultiPart {
         CapabilityMultipartContainer.register();
         CapabilityMultipartTile.register();
 
-        MCMPCapabilityHelper.registerCapabilityJoiner(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, JoinedItemHandler::join);
+        MultipartCapabilityHelper.registerCapabilityJoiner(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, JoinedItemHandler::join);
 
         MultipartNetworkHandler.init();
 
@@ -155,8 +160,16 @@ public class MCMultiPart {
         ReflectionHelper.setPrivateValue(MultipartHelper.class, null, //
                 (Function<Block, IMultipart>) MultipartRegistry.INSTANCE::getPart, "getPart");
 
-        ReflectionHelper.setPrivateValue(MCMPCapabilityHelper.class, null, //
+        ReflectionHelper.setPrivateValue(MultipartCapabilityHelper.class, null, //
                 (BiConsumer<Capability<T>, Function<List<T>, T>>) CapabilityJoiner::registerCapabilityJoiner, "registerJoiner");
+
+        MethodHandle viewSide = MethodHandles.lookup().unreflect(SlotRegistry.class.getMethod("viewContainer", ISlottedContainer.class,
+                Function.class, Function.class, Object.class, boolean.class, EnumFacing.class)).bindTo(SlotRegistry.INSTANCE);
+        MethodHandle viewEdge = MethodHandles.lookup().unreflect(SlotRegistry.class.getMethod("viewContainer", ISlottedContainer.class,
+                Function.class, Function.class, Object.class, boolean.class, EnumEdgeSlot.class, EnumFacing.class))
+                .bindTo(SlotRegistry.INSTANCE);
+        ReflectionHelper.setPrivateValue(SlotUtil.class, null, viewSide, "viewSide");
+        ReflectionHelper.setPrivateValue(SlotUtil.class, null, viewEdge, "viewEdge");
     }
 
 }
