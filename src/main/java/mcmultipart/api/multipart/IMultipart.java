@@ -52,8 +52,9 @@ public interface IMultipart {
     }
 
     public default IMultipartTile convertToMultipartTile(TileEntity tileEntity) {
-        return MultipartCapabilityHelper.optional(tileEntity, MCMPCapabilities.MULTIPART_TILE, null).orElseThrow(() -> new IllegalStateException(
-                "The block " + getBlock().getRegistryName() + " is multipart-compatible but its TileEntity isn't!"));
+        return MultipartCapabilityHelper.optional(tileEntity, MCMPCapabilities.MULTIPART_TILE, null)
+                .orElseThrow(() -> new IllegalStateException(
+                        "The block " + getBlock().getRegistryName() + " is multipart-compatible but its TileEntity isn't!"));
     }
 
     public default IMultipartTile createMultipartTile(World world, IPartSlot slot, IBlockState state) {
@@ -250,10 +251,10 @@ public interface IMultipart {
     public default void neighborChanged(IPartInfo part, Block neighborBlock, BlockPos neighborPos) {
         part.getState().neighborChanged(part.getWorld(), part.getPos(), neighborBlock, neighborPos);
     }
-    
-    public default void onNeighborChange(IPartInfo part, BlockPos neighbor){
-		part.getState().getBlock().onNeighborChange(part.getWorld(), part.getPos(), neighbor);
-	}
+
+    public default void onNeighborChange(IPartInfo part, BlockPos neighbor) {
+        part.getState().getBlock().onNeighborChange(part.getWorld(), part.getPos(), neighbor);
+    }
 
     public default boolean onPartActivated(IPartInfo part, EntityPlayer player, EnumHand hand, RayTraceResult hit) {
         return part.getState().getBlock().onBlockActivated(part.getWorld(), part.getPos(), part.getState(), player, hand, hit.sideHit,
