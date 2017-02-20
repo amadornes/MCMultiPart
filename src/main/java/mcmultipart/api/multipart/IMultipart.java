@@ -252,7 +252,7 @@ public interface IMultipart {
     }
     
     public default void onNeighborChange(IPartInfo part, BlockPos neighbor){
-		part.getState().getBlock().onNeighborChange(part.getActualWorld(), part.getPos(), neighbor);
+		part.getState().getBlock().onNeighborChange(part.getWorld(), part.getPos(), neighbor);
 	}
 
     public default boolean onPartActivated(IPartInfo part, EntityPlayer player, EnumHand hand, RayTraceResult hit) {
