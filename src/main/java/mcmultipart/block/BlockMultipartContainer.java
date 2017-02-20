@@ -557,9 +557,9 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     }
 
     @Override
-    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
-        // TODO: What is this even used for?
-    }
+	public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
+		forEach(world, pos, i -> i.getPart().onNeighborChange(i, neighbor));
+	}
 
     @Override
     public void onPlantGrow(IBlockState state, World world, BlockPos pos, BlockPos source) {
