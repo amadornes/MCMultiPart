@@ -1,9 +1,6 @@
 package mcmultipart.block;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
@@ -581,7 +578,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     }
 
     private void forEach(IBlockAccess world, BlockPos pos, Consumer<PartInfo> consumer) {
-        getTile(world, pos).ifPresent(t -> t.getParts().values().forEach(consumer));
+        getTile(world, pos).ifPresent(t -> new ArrayList<>(t.getParts().values()).forEach(consumer));
     }
 
     private boolean anyMatch(IBlockAccess world, BlockPos pos, Predicate<PartInfo> predicate) {
