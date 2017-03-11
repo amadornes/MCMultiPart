@@ -191,7 +191,7 @@ public final class PartInfo implements IPartInfo {
     }
 
     public static PartInfo fromWorld(World world, BlockPos pos) {
-        IBlockState state = world.getBlockState(pos);
+        IBlockState state = world.getBlockState(pos).getActualState(world, pos);
         IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
         Preconditions.checkState(part != null, "The blockstate " + state + " could not be converted to a multipart!");
         TileEntity te = world.getTileEntity(pos);
