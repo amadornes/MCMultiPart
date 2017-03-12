@@ -44,8 +44,7 @@ public enum SlotRegistry {
                     accesses.add(new AbstractMap.SimpleEntry<>(slot, access));
                 }
             }
-            Collections.sort(accesses,
-                    (a, b) -> Integer.compare(b.getKey().getFaceAccessPriority(face), a.getKey().getFaceAccessPriority(face)));
+            accesses.sort((a, b) -> Integer.compare(b.getKey().getFaceAccessPriority(face), a.getKey().getFaceAccessPriority(face)));
             accessFace.put(face, Collections.unmodifiableList(accesses));
         }
 
@@ -59,7 +58,7 @@ public enum SlotRegistry {
                         accesses.add(new AbstractMap.SimpleEntry<>(slot, access));
                     }
                 }
-                Collections.sort(accesses, (a, b) -> Integer.compare(b.getKey().getEdgeAccessPriority(edge, face),
+                accesses.sort((a, b) -> Integer.compare(b.getKey().getEdgeAccessPriority(edge, face),
                         a.getKey().getEdgeAccessPriority(edge, face)));
                 map.put(face, Collections.unmodifiableList(accesses));
             }
