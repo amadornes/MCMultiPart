@@ -88,7 +88,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
                 .stream()//
                 .map(i -> Pair.of(i, i.getPart().collisionRayTrace(i, start, end)))//
                 .filter(p -> p.getValue() != null)//
-                .min((a, b) -> Double.compare(a.getValue().hitVec.squareDistanceTo(start), b.getValue().hitVec.squareDistanceTo(start)))//
+                .min(Comparator.comparingDouble(a -> a.getValue().hitVec.squareDistanceTo(start)))//
                 .map(p -> {
                     RayTraceResult hit = new RayTraceResult(p.getValue().hitVec, p.getValue().sideHit, p.getValue().getBlockPos());
                     hit.hitInfo = p.getValue();
