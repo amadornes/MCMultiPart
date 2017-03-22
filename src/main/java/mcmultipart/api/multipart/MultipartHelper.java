@@ -54,7 +54,7 @@ public final class MultipartHelper {
     public static Optional<IPartInfo> getInfo(IBlockAccess world, BlockPos pos, IPartSlot slot) {
         return getContainer(world, pos).map(c -> c.get(slot)).orElseGet(() -> {
             if (world instanceof World) {
-                IBlockState state = world.getBlockState(pos);
+                IBlockState state = world.getBlockState(pos).getActualState(world, pos);
                 IMultipart part = getPart.apply(state.getBlock());
                 if (part != null && part.getSlotFromWorld(world, pos, state) == slot) {
                     return Optional.of(new DummyPartInfo((World) world, pos, slot, state, part));
@@ -93,7 +93,7 @@ public final class MultipartHelper {
                 return MultipartCapabilityHelper.optional(te, MCMPCapabilities.MULTIPART_CONTAINER, null);
             }
         } else if (world instanceof World) {
-            IBlockState state = world.getBlockState(pos);
+            IBlockState state = world.getBlockState(pos).getActualState(world, pos);
             IMultipart part = getPart.apply(state.getBlock());
             if (part != null) {
                 return Optional.of(new DummyPartInfo((World) world, pos, part.getSlotFromWorld(world, pos, state), state, part));
