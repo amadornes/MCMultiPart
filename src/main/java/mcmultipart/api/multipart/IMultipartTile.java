@@ -17,6 +17,16 @@ import net.minecraftforge.common.capabilities.Capability;
 
 public interface IMultipartTile {
 
+    public static IMultipartTile wrap(TileEntity tile) {
+        return new IMultipartTile() {
+
+            @Override
+            public TileEntity getTileEntity() {
+                return tile;
+            }
+        };
+    }
+
     public default TileEntity getTileEntity() {
         if (!(this instanceof TileEntity)) {
             throw new IllegalStateException("This multipart tile isn't a TileEntity. Override IMultipartTile#getTileEntity()!");
