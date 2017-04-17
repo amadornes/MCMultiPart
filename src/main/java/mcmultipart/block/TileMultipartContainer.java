@@ -433,6 +433,11 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     public void shouldRenderInPassC(int pass) {
         TESRMultipartContainer.pass = pass;
     }
+    
+    @Override
+    public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
+        return oldState.getBlock() != newState.getBlock();
+    }
 
     @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
