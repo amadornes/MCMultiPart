@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import com.google.common.base.Preconditions;
@@ -50,7 +51,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class TileMultipartContainer extends TileEntity implements IMultipartContainer {
 
     private boolean isInWorld = true;
-    private final Map<IPartSlot, PartInfo> parts = new HashMap<>();
+    private final Map<IPartSlot, PartInfo> parts = new ConcurrentHashMap<>();
     private Map<IPartSlot, NBTTagCompound> missingParts;
     private World loadingWorld;
     private boolean notifyClients = true;
