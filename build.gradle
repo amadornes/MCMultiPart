@@ -25,10 +25,10 @@ group = "MCMultiPart2"
 archivesBaseName = "MCMultiPart"
 
 minecraft {
-    version = "1.11.2-13.20.0.2230"
+    version = "1.11.2-13.20.0.2282"
     runDir = "run"
     
-    mappings = "snapshot_20170213"
+    mappings = "snapshot_20170417"
 	replace "%VERSION%", project.version
 }
 

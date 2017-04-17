@@ -38,23 +38,19 @@ public class MCMPCommonProxy {
     @SubscribeEvent
     public void onPlayerRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         EntityPlayer player = event.getEntityPlayer();
-        ItemStack stack = player.getHeldItem(event.getHand()), stack2 = stack.copy();
+        ItemStack stack = player.getHeldItem(event.getHand());
         if (!stack.isEmpty()) {
             Pair<WrappedBlock, IMultipart> info = MultipartRegistry.INSTANCE.wrapPlacement(stack);
             if (info != null && info.getKey().getBlockPlacementLogic() != null) {
                 Item item = stack.getItem();
                 IMultipart multipart = info.getValue();
 
-                if (ItemBlockMultipart.place(player, event.getWorld(), event.getPos(), event.getHand(), event.getFace(),
-                        (float) event.getHitVec().xCoord - event.getPos().getX(), (float) event.getHitVec().yCoord - event.getPos().getY(),
-                        (float) event.getHitVec().zCoord - event.getPos().getZ(), item, info.getKey().getPlacementInfo(), multipart,
-                        info.getKey().getBlockPlacementLogic(), info.getKey().getPartPlacementLogic()) == EnumActionResult.SUCCESS) {
-                    if (player.capabilities.isCreativeMode) {
-                        player.setHeldItem(event.getHand(), stack2);
-                    }
-                    player.swingArm(event.getHand());
-                }
-
+                EnumActionResult result = ItemBlockMultipart.place(player, event.getWorld(), event.getPos(), event.getHand(),
+                        event.getFace(), (float) event.getHitVec().xCoord - event.getPos().getX(),
+                        (float) event.getHitVec().yCoord - event.getPos().getY(), (float) event.getHitVec().zCoord - event.getPos().getZ(),
+                        item, info.getKey().getPlacementInfo(), multipart, info.getKey().getBlockPlacementLogic(),
+                        info.getKey().getPartPlacementLogic());
+                event.setCancellationResult(result);
                 event.setCanceled(true);
             }
         }
