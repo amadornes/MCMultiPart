@@ -186,6 +186,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         remove(slot);
 
         IPartInfo info = prev.get();
+        info.getPart().breakPart(info);
         info.getPart().onRemoved(info);
         parts.values().forEach(i -> i.getPart().onPartRemoved(i, info));
 

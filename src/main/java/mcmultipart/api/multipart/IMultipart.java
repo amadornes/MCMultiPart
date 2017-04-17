@@ -291,6 +291,10 @@ public interface IMultipart {
     public default void onPartChanged(IPartInfo part, IPartInfo otherPart) {
     }
 
+    public default void breakPart(IPartInfo part) {
+        getBlock().breakBlock(part.getPartWorld(), part.getPartPos(), part.getState());
+    }
+
     public default void updateTick(IPartInfo part, Random rand) {
         part.getState().getBlock().updateTick(part.getPartWorld(), part.getPartPos(), part.getState(), rand);
     }
