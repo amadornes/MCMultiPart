@@ -145,12 +145,12 @@ public final class MultipartHelper {
         }
 
         @Override
-        public World getWorld() {
+        public World getPartWorld() {
             return this.world;
         }
 
         @Override
-        public BlockPos getPos() {
+        public BlockPos getPartPos() {
             return this.pos;
         }
 

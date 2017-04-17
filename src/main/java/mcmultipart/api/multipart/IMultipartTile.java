@@ -35,132 +35,120 @@ public interface IMultipartTile {
     public default void setPartInfo(IPartInfo info) {
     }
 
-    public default World getWorld() {
+    public default World getPartWorld() {
         return getTileEntity().getWorld();
     }
 
-    public default void setWorld(World worldIn) {
-        getTileEntity().setWorld(worldIn);
+    public default void setPartWorld(World world) {
+        getTileEntity().setWorld(world);
     }
 
-    public default boolean hasWorld() {
+    public default boolean hasPartWorld() {
         return getTileEntity().hasWorld();
     }
 
-    public default void readFromNBT(NBTTagCompound compound) {
-        getTileEntity().readFromNBT(compound);
-    }
-
-    public default NBTTagCompound writeToNBT(NBTTagCompound compound) {
-        return getTileEntity().writeToNBT(compound);
-    }
-
-    public default void markDirty() {
-        getTileEntity().markDirty();
-    }
-
-    public default double getDistanceSq(double x, double y, double z) {
-        return getTileEntity().getDistanceSq(x, y, z);
-    }
-
-    public default double getMaxRenderDistanceSquared() {
-        return getTileEntity().getMaxRenderDistanceSquared();
-    }
-
-    public default BlockPos getPos() {
+    public default BlockPos getPartPos() {
         return getTileEntity().getPos();
     }
 
-    public default SPacketUpdateTileEntity getUpdatePacket() {
-        return getTileEntity().getUpdatePacket();
+    public default void setPartPos(BlockPos pos) {
+        getTileEntity().setPos(pos);
     }
 
-    public default NBTTagCompound getUpdateTag() {
-        return getTileEntity().getUpdateTag();
+    public default void readPartFromNBT(NBTTagCompound compound) {
+        getTileEntity().readFromNBT(compound);
     }
 
-    public default boolean isInvalid() {
+    public default NBTTagCompound writePartToNBT(NBTTagCompound compound) {
+        return getTileEntity().writeToNBT(compound);
+    }
+
+    public default void markPartDirty() {
+        getTileEntity().markDirty();
+    }
+
+    public default double getMaxPartRenderDistanceSquared() {
+        return getTileEntity().getMaxRenderDistanceSquared();
+    }
+
+    public default boolean isPartInvalid() {
         return getTileEntity().isInvalid();
     }
 
-    public default void invalidate() {
+    public default void invalidatePart() {
         getTileEntity().invalidate();
     }
 
-    public default void validate() {
+    public default void validatePart() {
         getTileEntity().validate();
     }
 
-    public default boolean receiveClientEvent(int id, int type) {
-        return getTileEntity().receiveClientEvent(id, type);
-    }
-
-    public default void updateContainingBlockInfo() {
+    public default void updatePartContainerInfo() {
         getTileEntity().updateContainingBlockInfo();
     }
 
-    public default void setPos(BlockPos posIn) {
-        getTileEntity().setPos(posIn);
+    public default void rotatePart(Rotation rotation) {
+        getTileEntity().rotate(rotation);
     }
 
-    public default boolean onlyOpsCanSetNbt() {
-        return getTileEntity().onlyOpsCanSetNbt();
+    public default void mirrorPart(Mirror mirror) {
+        getTileEntity().mirror(mirror);
     }
 
-    public default void rotate(Rotation rotationIn) {
-        getTileEntity().rotate(rotationIn);
+    public default SPacketUpdateTileEntity getPartUpdatePacket() {
+        return getTileEntity().getUpdatePacket();
     }
 
-    public default void mirror(Mirror mirrorIn) {
-        getTileEntity().mirror(mirrorIn);
-    }
-
-    public default void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+    public default void onPartDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
         getTileEntity().onDataPacket(net, pkt);
     }
 
-    public default void handleUpdateTag(NBTTagCompound tag) {
+    public default NBTTagCompound getPartUpdateTag() {
+        return getTileEntity().getUpdateTag();
+    }
+
+    public default void handlePartUpdateTag(NBTTagCompound tag) {
         getTileEntity().handleUpdateTag(tag);
     }
 
-    public default void onChunkUnload() {
+    public default void onPartChunkUnload() {
         getTileEntity().onChunkUnload();
     }
 
-    public default boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate) {
-        return getTileEntity().shouldRefresh(world, pos, oldState, newSate);
+    public default boolean shouldRefreshPart(World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
+        return getTileEntity().shouldRefresh(world, pos, oldState, newState);
     }
 
-    public default boolean shouldRenderInPass(int pass) {
+    public default boolean shouldRenderPartInPass(int pass) {
         return getTileEntity().shouldRenderInPass(pass);
     }
 
-    public default AxisAlignedBB getRenderBoundingBox() {
+    public default AxisAlignedBB getPartRenderBoundingBox() {
         return getTileEntity().getRenderBoundingBox();
     }
 
-    public default boolean canRenderBreaking() {
+    public default boolean canPartRenderBreaking() {
         return getTileEntity().canRenderBreaking();
     }
 
-    public default NBTTagCompound getTileData() {
-        return getTileEntity().getTileData();
-    }
-
-    public default void onLoad() {
+    public default void onPartLoad() {
         getTileEntity().onLoad();
     }
 
-    public default boolean hasFastRenderer() {
+    public default boolean hasFastPartRenderer() {
         return getTileEntity().hasFastRenderer();
     }
 
-    public default boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+    public default boolean hasPartCapability(Capability<?> capability, EnumFacing facing) {
         return getTileEntity().hasCapability(capability, facing);
     }
 
-    public default <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+    public default <T> T getPartCapability(Capability<T> capability, EnumFacing facing) {
         return getTileEntity().getCapability(capability, facing);
+    }
+
+    public default boolean onlyOpsCanSetPartNbt() {
+        return getTileEntity().onlyOpsCanSetNbt();
     }
 
 }

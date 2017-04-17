@@ -17,11 +17,11 @@ public class PacketMultipartAdd extends Packet<PacketMultipartAdd> {
     private NBTTagCompound data;
 
     public PacketMultipartAdd(PartInfo info) {
-        pos = info.getPos();
+        pos = info.getPartPos();
         slot = info.getSlot();
         state = info.getState();
         if (info.getTile() != null) {
-            data = info.getTile().getUpdateTag();
+            data = info.getTile().getPartUpdateTag();
         }
     }
 

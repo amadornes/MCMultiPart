@@ -209,7 +209,7 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public boolean setBlockState(BlockPos pos, IBlockState state, int flags) {
-        if (part.getPos().equals(pos)) {
+        if (part.getPartPos().equals(pos)) {
             if (state.getBlock() == Blocks.AIR) {
                 part.getContainer().removePart(part.getSlot());
             } else {
@@ -237,7 +237,7 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public boolean destroyBlock(BlockPos pos, boolean dropBlock) {
-        if (part.getPos().equals(pos)) {
+        if (part.getPartPos().equals(pos)) {
             this.playEvent(2001, pos, Block.getStateId(part.getState()));
             if (dropBlock) {
                 part.getPart().dropPartAsItem(part, 0);
@@ -249,7 +249,7 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public void notifyBlockUpdate(BlockPos pos, IBlockState oldState, IBlockState newState, int flags) {
-        if (part.getPos().equals(pos)) {
+        if (part.getPartPos().equals(pos)) {
             if ((flags & 0b00001) != 0) {
                 notifyNeighborsOfStateChange(pos, newState.getBlock(), true);
                 part.getContainer().getParts().values().forEach(i -> {
@@ -329,7 +329,7 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public boolean isBlockTickPending(BlockPos pos, Block blockType) {
-        if (part.getPos().equals(pos)) {
+        if (part.getPartPos().equals(pos)) {
             return part.hasPendingTicks();
         }
         return getActualWorld().isBlockTickPending(pos, blockType);
@@ -620,7 +620,7 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public void scheduleUpdate(BlockPos pos, Block block, int delay) {
-        if (part.getPos().equals(pos)) {
+        if (part.getPartPos().equals(pos)) {
             part.scheduleTick(delay);
         } else {
             getActualWorld().scheduleUpdate(pos, block, delay);
@@ -629,7 +629,7 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public void updateBlockTick(BlockPos pos, Block block, int delay, int priority) {
-        if (part.getPos().equals(pos)) {
+        if (part.getPartPos().equals(pos)) {
             part.scheduleTick(delay);
         } else {
             getActualWorld().updateBlockTick(pos, block, delay, priority);
@@ -638,7 +638,7 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public void scheduleBlockUpdate(BlockPos pos, Block block, int delay, int priority) {
-        if (part.getPos().equals(pos)) {
+        if (part.getPartPos().equals(pos)) {
             part.scheduleTick(delay);
         } else {
             getActualWorld().scheduleBlockUpdate(pos, block, delay, priority);

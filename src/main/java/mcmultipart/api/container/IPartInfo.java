@@ -10,13 +10,13 @@ import net.minecraft.world.World;
 public interface IPartInfo {
 
     public default World getActualWorld() {
-        return getContainer() != null ? getContainer().getWorld() : null;
+        return getContainer() != null ? getContainer().getPartWorld() : null;
     }
 
-    public World getWorld();
+    public World getPartWorld();
 
-    public default BlockPos getPos() {
-        return getContainer() != null ? getContainer().getPos() : BlockPos.ORIGIN;
+    public default BlockPos getPartPos() {
+        return getContainer() != null ? getContainer().getPartPos() : BlockPos.ORIGIN;
     }
 
     public IMultipartContainer getContainer();

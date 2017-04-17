@@ -42,11 +42,11 @@ public class PacketMultipartChange extends Packet<PacketMultipartChange> {
     private NBTTagCompound data;
 
     public PacketMultipartChange(PartInfo info) {
-        pos = info.getPos();
+        pos = info.getPartPos();
         slot = info.getSlot();
         state = info.getState();
         if (info.getTile() != null) {
-            SPacketUpdateTileEntity packet = info.getTile().getUpdatePacket();
+            SPacketUpdateTileEntity packet = info.getTile().getPartUpdatePacket();
             if (packet != null) {
                 data = getPacketNBT.apply(packet);
             }

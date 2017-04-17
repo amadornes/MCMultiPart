@@ -116,7 +116,7 @@ public class ItemBlockMultipart extends ItemBlock {
 
     public static boolean setMultipartTileNBT(EntityPlayer player, ItemStack stack, IPartInfo info) {
         World world = info.getActualWorld();
-        BlockPos pos = info.getPos();
+        BlockPos pos = info.getPartPos();
 
         MinecraftServer server = world.getMinecraftServer();
 
@@ -129,11 +129,11 @@ public class ItemBlockMultipart extends ItemBlock {
                 IMultipartTile tile = info.getTile();
 
                 if (tile != null) {
-                    if (!world.isRemote && tile.onlyOpsCanSetNbt() && (player == null || !player.canUseCommandBlock())) {
+                    if (!world.isRemote && tile.onlyOpsCanSetPartNbt() && (player == null || !player.canUseCommandBlock())) {
                         return false;
                     }
 
-                    NBTTagCompound tag1 = tile.writeToNBT(new NBTTagCompound());
+                    NBTTagCompound tag1 = tile.writePartToNBT(new NBTTagCompound());
                     NBTTagCompound tag2 = tag1.copy();
                     tag1.merge(tag);
                     tag1.setInteger("x", pos.getX());
@@ -141,8 +141,8 @@ public class ItemBlockMultipart extends ItemBlock {
                     tag1.setInteger("z", pos.getZ());
 
                     if (!tag1.equals(tag2)) {
-                        tile.readFromNBT(tag1);
-                        tile.markDirty();
+                        tile.readPartFromNBT(tag1);
+                        tile.markPartDirty();
                         return true;
                     }
                 }

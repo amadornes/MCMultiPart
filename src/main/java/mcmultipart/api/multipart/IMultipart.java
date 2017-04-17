@@ -76,7 +76,7 @@ public interface IMultipart {
     }
 
     public default List<AxisAlignedBB> getOcclusionBoxes(IPartInfo part) {
-        return Collections.singletonList(part.getState().getBoundingBox(part.getWorld(), part.getPos()));
+        return Collections.singletonList(part.getState().getBoundingBox(part.getPartWorld(), part.getPartPos()));
     }
 
     public default boolean testIntersection(IPartInfo self, IPartInfo otherPart) {
@@ -84,7 +84,7 @@ public interface IMultipart {
     }
 
     public default RayTraceResult collisionRayTrace(IPartInfo part, Vec3d start, Vec3d end) {
-        return part.getState().collisionRayTrace(part.getWorld(), part.getPos(), start, end);
+        return part.getState().collisionRayTrace(part.getPartWorld(), part.getPartPos(), start, end);
     }
 
     public default IBlockState getActualState(IBlockAccess world, BlockPos pos, IPartInfo part) {
@@ -100,7 +100,7 @@ public interface IMultipart {
     }
 
     public default void onPartPlacedBy(IPartInfo part, EntityLivingBase placer, ItemStack stack) {
-        part.getState().getBlock().onBlockPlacedBy(part.getWorld(), part.getPos(), part.getState(), placer, stack);
+        part.getState().getBlock().onBlockPlacedBy(part.getPartWorld(), part.getPartPos(), part.getState(), placer, stack);
     }
 
     public default boolean isSideSolid(IBlockAccess world, BlockPos pos, IPartInfo part, EnumFacing side) {
@@ -108,15 +108,15 @@ public interface IMultipart {
     }
 
     public default void randomDisplayTick(IPartInfo part, Random rand) {
-        part.getState().getBlock().randomDisplayTick(part.getState(), part.getWorld(), part.getPos(), rand);
+        part.getState().getBlock().randomDisplayTick(part.getState(), part.getPartWorld(), part.getPartPos(), rand);
     }
 
     public default boolean addDestroyEffects(IPartInfo part, ParticleManager manager) {
-        return part.getState().getBlock().addDestroyEffects(part.getWorld(), part.getPos(), manager);
+        return part.getState().getBlock().addDestroyEffects(part.getPartWorld(), part.getPartPos(), manager);
     }
 
     public default boolean addHitEffects(IPartInfo part, RayTraceResult hit, ParticleManager manager) {
-        return part.getState().getBlock().addHitEffects(part.getState(), part.getWorld(), hit, manager);
+        return part.getState().getBlock().addHitEffects(part.getState(), part.getPartWorld(), hit, manager);
     }
 
     public default EnumBlockRenderType getRenderType(IPartInfo part) {
@@ -124,7 +124,7 @@ public interface IMultipart {
     }
 
     public default AxisAlignedBB getBoundingBox(IPartInfo part) {
-        return part.getState().getBoundingBox(part.getWorld(), part.getPos());
+        return part.getState().getBoundingBox(part.getPartWorld(), part.getPartPos());
     }
 
     public default boolean canConnectRedstone(IBlockAccess world, BlockPos pos, IPartInfo part, EnumFacing side) {
@@ -152,11 +152,11 @@ public interface IMultipart {
     }
 
     public default void fillWithRain(IPartInfo part) {
-        part.getState().getBlock().fillWithRain(part.getWorld(), part.getPos());
+        part.getState().getBlock().fillWithRain(part.getPartWorld(), part.getPartPos());
     }
 
     public default int getComparatorInputOverride(IPartInfo part) {
-        return part.getState().getComparatorInputOverride(part.getWorld(), part.getPos());
+        return part.getState().getComparatorInputOverride(part.getPartWorld(), part.getPartPos());
     }
 
     public default List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IPartInfo part, int fortune) {
@@ -164,11 +164,11 @@ public interface IMultipart {
     }
 
     public default float getExplosionResistance(IPartInfo part, Entity exploder, Explosion explosion) {
-        return part.getState().getBlock().getExplosionResistance(part.getWorld(), part.getPos(), exploder, explosion);
+        return part.getState().getBlock().getExplosionResistance(part.getPartWorld(), part.getPartPos(), exploder, explosion);
     }
 
     public default float getEnchantPowerBonus(IPartInfo part) {
-        return part.getState().getBlock().getEnchantPowerBonus(part.getWorld(), part.getPos());
+        return part.getState().getBlock().getEnchantPowerBonus(part.getPartWorld(), part.getPartPos());
     }
 
     public default int getLightOpacity(IBlockAccess world, BlockPos pos, IPartInfo part) {
@@ -187,23 +187,23 @@ public interface IMultipart {
         return state.getLightValue();
     }
 
-    public default ItemStack getPickBlock(IPartInfo part, RayTraceResult hit, EntityPlayer player) {
-        return part.getState().getBlock().getPickBlock(part.getState(), hit, part.getWorld(), part.getPos(), player);
+    public default ItemStack getPickPart(IPartInfo part, RayTraceResult hit, EntityPlayer player) {
+        return part.getState().getBlock().getPickBlock(part.getState(), hit, part.getPartWorld(), part.getPartPos(), player);
     }
 
-    public default float getPlayerRelativeBlockHardness(IPartInfo part, RayTraceResult hit, EntityPlayer player) {
-        return part.getState().getPlayerRelativeBlockHardness(player, part.getWorld(), part.getPos());
+    public default float getPlayerRelativePartHardness(IPartInfo part, RayTraceResult hit, EntityPlayer player) {
+        return part.getState().getPlayerRelativeBlockHardness(player, part.getPartWorld(), part.getPartPos());
     }
 
     public default Boolean isAABBInsideMaterial(IPartInfo part, AxisAlignedBB boundingBox, Material material) {
-        return part.getState().getBlock().isAABBInsideMaterial(part.getWorld(), part.getPos(), boundingBox, material);
+        return part.getState().getBlock().isAABBInsideMaterial(part.getPartWorld(), part.getPartPos(), boundingBox, material);
     }
 
     public default boolean isBeaconBase(IBlockAccess world, BlockPos pos, IPartInfo part, BlockPos beacon) {
         return part.getState().getBlock().isBeaconBase(world, pos, beacon);
     }
 
-    public default boolean isBlockSolid(IBlockAccess world, BlockPos pos, IPartInfo part, EnumFacing side) {
+    public default boolean isPartSolid(IBlockAccess world, BlockPos pos, IPartInfo part, EnumFacing side) {
         return part.getState().getBlock().isBlockSolid(world, pos, side);
     }
 
@@ -217,11 +217,11 @@ public interface IMultipart {
     }
 
     public default boolean isFertile(IPartInfo part) {
-        return part.getState().getBlock().isFertile(part.getWorld(), part.getPos());
+        return part.getState().getBlock().isFertile(part.getPartWorld(), part.getPartPos());
     }
 
     public default boolean isFireSource(IPartInfo part, EnumFacing side) {
-        return part.getState().getBlock().isFireSource(part.getWorld(), part.getPos(), side);
+        return part.getState().getBlock().isFireSource(part.getPartWorld(), part.getPartPos(), side);
     }
 
     public default boolean isFlammable(IBlockAccess world, BlockPos pos, IPartInfo part, EnumFacing face) {
@@ -245,33 +245,33 @@ public interface IMultipart {
     }
 
     public default void onPartClicked(IPartInfo part, EntityPlayer player, RayTraceResult hit) {
-        part.getState().getBlock().onBlockClicked(part.getWorld(), part.getPos(), player);
+        part.getState().getBlock().onBlockClicked(part.getPartWorld(), part.getPartPos(), player);
     }
 
     public default void neighborChanged(IPartInfo part, Block neighborBlock, BlockPos neighborPos) {
-        part.getState().neighborChanged(part.getWorld(), part.getPos(), neighborBlock, neighborPos);
+        part.getState().neighborChanged(part.getPartWorld(), part.getPartPos(), neighborBlock, neighborPos);
     }
 
     public default void onNeighborChange(IPartInfo part, BlockPos neighbor) {
-        part.getState().getBlock().onNeighborChange(part.getWorld(), part.getPos(), neighbor);
+        part.getState().getBlock().onNeighborChange(part.getPartWorld(), part.getPartPos(), neighbor);
     }
 
     public default boolean onPartActivated(IPartInfo part, EntityPlayer player, EnumHand hand, RayTraceResult hit) {
-        return part.getState().getBlock().onBlockActivated(part.getWorld(), part.getPos(), part.getState(), player, hand, hit.sideHit,
+        return part.getState().getBlock().onBlockActivated(part.getPartWorld(), part.getPartPos(), part.getState(), player, hand, hit.sideHit,
                 (float) hit.hitVec.xCoord - hit.getBlockPos().getX(), (float) hit.hitVec.yCoord - hit.getBlockPos().getY(),
                 (float) hit.hitVec.zCoord - hit.getBlockPos().getZ());
     }
 
     public default void onPlantGrow(IPartInfo part, BlockPos source) {
-        part.getState().getBlock().onPlantGrow(part.getState(), part.getWorld(), part.getPos(), source);
+        part.getState().getBlock().onPlantGrow(part.getState(), part.getPartWorld(), part.getPartPos(), source);
     }
 
     public default void onPartHarvested(IPartInfo part, EntityPlayer player) {
-        part.getState().getBlock().onBlockHarvested(part.getWorld(), part.getPos(), part.getState(), player);
+        part.getState().getBlock().onBlockHarvested(part.getPartWorld(), part.getPartPos(), part.getState(), player);
     }
 
     public default void randomTick(IPartInfo part, Random random) {
-        part.getState().getBlock().randomTick(part.getWorld(), part.getPos(), part.getState(), random);
+        part.getState().getBlock().randomTick(part.getPartWorld(), part.getPartPos(), part.getState(), random);
     }
 
     public default void onAdded(IPartInfo part) {
@@ -292,12 +292,12 @@ public interface IMultipart {
     }
 
     public default void updateTick(IPartInfo part, Random rand) {
-        part.getState().getBlock().updateTick(part.getWorld(), part.getPos(), part.getState(), rand);
+        part.getState().getBlock().updateTick(part.getPartWorld(), part.getPartPos(), part.getState(), rand);
     }
 
     public default void addCollisionBoxToList(IPartInfo part, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entity,
             boolean unknown) {
-        part.getState().addCollisionBoxToList(part.getWorld(), part.getPos(), entityBox, collidingBoxes, entity, unknown);
+        part.getState().addCollisionBoxToList(part.getPartWorld(), part.getPartPos(), entityBox, collidingBoxes, entity, unknown);
     }
 
     public default AxisAlignedBB getCollisionBoundingBox(World world, BlockPos pos, IBlockState state) {
@@ -305,7 +305,7 @@ public interface IMultipart {
     }
 
     public default void dropPartAsItem(IPartInfo part, int fortune) {
-        part.getState().getBlock().dropBlockAsItem(part.getActualWorld(), part.getPos(), part.getState(), fortune);
+        part.getState().getBlock().dropBlockAsItem(part.getActualWorld(), part.getPartPos(), part.getState(), fortune);
     }
 
 }

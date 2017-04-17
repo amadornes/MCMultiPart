@@ -381,7 +381,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     public ItemStack getPickBlock(IBlockState state, RayTraceResult hit, World world, BlockPos pos, EntityPlayer player) {
         if (hit != null) {
             return getTile(world, pos).map(t -> t.get(MCMultiPart.slotRegistry.getObjectById(hit.subHit)).get())
-                    .map(i -> i.getPart().getPickBlock(i, (RayTraceResult) hit.hitInfo, player)).orElse(ItemStack.EMPTY);
+                    .map(i -> i.getPart().getPickPart(i, (RayTraceResult) hit.hitInfo, player)).orElse(ItemStack.EMPTY);
         }
         return ItemStack.EMPTY;
     }
@@ -392,7 +392,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
         RayTraceResult hit = collisionRayTrace(getDefaultState(), world, pos, vectors.getLeft(), vectors.getRight());
         if (hit != null) {
             return getTile(world, pos).map(t -> t.get(MCMultiPart.slotRegistry.getObjectById(hit.subHit)).get())
-                    .map(i -> i.getPart().getPlayerRelativeBlockHardness(i, (RayTraceResult) hit.hitInfo, player)).orElse(0F);
+                    .map(i -> i.getPart().getPlayerRelativePartHardness(i, (RayTraceResult) hit.hitInfo, player)).orElse(0F);
         }
         return 0;
     }
@@ -441,7 +441,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     @Override
     public boolean isBlockSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
-        return anyMatch(world, pos, i -> i.getPart().isBlockSolid(i.wrapAsNeeded(world), pos, i, side));
+        return anyMatch(world, pos, i -> i.getPart().isPartSolid(i.wrapAsNeeded(world), pos, i, side));
     }
 
     @Override

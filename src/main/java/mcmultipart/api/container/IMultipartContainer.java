@@ -16,9 +16,9 @@ import net.minecraft.world.World;
 
 public interface IMultipartContainer extends ISlottedContainer<IPartInfo> {
 
-    public World getWorld();
+    public World getPartWorld();
 
-    public BlockPos getPos();
+    public BlockPos getPartPos();
 
     @Override
     public Optional<IPartInfo> get(IPartSlot slot);
@@ -40,7 +40,7 @@ public interface IMultipartContainer extends ISlottedContainer<IPartInfo> {
     public default boolean canAddPart(IPartSlot slot, IBlockState state) {
         IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
         Preconditions.checkState(part != null, "The blockstate " + state + " could not be converted to a multipart!");
-        IMultipartTile tile = part.createMultipartTile(getWorld(), slot, state);
+        IMultipartTile tile = part.createMultipartTile(getPartWorld(), slot, state);
         return canAddPart(slot, state, tile);
     }
 
@@ -49,7 +49,7 @@ public interface IMultipartContainer extends ISlottedContainer<IPartInfo> {
     public default void addPart(IPartSlot slot, IBlockState state) {
         IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
         Preconditions.checkState(part != null, "The blockstate " + state + " could not be converted to a multipart!");
-        IMultipartTile tile = part.createMultipartTile(getWorld(), slot, state);
+        IMultipartTile tile = part.createMultipartTile(getPartWorld(), slot, state);
         addPart(slot, state, tile);
     }
 

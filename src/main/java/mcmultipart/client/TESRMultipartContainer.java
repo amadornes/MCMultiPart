@@ -37,21 +37,21 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
     public void renderTileEntityAt(TileMultipartContainer te, double x, double y, double z, float partialTicks, int destroyStage) {
         if (destroyStage >= 0) {
             RayTraceResult hit = Minecraft.getMinecraft().objectMouseOver;
-            if (hit.getBlockPos().equals(te.getPos())) {
+            if (hit.getBlockPos().equals(te.getPartPos())) {
                 IPartSlot slotHit = MCMultiPart.slotRegistry.getObjectById(hit.subHit);
                 Optional<IPartInfo> infoOpt = te.get(slotHit);
                 if (infoOpt.isPresent()) {
                     IPartInfo info = infoOpt.get();
 
-                    if (info.getTile() != null && info.getTile().canRenderBreaking()) {
+                    if (info.getTile() != null && info.getTile().canPartRenderBreaking()) {
                         TileEntityRendererDispatcher.instance.renderTileEntityAt(info.getTile().getTileEntity(), x, y, z, partialTicks,
                                 destroyStage);
                     } else {
                         if (MinecraftForgeClient.getRenderPass() == 1) {
-                            IBlockState state = info.getPart().getActualState(info.getWorld(), info.getPos(), info);
+                            IBlockState state = info.getPart().getActualState(info.getPartWorld(), info.getPartPos(), info);
                             IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(state);
                             if (model != null) {
-                                state = info.getPart().getExtendedState(info.getWorld(), info.getPos(), info, state);
+                                state = info.getPart().getExtendedState(info.getPartWorld(), info.getPartPos(), info, state);
 
                                 TextureAtlasSprite breakingTexture = Minecraft.getMinecraft().getTextureMapBlocks()
                                         .getAtlasSprite("minecraft:blocks/destroy_stage_" + destroyStage);
@@ -59,16 +59,16 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
                                 startBreaking();
                                 VertexBuffer buffer = Tessellator.getInstance().getBuffer();
                                 buffer.begin(7, DefaultVertexFormats.BLOCK);
-                                buffer.setTranslation(x - te.getPos().getX(), y - te.getPos().getY(), z - te.getPos().getZ());
+                                buffer.setTranslation(x - te.getPartPos().getX(), y - te.getPartPos().getY(), z - te.getPartPos().getZ());
                                 buffer.noColor();
 
                                 for (BlockRenderLayer layer : BlockRenderLayer.values()) {
-                                    if (info.getPart().canRenderInLayer(info.getWorld(), info.getPos(), info, state, layer)) {
+                                    if (info.getPart().canRenderInLayer(info.getPartWorld(), info.getPartPos(), info, state, layer)) {
                                         ForgeHooksClient.setRenderLayer(layer);
                                         Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer().renderModel(
-                                                te.getWorld(),
-                                                new SimpleBakedModel.Builder(state, model, breakingTexture, info.getPos()).makeBakedModel(),
-                                                state, te.getPos(), buffer, true);
+                                                te.getPartWorld(),
+                                                new SimpleBakedModel.Builder(state, model, breakingTexture, info.getPartPos()).makeBakedModel(),
+                                                state, te.getPartPos(), buffer, true);
                                     }
                                 }
                                 ForgeHooksClient.setRenderLayer(BlockRenderLayer.SOLID);
@@ -88,7 +88,7 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
         Set<IMultipartTile> fast = new HashSet<>(), slow = new HashSet<>();
         te.getParts().values().forEach(p -> {
             if (p.getTile() != null) {
-                (p.getTile().hasFastRenderer() ? fast : slow).add(p.getTile());
+                (p.getTile().hasFastPartRenderer() ? fast : slow).add(p.getTile());
             }
         });
 
@@ -110,7 +110,7 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
             buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
             fast.forEach(t -> {
-                if (t.shouldRenderInPass(pass)) {
+                if (t.shouldRenderPartInPass(pass)) {
                     buffer.setTranslation(0, 0, 0);
                     TileEntityRendererDispatcher.instance.getSpecialRenderer(t.getTileEntity()).renderTileEntityFast(t.getTileEntity(), x,
                             y, z, partialTicks, destroyStage, buffer);
@@ -127,7 +127,7 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
         }
 
         slow.forEach(t -> {
-            if (t.shouldRenderInPass(pass)) {
+            if (t.shouldRenderPartInPass(pass)) {
                 TileEntityRendererDispatcher.instance.renderTileEntityAt(t.getTileEntity(), x, y, z, partialTicks, destroyStage);
             }
         });
@@ -138,7 +138,7 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
             VertexBuffer buffer) {
         te.getParts().values().forEach(p -> {
             IMultipartTile t = p.getTile();
-            if (t != null && t.hasFastRenderer() && t.shouldRenderInPass(pass)) {
+            if (t != null && t.hasFastPartRenderer() && t.shouldRenderPartInPass(pass)) {
                 TileEntityRendererDispatcher.instance.getSpecialRenderer(t.getTileEntity()).renderTileEntityFast(t.getTileEntity(), x, y, z,
                         partialTicks, destroyStage, buffer);
             }

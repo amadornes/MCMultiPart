@@ -53,7 +53,7 @@ public final class PartInfo implements IPartInfo {
     }
 
     @Override
-    public World getWorld() {
+    public World getPartWorld() {
         return world == null ? getActualWorld() : world;
     }
 
@@ -103,16 +103,16 @@ public final class PartInfo implements IPartInfo {
             this.world = this.view != null ? new MCMPWorldWrapper(this, this, this.view) : null;
         }
 
-        if (checkTE && (this.tile == null || this.tile.shouldRefresh(getWorld(), getPos(), oldState, state))) {
-            setTile(part.createMultipartTile(getWorld(), getSlot(), state));
+        if (checkTE && (this.tile == null || this.tile.shouldRefreshPart(getPartWorld(), getPartPos(), oldState, state))) {
+            setTile(part.createMultipartTile(getPartWorld(), getSlot(), state));
         }
     }
 
     public void setTile(IMultipartTile tile) {
         this.tile = tile;
         if (this.container != null && this.tile != null) {
-            this.tile.setWorld(getWorld());
-            this.tile.setPos(getPos());
+            this.tile.setPartWorld(getPartWorld());
+            this.tile.setPartPos(getPartPos());
             this.tile.setPartInfo(this);
         }
     }
@@ -136,12 +136,12 @@ public final class PartInfo implements IPartInfo {
         if (scheduledTicks == null) {
             scheduledTicks = new HashSet<>();
         }
-        scheduledTicks.add(delay + getContainer().getWorld().getTotalWorldTime());
-        getContainer().getWorld().scheduleUpdate(getContainer().getPos(), MCMultiPart.multipart, delay);
+        scheduledTicks.add(delay + getContainer().getPartWorld().getTotalWorldTime());
+        getContainer().getPartWorld().scheduleUpdate(getContainer().getPartPos(), MCMultiPart.multipart, delay);
     }
 
     public boolean checkAndRemoveTick() {
-        return scheduledTicks != null && scheduledTicks.remove(getContainer().getWorld().getTotalWorldTime());
+        return scheduledTicks != null && scheduledTicks.remove(getContainer().getPartWorld().getTotalWorldTime());
     }
 
     public boolean hasPendingTicks() {
@@ -210,7 +210,7 @@ public final class PartInfo implements IPartInfo {
             if (info != null) {
                 if (tag != null) {
                     if (info.getTile() != null) {
-                        info.getTile().handleUpdateTag(tag);
+                        info.getTile().handlePartUpdateTag(tag);
                     } else {
                         MCMultiPart.log.error("Failed to handle the addition of the part " + state.getBlock().getRegistryName());
                         return;
@@ -236,7 +236,7 @@ public final class PartInfo implements IPartInfo {
                     info.setTile(info.part.createMultipartTile(world, slot, state));
                 }
                 if (info.getTile() != null) {
-                    info.getTile().onDataPacket(MCMultiPart.proxy.getNetworkManager(), pkt);
+                    info.getTile().onPartDataPacket(MCMultiPart.proxy.getNetworkManager(), pkt);
                 }
             } else {
                 info.setTile(info.part.createMultipartTile(world, slot, state));
@@ -250,7 +250,7 @@ public final class PartInfo implements IPartInfo {
                 if (info != null) {
                     if (pkt != null) {
                         if (info.getTile() != null) {
-                            info.getTile().onDataPacket(MCMultiPart.proxy.getNetworkManager(), pkt);
+                            info.getTile().onPartDataPacket(MCMultiPart.proxy.getNetworkManager(), pkt);
                         } else {
                             MCMultiPart.log.error("Failed to handle update packet for part " + state.getBlock().getRegistryName());
                             return;

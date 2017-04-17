@@ -31,7 +31,7 @@ public class MultipartCapabilityHelper {
     }
 
     public static boolean hasCapability(IMultipartContainer container, Capability<?> capability, EnumFacing face) {
-        if (SlotUtil.viewContainer(container, i -> i.getTile() != null && i.getTile().hasCapability(capability, face),
+        if (SlotUtil.viewContainer(container, i -> i.getTile() != null && i.getTile().hasPartCapability(capability, face),
                 l -> l.stream().anyMatch(a -> a), false, true, face)) {
             return true;
         }
@@ -41,8 +41,8 @@ public class MultipartCapabilityHelper {
     public static <T> T getCapability(IMultipartContainer container, Capability<T> capability, EnumFacing face) {
         T val = SlotUtil
                 .viewContainer(container,
-                        i -> i.getTile() != null && i.getTile().hasCapability(capability, face)
-                                ? i.getTile().getCapability(capability, face) : null,
+                        i -> i.getTile() != null && i.getTile().hasPartCapability(capability, face)
+                                ? i.getTile().getPartCapability(capability, face) : null,
                         l -> CapabilityJoiner.join(capability, l), null, true, face);
         if (val != null) {
             return val;
@@ -51,7 +51,7 @@ public class MultipartCapabilityHelper {
     }
 
     public static boolean hasCapability(IMultipartContainer container, Capability<?> capability, EnumEdgeSlot edge, EnumFacing face) {
-        if (SlotUtil.viewContainer(container, i -> i.getTile() != null && i.getTile().hasCapability(capability, face),
+        if (SlotUtil.viewContainer(container, i -> i.getTile() != null && i.getTile().hasPartCapability(capability, face),
                 l -> l.stream().anyMatch(a -> a), false, true, edge, face)) {
             return true;
         }
@@ -60,8 +60,8 @@ public class MultipartCapabilityHelper {
 
     public static <T> T getCapability(IMultipartContainer container, Capability<T> capability, EnumEdgeSlot edge, EnumFacing face) {
         T val = SlotUtil.viewContainer(
-                container, i -> i.getTile() != null && i.getTile().hasCapability(capability, face)
-                        ? i.getTile().getCapability(capability, face) : null,
+                container, i -> i.getTile() != null && i.getTile().hasPartCapability(capability, face)
+                        ? i.getTile().getPartCapability(capability, face) : null,
                 l -> CapabilityJoiner.join(capability, l), null, true, edge, face);
         if (val != null) {
             return val;

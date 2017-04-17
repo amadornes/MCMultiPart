@@ -17,12 +17,12 @@ public interface IWorldView {
 
             @Override
             public IBlockState getActualState(IBlockAccess world, BlockPos pos) {
-                return pos.equals(part.getPos()) ? part.getState() : world.getBlockState(pos);
+                return pos.equals(part.getPartPos()) ? part.getState() : world.getBlockState(pos);
             }
 
             @Override
             public TileEntity getActualTile(IBlockAccess world, BlockPos pos) {
-                return pos.equals(part.getPos()) ? part.getTile() != null ? part.getTile().getTileEntity() : null
+                return pos.equals(part.getPartPos()) ? part.getTile() != null ? part.getTile().getTileEntity() : null
                         : world.getTileEntity(pos);
             }
 
