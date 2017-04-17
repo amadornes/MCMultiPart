@@ -232,6 +232,10 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     protected void remove(IPartSlot slot) {
         parts.remove(slot);
     }
+    
+    protected void clear(){
+        parts.clear();
+    }
 
     protected void copyTo(TileMultipartContainer container) {
         parts.forEach(container::add);
@@ -309,7 +313,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         this.world = world;
         ObjectIntIdentityMap<IBlockState> stateMap = GameData.getBlockStateIDMap();
         NBTTagCompound parts = tag.getCompoundTag("parts");
-        this.parts.clear();
+        clear();
         for (String sID : parts.getKeySet()) {
             IPartSlot slot = MCMultiPart.slotRegistry.getObjectById(Integer.parseInt(sID));
             if (slot != null) {
@@ -518,6 +522,12 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
                 tickingParts.remove(te);
             }
             super.remove(slot);
+        }
+        
+        @Override
+        protected void clear() {
+            tickingParts.clear();
+            super.clear();
         }
 
         @Override
