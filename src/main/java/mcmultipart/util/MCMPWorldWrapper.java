@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableSetMultimap;
 
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.multipart.IMultipart;
+import mcmultipart.api.ref.MCMPCapabilities;
 import mcmultipart.api.world.IMultipartWorld;
 import mcmultipart.api.world.IWorldView;
 import mcmultipart.multipart.MultipartRegistry;
@@ -211,7 +212,8 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
     public boolean setBlockState(BlockPos pos, IBlockState state, int flags) {
         if (part.getPartPos().equals(pos)) {
             if (state.getBlock() == Blocks.AIR) {
-                part.getContainer().removePart(part.getSlot());
+                part.remove();
+                return true;
             } else {
                 IMultipart newPart = MultipartRegistry.INSTANCE.getPart(state.getBlock());
                 if (part.getPart() == newPart) {
@@ -219,6 +221,9 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
                     part.setState(state);
                     notifyBlockUpdate(pos, prevState, state, flags);
                     return true;
+                } else {
+                    // TODO: Check if part replacement is possible
+                    return false;
                 }
             }
         }
@@ -741,18 +746,42 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
     }
 
     @Override
-    public void setTileEntity(BlockPos pos, TileEntity tileEntityIn) {
-        getActualWorld().setTileEntity(pos, tileEntityIn);// TODO: Handle
+    public void setTileEntity(BlockPos pos, TileEntity tile) {
+        if (part.getPartPos().equals(pos)) {
+            if (tile.hasCapability(MCMPCapabilities.MULTIPART_TILE, null)) {
+                part.setTile(tile.getCapability(MCMPCapabilities.MULTIPART_TILE, null));
+            } else {
+                throw new IllegalArgumentException("The specified TileEntity is not a multipart!");
+            }
+        } else {
+            getActualWorld().setTileEntity(pos, tile);
+        }
     }
 
     @Override
     public void removeTileEntity(BlockPos pos) {
-        getActualWorld().removeTileEntity(pos);// TODO: Handle
+        if (part.getPartPos().equals(pos)) {
+            TileEntity tileentity = this.getTileEntity(pos);
+            if (tileentity != null) {
+                tileentity.invalidate();
+            }
+            this.updateComparatorOutputLevel(pos, getBlockState(pos).getBlock());
+        } else {
+            getActualWorld().removeTileEntity(pos);
+        }
     }
 
     @Override
-    public void markTileEntityForRemoval(TileEntity tileEntityIn) {
-        getActualWorld().markTileEntityForRemoval(tileEntityIn);// TODO: Handle
+    public void markTileEntityForRemoval(TileEntity tile) {
+        if (tile != null) {
+            BlockPos pos = tile.getPos();
+            if (part.getPartPos().equals(pos)) {
+                tile.invalidate();
+                this.updateComparatorOutputLevel(pos, getBlockState(pos).getBlock());
+                return;
+            }
+        }
+        getActualWorld().markTileEntityForRemoval(tile);
     }
 
     @Override
