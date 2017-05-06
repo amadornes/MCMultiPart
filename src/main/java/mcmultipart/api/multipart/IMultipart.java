@@ -257,8 +257,8 @@ public interface IMultipart {
     }
 
     public default boolean onPartActivated(IPartInfo part, EntityPlayer player, EnumHand hand, RayTraceResult hit) {
-        return part.getState().getBlock().onBlockActivated(part.getPartWorld(), part.getPartPos(), part.getState(), player, hand, hit.sideHit,
-                (float) hit.hitVec.xCoord - hit.getBlockPos().getX(), (float) hit.hitVec.yCoord - hit.getBlockPos().getY(),
+        return part.getState().getBlock().onBlockActivated(part.getPartWorld(), part.getPartPos(), part.getState(), player, hand,
+                hit.sideHit, (float) hit.hitVec.xCoord - hit.getBlockPos().getX(), (float) hit.hitVec.yCoord - hit.getBlockPos().getY(),
                 (float) hit.hitVec.zCoord - hit.getBlockPos().getZ());
     }
 

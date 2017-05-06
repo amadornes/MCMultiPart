@@ -39,11 +39,10 @@ public class MultipartCapabilityHelper {
     }
 
     public static <T> T getCapability(IMultipartContainer container, Capability<T> capability, EnumFacing face) {
-        T val = SlotUtil
-                .viewContainer(container,
-                        i -> i.getTile() != null && i.getTile().hasPartCapability(capability, face)
-                                ? i.getTile().getPartCapability(capability, face) : null,
-                        l -> CapabilityJoiner.join(capability, l), null, true, face);
+        T val = SlotUtil.viewContainer(container,
+                i -> i.getTile() != null && i.getTile().hasPartCapability(capability, face)
+                        ? i.getTile().getPartCapability(capability, face) : null,
+                l -> CapabilityJoiner.join(capability, l), null, true, face);
         if (val != null) {
             return val;
         }
@@ -59,8 +58,8 @@ public class MultipartCapabilityHelper {
     }
 
     public static <T> T getCapability(IMultipartContainer container, Capability<T> capability, EnumEdgeSlot edge, EnumFacing face) {
-        T val = SlotUtil.viewContainer(
-                container, i -> i.getTile() != null && i.getTile().hasPartCapability(capability, face)
+        T val = SlotUtil.viewContainer(container,
+                i -> i.getTile() != null && i.getTile().hasPartCapability(capability, face)
                         ? i.getTile().getPartCapability(capability, face) : null,
                 l -> CapabilityJoiner.join(capability, l), null, true, edge, face);
         if (val != null) {

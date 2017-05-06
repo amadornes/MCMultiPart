@@ -132,8 +132,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
             getPartWorld().setBlockState(getPartPos(),
                     MCMultiPart.multipart.getDefaultState().withProperty(BlockMultipartContainer.PROPERTY_TICKING,
                             this instanceof TileMultipartContainer.Ticking || (tile != null && tile.isTickable())));
-            TileMultipartContainer container = (TileMultipartContainer) MultipartHelper.getContainer(getPartWorld(), getPartPos())
-                    .get();
+            TileMultipartContainer container = (TileMultipartContainer) MultipartHelper.getContainer(getPartWorld(), getPartPos()).get();
             copyTo(container);
             container.notifyClients = false;
             try {
@@ -205,19 +204,15 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         } else if (info.getTile() != null && info.getTile().isTickable() && !hasTickingParts()) {
             newState = MCMultiPart.multipart.getDefaultState().withProperty(BlockMultipartContainer.PROPERTY_TICKING, false);
             getPartWorld().setBlockState(getPartPos(), newState, 0);
-            TileMultipartContainer container = (TileMultipartContainer) MultipartHelper.getContainer(getPartWorld(), getPartPos())
-                    .get();
+            TileMultipartContainer container = (TileMultipartContainer) MultipartHelper.getContainer(getPartWorld(), getPartPos()).get();
             copyTo(container);
         }
         if (!getPartWorld().isRemote) {
-            getPartWorld().markAndNotifyBlock(getPartPos(), getPartWorld().getChunkFromBlockCoords(getPartPos()), state,
-                    newState, 3);
+            getPartWorld().markAndNotifyBlock(getPartPos(), getPartWorld().getChunkFromBlockCoords(getPartPos()), state, newState, 3);
             getPartWorld().checkLight(getPartPos());
-            MultipartNetworkHandler.sendToAllWatching(new PacketMultipartRemove(getPartPos(), slot), getPartWorld(),
-                    getPartPos());
+            MultipartNetworkHandler.sendToAllWatching(new PacketMultipartRemove(getPartPos(), slot), getPartWorld(), getPartPos());
         } else {
-            getPartWorld().markAndNotifyBlock(getPartPos(), getPartWorld().getChunkFromBlockCoords(getPartPos()), state,
-                    newState, 2);
+            getPartWorld().markAndNotifyBlock(getPartPos(), getPartWorld().getChunkFromBlockCoords(getPartPos()), state, newState, 2);
             getPartWorld().checkLight(getPartPos());
         }
     }
@@ -233,8 +228,8 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     protected void remove(IPartSlot slot) {
         parts.remove(slot);
     }
-    
-    protected void clear(){
+
+    protected void clear() {
         parts.clear();
     }
 
@@ -438,7 +433,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     public void shouldRenderInPassC(int pass) {
         TESRMultipartContainer.pass = pass;
     }
-    
+
     @Override
     public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
         return oldState.getBlock() != newState.getBlock();
@@ -462,8 +457,8 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         if (capability == MCMPCapabilities.MULTIPART_CONTAINER) {
             return (T) this;
         }
-        T val = SlotUtil.viewContainer(
-                this, i -> i.getTile() != null && i.getTile().hasPartCapability(capability, facing)
+        T val = SlotUtil.viewContainer(this,
+                i -> i.getTile() != null && i.getTile().hasPartCapability(capability, facing)
                         ? i.getTile().getPartCapability(capability, facing) : null,
                 l -> CapabilityJoiner.join(capability, l), null, true, facing);
         if (val != null) {
@@ -498,8 +493,8 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
             if (tickingParts.isEmpty()) {
                 getPartWorld().setBlockState(getPartPos(),
                         MCMultiPart.multipart.getDefaultState().withProperty(BlockMultipartContainer.PROPERTY_TICKING, false));
-                TileMultipartContainer container = (TileMultipartContainer) MultipartHelper
-                        .getContainer(getPartWorld(), getPartPos()).get();
+                TileMultipartContainer container = (TileMultipartContainer) MultipartHelper.getContainer(getPartWorld(), getPartPos())
+                        .get();
                 copyTo(container);
                 getPartWorld().checkLight(getPartPos());
                 return;
@@ -524,7 +519,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
             }
             super.remove(slot);
         }
-        
+
         @Override
         protected void clear() {
             tickingParts.clear();

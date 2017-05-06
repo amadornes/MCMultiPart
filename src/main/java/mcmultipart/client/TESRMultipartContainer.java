@@ -67,7 +67,8 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
                                         ForgeHooksClient.setRenderLayer(layer);
                                         Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer().renderModel(
                                                 te.getPartWorld(),
-                                                new SimpleBakedModel.Builder(state, model, breakingTexture, info.getPartPos()).makeBakedModel(),
+                                                new SimpleBakedModel.Builder(state, model, breakingTexture, info.getPartPos())
+                                                        .makeBakedModel(),
                                                 state, te.getPartPos(), buffer, true);
                                     }
                                 }
