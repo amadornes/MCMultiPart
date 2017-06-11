@@ -67,9 +67,12 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
     @Override
     public void setWorld(World world) {
+        World prevWorld = getWorld();
         super.setWorld(world);
         isInWorld = true;
-        forEachTile(te -> te.setPartWorld(world));
+        if (world != prevWorld) {
+            parts.values().forEach(PartInfo::refreshWorld);
+        }
     }
 
     @Override
@@ -322,7 +325,6 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
                         NBTTagCompound tileTag = t.getCompoundTag("tile");
                         if (update) {
                             tile = part.createMultipartTile(world, slot, state);
-                            tile.setPartWorld(world);
                             tile.handlePartUpdateTag(tileTag);
                         } else {
                             tile = part.loadMultipartTile(world, tileTag);
@@ -342,10 +344,8 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
     @Override
     public void onLoad() {
-        forEachTile(te -> {
-            te.setPartWorld(getPartWorld());
-            te.setPartPos(getPartPos());
-        });
+        forEachTile(te -> te.setPartPos(getPartPos()));
+        parts.values().forEach(PartInfo::refreshWorld);
         forEachTile(IMultipartTile::onPartLoad);
     }
 

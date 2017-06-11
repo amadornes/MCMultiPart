@@ -104,8 +104,7 @@ public final class PartInfo implements IPartInfo {
 
         if (oldState == null || oldState.getBlock() != state.getBlock()) {
             this.part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
-            this.view = container != null && part.shouldWrapWorld() ? part.getWorldView(this) : null;
-            this.world = this.view != null ? new MCMPWorldWrapper(this, this, this.view) : null;
+            refreshWorld();
         }
 
         if (checkTE && (this.tile == null || this.tile.shouldRefreshPart(getPartWorld(), getPartPos(), oldState, state))) {
@@ -119,6 +118,14 @@ public final class PartInfo implements IPartInfo {
             this.tile.setPartWorld(getPartWorld());
             this.tile.setPartPos(getPartPos());
             this.tile.setPartInfo(this);
+        }
+    }
+
+    public void refreshWorld() {
+        this.view = container != null && part.shouldWrapWorld() ? part.getWorldView(this) : null;
+        this.world = this.view != null ? new MCMPWorldWrapper(this, this, this.view) : null;
+        if (this.tile != null) {
+            this.tile.setPartWorld(world);
         }
     }
 
