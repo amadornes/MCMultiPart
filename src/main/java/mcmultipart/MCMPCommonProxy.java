@@ -21,6 +21,9 @@ public class MCMPCommonProxy {
     public void preInit() {
     }
 
+    public void init() {
+    }
+
     public EntityPlayer getPlayer() {
         return null;
     }
@@ -38,6 +41,10 @@ public class MCMPCommonProxy {
     @SubscribeEvent
     public void onPlayerRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         EntityPlayer player = event.getEntityPlayer();
+        if (event.getHitVec() == null || event.getWorld() == null || event.getPos() == null || event.getHand() == null
+                || event.getFace() == null || player == null) {
+            return;
+        }
         ItemStack stack = player.getHeldItem(event.getHand());
         if (!stack.isEmpty()) {
             Pair<WrappedBlock, IMultipart> info = MultipartRegistry.INSTANCE.wrapPlacement(stack);
@@ -50,6 +57,7 @@ public class MCMPCommonProxy {
                         (float) event.getHitVec().yCoord - event.getPos().getY(), (float) event.getHitVec().zCoord - event.getPos().getZ(),
                         item, info.getKey().getPlacementInfo(), multipart, info.getKey().getBlockPlacementLogic(),
                         info.getKey().getPartPlacementLogic());
+
                 event.setCancellationResult(result);
                 event.setCanceled(true);
             }
