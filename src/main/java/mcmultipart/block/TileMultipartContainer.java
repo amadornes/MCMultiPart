@@ -1,6 +1,7 @@
 package mcmultipart.block;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -312,33 +313,59 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         this.world = world;
         ObjectIntIdentityMap<IBlockState> stateMap = GameData.getBlockStateIDMap();
         NBTTagCompound parts = tag.getCompoundTag("parts");
-        clear();
+        Set<IPartSlot> visitedSlots = new HashSet<>();
         for (String sID : parts.getKeySet()) {
             IPartSlot slot = MCMultiPart.slotRegistry.getObjectById(Integer.parseInt(sID));
             if (slot != null) {
+                visitedSlots.add(slot);
+                PartInfo prevInfo = this.parts.get(slot);
+
                 NBTTagCompound t = parts.getCompoundTag(sID);
                 IBlockState state = stateMap.getByValue(t.getInteger("state"));
-                IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
-                if (part != null) {
-                    IMultipartTile tile = null;
+                if (prevInfo != null) {
+                    prevInfo.setState(state);
                     if (t.hasKey("tile")) {
                         NBTTagCompound tileTag = t.getCompoundTag("tile");
+                        IMultipartTile tile = prevInfo.getTile();
                         if (update) {
-                            tile = part.createMultipartTile(world, slot, state);
+                            if (tile == null) {
+                                tile = prevInfo.getPart().createMultipartTile(world, slot, state);
+                            }
                             tile.handlePartUpdateTag(tileTag);
                         } else {
-                            tile = part.loadMultipartTile(world, tileTag);
+                            tile = prevInfo.getPart().loadMultipartTile(world, tileTag);
                         }
+                        prevInfo.setTile(tile);
                     }
-                    add(slot, new PartInfo(this, slot, part, state, tile));
-                } else if (!update) {
-                    if (missingParts == null) {
-                        missingParts = new HashMap<>();
+                } else {
+                    IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
+                    if (part != null) {
+                        IMultipartTile tile = null;
+                        if (t.hasKey("tile")) {
+                            NBTTagCompound tileTag = t.getCompoundTag("tile");
+                            if (update) {
+                                tile = part.createMultipartTile(world, slot, state);
+                                tile.handlePartUpdateTag(tileTag);
+                            } else {
+                                tile = part.loadMultipartTile(world, tileTag);
+                            }
+                        }
+                        add(slot, new PartInfo(this, slot, part, state, tile));
+                    } else if (!update) {
+                        if (missingParts == null) {
+                            missingParts = new HashMap<>();
+                        }
+                        missingParts.put(slot, t);
+                    } else {
+                        throw new IllegalStateException(
+                                "Server sent a multipart of type " + state + " which is not registered on the client.");
                     }
-                    missingParts.put(slot, t);
                 }
             }
         }
+        Set<IPartSlot> removed = new HashSet<>(this.parts.keySet());
+        removed.removeAll(visitedSlots);
+        removed.forEach(this::remove);
         this.world = prevWorld;
     }
 
