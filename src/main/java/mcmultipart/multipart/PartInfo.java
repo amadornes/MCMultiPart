@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.IntUnaryOperator;
 
 import com.google.common.base.Preconditions;
 
@@ -21,6 +22,7 @@ import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.util.MCMPBlockAccessWrapper;
 import mcmultipart.util.MCMPWorldWrapper;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -29,9 +31,12 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public final class PartInfo implements IPartInfo {
 
+    @SideOnly(Side.CLIENT)
     private static final List<BlockRenderLayer> RENDER_LAYERS = Arrays.asList(BlockRenderLayer.values());
 
     private TileMultipartContainer container;
@@ -148,6 +153,7 @@ public final class PartInfo implements IPartInfo {
         return scheduledTicks != null && !scheduledTicks.isEmpty();
     }
 
+    @SideOnly(Side.CLIENT)
     public ClientInfo getInfo(IBlockAccess world, BlockPos pos) {
         IBlockAccess world_ = wrapAsNeeded(world);
         IBlockState actualState = part.getActualState(world_, pos, this);
@@ -162,18 +168,23 @@ public final class PartInfo implements IPartInfo {
         } else {
             renderLayers = Collections.emptySet();
         }
-        return new ClientInfo(actualState, extendedState, renderLayers);
+        return new ClientInfo(actualState, extendedState, renderLayers,
+                index -> Minecraft.getMinecraft().getBlockColors().colorMultiplier(extendedState, world_, pos, index));
     }
 
+    @SideOnly(Side.CLIENT)
     public class ClientInfo {
 
         private final IBlockState actualState, extendedState;
         private final Set<BlockRenderLayer> renderLayers;
+        private final IntUnaryOperator tintGetter;
 
-        private ClientInfo(IBlockState actualState, IBlockState extendedState, Set<BlockRenderLayer> renderLayers) {
+        private ClientInfo(IBlockState actualState, IBlockState extendedState, Set<BlockRenderLayer> renderLayers,
+                IntUnaryOperator tintGetter) {
             this.actualState = actualState;
             this.extendedState = extendedState;
             this.renderLayers = renderLayers;
+            this.tintGetter = tintGetter;
         }
 
         public IBlockState getActualState() {
@@ -186,6 +197,10 @@ public final class PartInfo implements IPartInfo {
 
         public boolean canRenderInLayer(BlockRenderLayer layer) {
             return renderLayers.contains(layer);
+        }
+
+        public int getTint(int index) {
+            return tintGetter.applyAsInt(index);
         }
 
     }

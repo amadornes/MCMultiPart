@@ -142,8 +142,11 @@ public class MCMultiPart {
     @EventHandler
     public void init(FMLInitializationEvent event) {
         addons.forEach(a -> a.registerParts(MultipartRegistry.INSTANCE));
+
         MultipartRegistry.INSTANCE.computeBlocks();
         SlotRegistry.INSTANCE.computeAccess();
+
+        proxy.init();
     }
 
     @EventHandler

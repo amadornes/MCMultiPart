@@ -4,8 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import mcmultipart.block.BlockMultipartContainer;
 import mcmultipart.multipart.PartInfo;
 import net.minecraft.block.state.IBlockState;
@@ -31,11 +29,12 @@ public class ModelMultipartContainer implements IBakedModel {
             BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
             return info//
                     .stream()//
-                    .filter(i -> i.canRenderInLayer(layer))//
-                    .map(i -> Pair.of(i, brd.getModelForState(i.getActualState())))//
-                    .map(p -> p.getValue().getQuads(p.getKey().getExtendedState(), side, rand))//
-                    .flatMap(List::stream)//
+                    .filter(i -> i.canRenderInLayer(layer)) // Make sure it can render in this layer
+                    .flatMap(i -> brd.getModelForState(i.getActualState()) // Get model
+                            .getQuads(i.getExtendedState(), side, rand).stream() // Stream quads
+                            .map(q -> tint(i, q))) // Tint quads
                     .collect(Collectors.toList());
+
         }
         return Collections.emptyList();
     }
@@ -68,6 +67,11 @@ public class ModelMultipartContainer implements IBakedModel {
     @Override
     public ItemOverrideList getOverrides() {
         return ItemOverrideList.NONE;
+    }
+
+    private static BakedQuad tint(PartInfo.ClientInfo info, BakedQuad quad) {
+        return quad.hasTintIndex() ? new BakedQuad(quad.getVertexData(), info.getTint(quad.getTintIndex()), quad.getFace(),
+                quad.getSprite(), quad.shouldApplyDiffuseLighting(), quad.getFormat()) : quad;
     }
 
 }

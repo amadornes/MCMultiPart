@@ -35,6 +35,11 @@ public class MCMPClientProxy extends MCMPCommonProxy {
     }
 
     @Override
+    public void init() {
+        Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler((s, w, p, i) -> i, MCMultiPart.multipart);
+    }
+
+    @Override
     public EntityPlayerSP getPlayer() {
         return Minecraft.getMinecraft().player;
     }
