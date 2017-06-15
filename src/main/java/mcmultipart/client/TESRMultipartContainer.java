@@ -13,10 +13,10 @@ import mcmultipart.api.slot.IPartSlot;
 import mcmultipart.block.TileMultipartContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.SimpleBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -34,7 +34,8 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
     public static int pass = 0;
 
     @Override
-    public void renderTileEntityAt(TileMultipartContainer te, double x, double y, double z, float partialTicks, int destroyStage) {
+    public void renderTileEntityAt(TileMultipartContainer te, double x, double y, double z, float partialTicks,
+    		int destroyStage, float unused) {
         if (destroyStage >= 0) {
             RayTraceResult hit = Minecraft.getMinecraft().objectMouseOver;
             if (hit.getBlockPos().equals(te.getPartPos())) {
@@ -57,7 +58,7 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
                                         .getAtlasSprite("minecraft:blocks/destroy_stage_" + destroyStage);
 
                                 startBreaking();
-                                VertexBuffer buffer = Tessellator.getInstance().getBuffer();
+                                BufferBuilder buffer = Tessellator.getInstance().getBuffer();
                                 buffer.begin(7, DefaultVertexFormats.BLOCK);
                                 buffer.setTranslation(x - te.getPartPos().getX(), y - te.getPartPos().getY(), z - te.getPartPos().getZ());
                                 buffer.noColor();
@@ -95,7 +96,7 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
 
         if (!fast.isEmpty()) {
             Tessellator tessellator = Tessellator.getInstance();
-            VertexBuffer buffer = tessellator.getBuffer();
+            BufferBuilder buffer = tessellator.getBuffer();
             this.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
             RenderHelper.disableStandardItemLighting();
             GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -114,7 +115,7 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
                 if (t.shouldRenderPartInPass(pass)) {
                     buffer.setTranslation(0, 0, 0);
                     TileEntityRendererDispatcher.instance.getSpecialRenderer(t.getTileEntity()).renderTileEntityFast(t.getTileEntity(), x,
-                            y, z, partialTicks, destroyStage, buffer);
+                            y, z, partialTicks, destroyStage, unused, buffer);
                 }
             });
 
@@ -129,19 +130,19 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
 
         slow.forEach(t -> {
             if (t.shouldRenderPartInPass(pass)) {
-                TileEntityRendererDispatcher.instance.renderTileEntityAt(t.getTileEntity(), x, y, z, partialTicks, destroyStage);
+                TileEntityRendererDispatcher.instance.renderTileEntityAt(t.getTileEntity(), x, y, z, partialTicks, destroyStage, unused);
             }
         });
     }
-
+    
     @Override
-    public void renderTileEntityFast(TileMultipartContainer te, double x, double y, double z, float partialTicks, int destroyStage,
-            VertexBuffer buffer) {
+    public void renderTileEntityFast(TileMultipartContainer te, double x, double y, double z, float partialTicks,
+    		int destroyStage, float unused, BufferBuilder buffer) {
         te.getParts().values().forEach(p -> {
             IMultipartTile t = p.getTile();
             if (t != null && t.hasFastPartRenderer() && t.shouldRenderPartInPass(pass)) {
                 TileEntityRendererDispatcher.instance.getSpecialRenderer(t.getTileEntity()).renderTileEntityFast(t.getTileEntity(), x, y, z,
-                        partialTicks, destroyStage, buffer);
+                        partialTicks, destroyStage, unused, buffer);
             }
         });
     }

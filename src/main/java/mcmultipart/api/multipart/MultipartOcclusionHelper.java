@@ -17,7 +17,7 @@ public class MultipartOcclusionHelper {
     private static final Predicate<IPartSlot> NEVER = a -> false;
 
     public static boolean testBoxIntersection(Collection<AxisAlignedBB> boxes1, Collection<AxisAlignedBB> boxes2) {
-        return boxes1.stream().anyMatch(b1 -> boxes2.stream().anyMatch(b2 -> b1.intersectsWith(b2)));
+        return boxes1.stream().anyMatch(b1 -> boxes2.stream().anyMatch(b1::intersects));
     }
 
     public static boolean testPartIntersection(IPartInfo part1, IPartInfo part2) {

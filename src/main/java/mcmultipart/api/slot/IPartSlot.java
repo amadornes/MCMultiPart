@@ -20,7 +20,7 @@ public interface IPartSlot extends IForgeRegistryEntry<IPartSlot> {
     }
 
     @Override
-    default Class<? super IPartSlot> getRegistryType() {
+    default Class<IPartSlot> getRegistryType() {
         return IPartSlot.class;
     }
 

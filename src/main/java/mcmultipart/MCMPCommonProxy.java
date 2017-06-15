@@ -53,8 +53,8 @@ public class MCMPCommonProxy {
                 IMultipart multipart = info.getValue();
 
                 EnumActionResult result = ItemBlockMultipart.place(player, event.getWorld(), event.getPos(), event.getHand(),
-                        event.getFace(), (float) event.getHitVec().xCoord - event.getPos().getX(),
-                        (float) event.getHitVec().yCoord - event.getPos().getY(), (float) event.getHitVec().zCoord - event.getPos().getZ(),
+                        event.getFace(), (float) event.getHitVec().x - event.getPos().getX(),
+                        (float) event.getHitVec().y - event.getPos().getY(), (float) event.getHitVec().z - event.getPos().getZ(),
                         item, info.getKey().getPlacementInfo(), multipart, info.getKey().getBlockPlacementLogic(),
                         info.getKey().getPartPlacementLogic());
 

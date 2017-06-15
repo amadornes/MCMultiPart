@@ -203,10 +203,6 @@ public interface IMultipart {
         return part.getState().getBlock().isBeaconBase(world, pos, beacon);
     }
 
-    public default boolean isPartSolid(IBlockAccess world, BlockPos pos, IPartInfo part, EnumFacing side) {
-        return part.getState().getBlock().isBlockSolid(world, pos, side);
-    }
-
     public default boolean isBurning(IBlockAccess world, BlockPos pos, IPartInfo part) {
         return part.getState().getBlock().isBurning(world, pos);
     }
@@ -258,8 +254,8 @@ public interface IMultipart {
 
     public default boolean onPartActivated(IPartInfo part, EntityPlayer player, EnumHand hand, RayTraceResult hit) {
         return part.getState().getBlock().onBlockActivated(part.getPartWorld(), part.getPartPos(), part.getState(), player, hand,
-                hit.sideHit, (float) hit.hitVec.xCoord - hit.getBlockPos().getX(), (float) hit.hitVec.yCoord - hit.getBlockPos().getY(),
-                (float) hit.hitVec.zCoord - hit.getBlockPos().getZ());
+                hit.sideHit, (float) hit.hitVec.x - hit.getBlockPos().getX(), (float) hit.hitVec.y - hit.getBlockPos().getY(),
+                (float) hit.hitVec.z - hit.getBlockPos().getZ());
     }
 
     public default void onPlantGrow(IPartInfo part, BlockPos source) {

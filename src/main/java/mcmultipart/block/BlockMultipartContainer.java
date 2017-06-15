@@ -120,9 +120,9 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     public boolean isOpaqueCube(IBlockState state) {
         return false;
     }
-
+    
     @Override
-    public boolean isFullyOpaque(IBlockState state) {
+    public boolean isTopSolid(IBlockState state) {
         return false;
     }
 
@@ -438,11 +438,6 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     @Override
     public boolean isBeaconBase(IBlockAccess world, BlockPos pos, BlockPos beacon) {
         return anyMatch(world, pos, i -> i.getPart().isBeaconBase(i.wrapAsNeeded(world), pos, i, beacon));
-    }
-
-    @Override
-    public boolean isBlockSolid(IBlockAccess world, BlockPos pos, EnumFacing side) {
-        return anyMatch(world, pos, i -> i.getPart().isPartSolid(i.wrapAsNeeded(world), pos, i, side));
     }
 
     @Override
