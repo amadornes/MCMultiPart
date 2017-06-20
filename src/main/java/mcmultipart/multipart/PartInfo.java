@@ -1,5 +1,6 @@
 package mcmultipart.multipart;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -31,13 +32,21 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public final class PartInfo implements IPartInfo {
 
     @SideOnly(Side.CLIENT)
-    private static final List<BlockRenderLayer> RENDER_LAYERS = Arrays.asList(BlockRenderLayer.values());
+    private static final List<BlockRenderLayer> RENDER_LAYERS;
+    static {
+        if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+            RENDER_LAYERS = Arrays.asList(BlockRenderLayer.values());
+        } else {
+            RENDER_LAYERS = new ArrayList<>();
+        }
+    }
 
     private TileMultipartContainer container;
     private final IPartSlot slot;
