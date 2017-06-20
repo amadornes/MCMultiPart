@@ -38,7 +38,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public final class PartInfo implements IPartInfo {
 
-    @SideOnly(Side.CLIENT)
     private static final List<BlockRenderLayer> RENDER_LAYERS;
     static {
         if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
