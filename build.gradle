@@ -28,7 +28,7 @@ minecraft {
     version = "1.12-14.21.0.2348"
     runDir = "run"
     
-    mappings = "snapshot_20170615"
+    mappings = "snapshot_20170620"
 	replace "%VERSION%", project.version
 }
 
