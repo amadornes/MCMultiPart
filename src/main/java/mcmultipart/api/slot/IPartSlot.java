@@ -2,7 +2,7 @@ package mcmultipart.api.slot;
 
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.registry.IForgeRegistryEntry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 
 public interface IPartSlot extends IForgeRegistryEntry<IPartSlot> {
 

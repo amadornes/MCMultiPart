@@ -45,9 +45,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.registry.GameData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.registries.GameData;
 
 public class TileMultipartContainer extends TileEntity implements IMultipartContainer {
 
@@ -299,10 +299,10 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
                     t.setTag("tile", tile.writePartToNBT(new NBTTagCompound()));
                 }
             }
-            parts.setTag(Integer.toString(MCMultiPart.slotRegistry.getId(s)), t);
+            parts.setTag(Integer.toString(MCMultiPart.slotRegistry.getID(s)), t);
         });
         if (this.missingParts != null) {
-            this.missingParts.forEach((s, t) -> parts.setTag(Integer.toString(MCMultiPart.slotRegistry.getId(s)), t));
+            this.missingParts.forEach((s, t) -> parts.setTag(Integer.toString(MCMultiPart.slotRegistry.getID(s)), t));
         }
         tag.setTag("parts", parts);
         return tag;
@@ -315,7 +315,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         NBTTagCompound parts = tag.getCompoundTag("parts");
         Set<IPartSlot> visitedSlots = new HashSet<>();
         for (String sID : parts.getKeySet()) {
-            IPartSlot slot = MCMultiPart.slotRegistry.getObjectById(Integer.parseInt(sID));
+            IPartSlot slot = MCMultiPart.slotRegistry.getValue(Integer.parseInt(sID));
             if (slot != null) {
                 visitedSlots.add(slot);
                 PartInfo prevInfo = this.parts.get(slot);
@@ -441,7 +441,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     private boolean hasFastRendererC() {
         for (IPartInfo info : parts.values()) {
             TileEntity te = info.getTile() != null ? info.getTile().getTileEntity() : null;
-            if (te != null && TileEntityRendererDispatcher.instance.getSpecialRenderer(te) != null && !te.hasFastRenderer()) {
+            if (te != null && TileEntityRendererDispatcher.instance.getRenderer(te) != null && !te.hasFastRenderer()) {
                 return false;
             }
         }

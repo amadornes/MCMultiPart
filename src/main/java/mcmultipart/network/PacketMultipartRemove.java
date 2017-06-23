@@ -33,13 +33,13 @@ public class PacketMultipartRemove extends Packet<PacketMultipartRemove> {
     @Override
     public void toBytes(PacketBuffer buf) {
         buf.writeBlockPos(pos);
-        buf.writeInt(MCMultiPart.slotRegistry.getId(slot));
+        buf.writeInt(MCMultiPart.slotRegistry.getID(slot));
     }
 
     @Override
     public void fromBytes(PacketBuffer buf) throws Exception {
         pos = buf.readBlockPos();
-        slot = MCMultiPart.slotRegistry.getObjectById(buf.readInt());
+        slot = MCMultiPart.slotRegistry.getValue(buf.readInt());
     }
 
 }

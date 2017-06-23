@@ -92,7 +92,7 @@ public class MCMPClientProxy extends MCMPCommonProxy {
             }
 
             int slotID = hit.subHit;
-            PartInfo info = tile.get().getParts().get(MCMultiPart.slotRegistry.getObjectById(slotID));
+            PartInfo info = tile.get().getParts().get(MCMultiPart.slotRegistry.getValue(slotID));
             if (info == null || !(hit.hitInfo instanceof RayTraceResult)) {
                 return;
             }

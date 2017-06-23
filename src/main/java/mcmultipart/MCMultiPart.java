@@ -45,134 +45,150 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.registry.FMLControlledNamespacedRegistry;
-import net.minecraftforge.fml.common.registry.GameData;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.common.registry.RegistryBuilder;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.registries.ForgeRegistry;
+import net.minecraftforge.registries.GameData;
+import net.minecraftforge.registries.RegistryBuilder;
 
 @Mod(modid = MCMultiPart.MODID, name = MCMultiPart.NAME, version = MCMultiPart.VERSION)
 public class MCMultiPart {
 
-    public static final String MODID = "mcmultipart", NAME = "MCMultiPart", VERSION = "%VERSION%";
+	public static final String MODID = "mcmultipart", NAME = "MCMultiPart", VERSION = "%VERSION%";
 
-    @SidedProxy(serverSide = "mcmultipart.MCMPCommonProxy", clientSide = "mcmultipart.client.MCMPClientProxy")
-    public static MCMPCommonProxy proxy;
+	@SidedProxy(serverSide = "mcmultipart.MCMPCommonProxy", clientSide = "mcmultipart.client.MCMPClientProxy")
+	public static MCMPCommonProxy proxy;
 
-    public static Logger log;
+	public static Logger log;
 
-    public static Block multipart;
+	public static Block multipart;
 
-    public static FMLControlledNamespacedRegistry<IPartSlot> slotRegistry;
-    public static FMLControlledNamespacedRegistry<MicroMaterial> microMaterialRegistry;
-    public static FMLControlledNamespacedRegistry<MicroblockType> microblockTypeRegistry;
-    public static ObjectIntIdentityMap<IBlockState> stateMap;
+	public static ForgeRegistry<IPartSlot> slotRegistry;
+	public static ForgeRegistry<MicroMaterial> microMaterialRegistry;
+	public static ForgeRegistry<MicroblockType> microblockTypeRegistry;
+	public static ObjectIntIdentityMap<IBlockState> stateMap;
 
-    private final List<IMCMPAddon> addons = new ArrayList<>();
+	private final List<IMCMPAddon> addons = new ArrayList<>();
 
-    @EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
-        try {
-            initAPI();
-        } catch (Exception e) {
-            throw Throwables.propagate(e);
-        }
+	@SubscribeEvent
+	public void onRegistrySetup(RegistryEvent.NewRegistry event) {
+		slotRegistry = (ForgeRegistry<IPartSlot>) new RegistryBuilder<IPartSlot>()//
+				.setName(new ResourceLocation(MODID, "slots"))//
+				.setIDRange(0, Short.MAX_VALUE)//
+				.setType(IPartSlot.class)//
+				.create();
 
-        log = event.getModLog();
+		microMaterialRegistry = (ForgeRegistry<MicroMaterial>) new RegistryBuilder<MicroMaterial>()//
+				.setName(new ResourceLocation(MODID, "micro_material"))//
+				.setIDRange(0, Short.MAX_VALUE)//
+				.setType(MicroMaterial.class)//
+				.create();
 
-        slotRegistry = (FMLControlledNamespacedRegistry<IPartSlot>) new RegistryBuilder<IPartSlot>()//
-                .setName(new ResourceLocation(MODID, "slots"))//
-                .setIDRange(0, Short.MAX_VALUE)//
-                .setType(IPartSlot.class)//
-                .create();
-        slotRegistry.registerAll(EnumFaceSlot.VALUES);
-        slotRegistry.registerAll(EnumEdgeSlot.VALUES);
-        slotRegistry.registerAll(EnumCornerSlot.VALUES);
-        slotRegistry.registerAll(EnumCenterSlot.CENTER);
+		microblockTypeRegistry = (ForgeRegistry<MicroblockType>) new RegistryBuilder<MicroblockType>()//
+				.setName(new ResourceLocation(MODID, "micro_type"))//
+				.setIDRange(0, Short.MAX_VALUE)//
+				.setType(MicroblockType.class)//
+				.create();
+	}
+	
+	@SubscribeEvent
+	public void onSlotRegistryInit(RegistryEvent.Register<IPartSlot> event){
+		event.getRegistry().registerAll(EnumFaceSlot.VALUES);
+		event.getRegistry().registerAll(EnumEdgeSlot.VALUES);
+		event.getRegistry().registerAll(EnumCornerSlot.VALUES);
+		event.getRegistry().registerAll(EnumCenterSlot.CENTER);
+	}
+	
+	@SubscribeEvent
+	public void onBlockRegistryInit(RegistryEvent.Register<Block> event){
+		multipart = new BlockMultipartContainer();
+		event.getRegistry().register(multipart.setRegistryName("multipart"));
+		GameRegistry.registerTileEntity(TileMultipartContainer.class, MODID + ":multipart.nonticking");
+	}
 
-        microMaterialRegistry = (FMLControlledNamespacedRegistry<MicroMaterial>) new RegistryBuilder<MicroMaterial>()//
-                .setName(new ResourceLocation(MODID, "micro_material"))//
-                .setIDRange(0, Short.MAX_VALUE)//
-                .setType(MicroMaterial.class)//
-                .create();
+	@EventHandler
+	public void preInit(FMLPreInitializationEvent event) {
+		try {
+			initAPI();
+		} catch (Exception e) {
+			throw Throwables.propagate(e);
+		}
 
-        microblockTypeRegistry = (FMLControlledNamespacedRegistry<MicroblockType>) new RegistryBuilder<MicroblockType>()//
-                .setName(new ResourceLocation(MODID, "micro_type"))//
-                .setIDRange(0, Short.MAX_VALUE)//
-                .setType(MicroblockType.class)//
-                .create();
+		log = event.getModLog();
 
-        stateMap = GameData.getBlockStateIDMap();
 
-        multipart = new BlockMultipartContainer();
-        GameRegistry.register(multipart.setRegistryName("multipart"));
-        GameRegistry.registerTileEntity(TileMultipartContainer.class, MODID + ":multipart.nonticking");
-        GameRegistry.registerTileEntityWithAlternatives(TileMultipartContainer.Ticking.class, MODID + ":multipart.ticking",
-                MODID + ":multipart");
+		stateMap = GameData.getBlockStateIDMap();
 
-        CapabilityMultipartContainer.register();
-        CapabilityMultipartTile.register();
+		CapabilityMultipartContainer.register();
+		CapabilityMultipartTile.register();
 
-        MultipartCapabilityHelper.registerCapabilityJoiner(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, JoinedItemHandler::join);
+		MultipartCapabilityHelper.registerCapabilityJoiner(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY,
+				JoinedItemHandler::join);
 
-        MultipartNetworkHandler.init();
+		MultipartNetworkHandler.init();
 
-        MinecraftForge.EVENT_BUS.register(proxy);
-        proxy.preInit();
+		MinecraftForge.EVENT_BUS.register(proxy);
+		proxy.preInit();
 
-        event.getAsmData().getAll(MCMPAddon.class.getName()).forEach(a -> {
-            try {
-                Class<?> addon = Class.forName(a.getClassName());
-                if (IMCMPAddon.class.isAssignableFrom(addon)) {
-                    addons.add((IMCMPAddon) addon.newInstance());
-                }
-            } catch (Exception e) {
-                throw Throwables.propagate(e);
-            }
-        });
-    }
+		event.getAsmData().getAll(MCMPAddon.class.getName()).forEach(a -> {
+			try {
+				Class<?> addon = Class.forName(a.getClassName());
+				if (IMCMPAddon.class.isAssignableFrom(addon)) {
+					addons.add((IMCMPAddon) addon.newInstance());
+				}
+			} catch (Exception e) {
+				throw Throwables.propagate(e);
+			}
+		});
+	}
 
-    @EventHandler
-    public void init(FMLInitializationEvent event) {
-        addons.forEach(a -> a.registerParts(MultipartRegistry.INSTANCE));
+	@EventHandler
+	public void init(FMLInitializationEvent event) {
+		addons.forEach(a -> a.registerParts(MultipartRegistry.INSTANCE));
 
-        MultipartRegistry.INSTANCE.computeBlocks();
-        SlotRegistry.INSTANCE.computeAccess();
+		MultipartRegistry.INSTANCE.computeBlocks();
+		SlotRegistry.INSTANCE.computeAccess();
 
-        proxy.init();
-    }
+		proxy.init();
+	}
 
-    @EventHandler
-    public void postInit(FMLPostInitializationEvent event) {
+	@EventHandler
+	public void postInit(FMLPostInitializationEvent event) {
 
-    }
+	}
 
-    public <T> void initAPI() throws Exception {
-        ReflectionHelper.setPrivateValue(MultipartHelper.class, null, //
-                (BiFunction<World, BlockPos, IMultipartContainer>) TileMultipartContainer::createTileFromWorldInfo,
-                "createTileFromWorldInfo");
-        ReflectionHelper.setPrivateValue(MultipartHelper.class, null, //
-                (BiFunction<World, BlockPos, IMultipartContainer>) TileMultipartContainer::createTile, "createTile");
-        ReflectionHelper.setPrivateValue(MultipartHelper.class, null, //
-                (Function<Block, IMultipart>) MultipartRegistry.INSTANCE::getPart, "getPart");
+	public <T> void initAPI() throws Exception {
+		ReflectionHelper.setPrivateValue(MultipartHelper.class, null, //
+				(BiFunction<World, BlockPos, IMultipartContainer>) TileMultipartContainer::createTileFromWorldInfo,
+				"createTileFromWorldInfo");
+		ReflectionHelper.setPrivateValue(MultipartHelper.class, null, //
+				(BiFunction<World, BlockPos, IMultipartContainer>) TileMultipartContainer::createTile, "createTile");
+		ReflectionHelper.setPrivateValue(MultipartHelper.class, null, //
+				(Function<Block, IMultipart>) MultipartRegistry.INSTANCE::getPart, "getPart");
 
-        ReflectionHelper.setPrivateValue(MultipartCapabilityHelper.class, null, //
-                (BiConsumer<Capability<T>, Function<List<T>, T>>) CapabilityJoiner::registerCapabilityJoiner, "registerJoiner");
+		ReflectionHelper.setPrivateValue(MultipartCapabilityHelper.class, null, //
+				(BiConsumer<Capability<T>, Function<List<T>, T>>) CapabilityJoiner::registerCapabilityJoiner,
+				"registerJoiner");
 
-        MethodHandle viewSide = MethodHandles.lookup().unreflect(SlotRegistry.class.getMethod("viewContainer", ISlottedContainer.class,
-                Function.class, Function.class, Object.class, boolean.class, EnumFacing.class)).bindTo(SlotRegistry.INSTANCE);
-        MethodHandle viewEdge = MethodHandles.lookup().unreflect(SlotRegistry.class.getMethod("viewContainer", ISlottedContainer.class,
-                Function.class, Function.class, Object.class, boolean.class, EnumEdgeSlot.class, EnumFacing.class))
-                .bindTo(SlotRegistry.INSTANCE);
-        ReflectionHelper.setPrivateValue(SlotUtil.class, null, viewSide, "viewSide");
-        ReflectionHelper.setPrivateValue(SlotUtil.class, null, viewEdge, "viewEdge");
-    }
+		MethodHandle viewSide = MethodHandles
+				.lookup().unreflect(SlotRegistry.class.getMethod("viewContainer", ISlottedContainer.class,
+						Function.class, Function.class, Object.class, boolean.class, EnumFacing.class))
+				.bindTo(SlotRegistry.INSTANCE);
+		MethodHandle viewEdge = MethodHandles.lookup()
+				.unreflect(SlotRegistry.class.getMethod("viewContainer", ISlottedContainer.class, Function.class,
+						Function.class, Object.class, boolean.class, EnumEdgeSlot.class, EnumFacing.class))
+				.bindTo(SlotRegistry.INSTANCE);
+		ReflectionHelper.setPrivateValue(SlotUtil.class, null, viewSide, "viewSide");
+		ReflectionHelper.setPrivateValue(SlotUtil.class, null, viewEdge, "viewEdge");
+	}
 
 }

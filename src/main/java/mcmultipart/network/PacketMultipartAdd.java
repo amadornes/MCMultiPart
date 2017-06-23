@@ -41,7 +41,7 @@ public class PacketMultipartAdd extends Packet<PacketMultipartAdd> {
     @Override
     public void toBytes(PacketBuffer buf) {
         buf.writeBlockPos(pos);
-        buf.writeInt(MCMultiPart.slotRegistry.getId(slot));
+        buf.writeInt(MCMultiPart.slotRegistry.getID(slot));
         buf.writeInt(MCMultiPart.stateMap.get(state));
         buf.writeBoolean(data != null);
         if (data != null) {
@@ -52,7 +52,7 @@ public class PacketMultipartAdd extends Packet<PacketMultipartAdd> {
     @Override
     public void fromBytes(PacketBuffer buf) throws Exception {
         pos = buf.readBlockPos();
-        slot = MCMultiPart.slotRegistry.getObjectById(buf.readInt());
+        slot = MCMultiPart.slotRegistry.getValue(buf.readInt());
         state = MCMultiPart.stateMap.getByValue(buf.readInt());
         data = buf.readBoolean() ? buf.readCompoundTag() : null;
     }

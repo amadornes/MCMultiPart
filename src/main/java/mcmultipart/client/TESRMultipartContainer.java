@@ -34,19 +34,19 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
     public static int pass = 0;
 
     @Override
-    public void renderTileEntityAt(TileMultipartContainer te, double x, double y, double z, float partialTicks,
-    		int destroyStage, float unused) {
+    public void render(TileMultipartContainer te, double x, double y, double z, float partialTicks,
+    		int destroyStage, float alpha) {
         if (destroyStage >= 0) {
             RayTraceResult hit = Minecraft.getMinecraft().objectMouseOver;
             if (hit.getBlockPos().equals(te.getPartPos())) {
-                IPartSlot slotHit = MCMultiPart.slotRegistry.getObjectById(hit.subHit);
+                IPartSlot slotHit = MCMultiPart.slotRegistry.getValue(hit.subHit);
                 Optional<IPartInfo> infoOpt = te.get(slotHit);
                 if (infoOpt.isPresent()) {
                     IPartInfo info = infoOpt.get();
 
                     if (info.getTile() != null && info.getTile().canPartRenderBreaking()) {
-                        TileEntityRendererDispatcher.instance.renderTileEntityAt(info.getTile().getTileEntity(), x, y, z, partialTicks,
-                                destroyStage);
+                        TileEntityRendererDispatcher.instance.render(info.getTile().getTileEntity(), x, y, z, partialTicks,
+                                destroyStage, alpha);
                     } else {
                         if (MinecraftForgeClient.getRenderPass() == 1) {
                             IBlockState state = info.getPart().getActualState(info.getPartWorld(), info.getPartPos(), info);
@@ -114,8 +114,8 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
             fast.forEach(t -> {
                 if (t.shouldRenderPartInPass(pass)) {
                     buffer.setTranslation(0, 0, 0);
-                    TileEntityRendererDispatcher.instance.getSpecialRenderer(t.getTileEntity()).renderTileEntityFast(t.getTileEntity(), x,
-                            y, z, partialTicks, destroyStage, unused, buffer);
+                    TileEntityRendererDispatcher.instance.getRenderer(t.getTileEntity()).renderTileEntityFast(t.getTileEntity(), x,
+                            y, z, partialTicks, destroyStage, alpha, buffer);
                 }
             });
 
@@ -130,19 +130,19 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
 
         slow.forEach(t -> {
             if (t.shouldRenderPartInPass(pass)) {
-                TileEntityRendererDispatcher.instance.renderTileEntityAt(t.getTileEntity(), x, y, z, partialTicks, destroyStage, unused);
+                TileEntityRendererDispatcher.instance.render(t.getTileEntity(), x, y, z, partialTicks, destroyStage, alpha);
             }
         });
     }
     
     @Override
     public void renderTileEntityFast(TileMultipartContainer te, double x, double y, double z, float partialTicks,
-    		int destroyStage, float unused, BufferBuilder buffer) {
+    		int destroyStage, float alpha, BufferBuilder buffer) {
         te.getParts().values().forEach(p -> {
             IMultipartTile t = p.getTile();
             if (t != null && t.hasFastPartRenderer() && t.shouldRenderPartInPass(pass)) {
-                TileEntityRendererDispatcher.instance.getSpecialRenderer(t.getTileEntity()).renderTileEntityFast(t.getTileEntity(), x, y, z,
-                        partialTicks, destroyStage, unused, buffer);
+                TileEntityRendererDispatcher.instance.getRenderer(t.getTileEntity()).renderTileEntityFast(t.getTileEntity(), x, y, z,
+                        partialTicks, destroyStage, alpha, buffer);
             }
         });
     }

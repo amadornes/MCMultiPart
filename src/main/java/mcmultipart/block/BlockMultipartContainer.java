@@ -96,7 +96,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
                 .map(p -> {
                     RayTraceResult hit = new RayTraceResult(p.getValue().hitVec, p.getValue().sideHit, p.getValue().getBlockPos());
                     hit.hitInfo = p.getValue();
-                    hit.subHit = MCMultiPart.slotRegistry.getId(p.getKey().getSlot());
+                    hit.subHit = MCMultiPart.slotRegistry.getID(p.getKey().getSlot());
                     return hit;
                 }).orElse(null)).orElse(null);
     }
@@ -162,7 +162,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
         Optional<TileMultipartContainer> tile = getTile(world, pos);
         if (hit != null && tile.isPresent()) {
             if (!world.isRemote) {
-                IPartSlot slot = MCMultiPart.slotRegistry.getObjectById(hit.subHit);
+                IPartSlot slot = MCMultiPart.slotRegistry.getValue(hit.subHit);
                 tile.get().get(slot).ifPresent(i -> {
                     i.getPart().onPartHarvested(i, player);
                     if (player == null || !player.capabilities.isCreativeMode) {
@@ -191,7 +191,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
         Pair<Vec3d, Vec3d> vectors = RayTraceHelper.getRayTraceVectors(MCMultiPart.proxy.getPlayer());
         RayTraceResult hit = collisionRayTrace(getDefaultState(), world, pos, vectors.getLeft(), vectors.getRight());
         if (hit != null) {
-            IPartInfo part = getTile(world, pos).get().get(MCMultiPart.slotRegistry.getObjectById(hit.subHit)).get();
+            IPartInfo part = getTile(world, pos).get().get(MCMultiPart.slotRegistry.getValue(hit.subHit)).get();
             if (!part.getPart().addDestroyEffects(part, manager)) {
                 IBlockState state = part.getPart().getActualState(world, pos, part);
                 for (int i = 0; i < 4; ++i) {
@@ -216,7 +216,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     public boolean addHitEffects(IBlockState mpState, World world, RayTraceResult hit, ParticleManager manager) {
         if (hit != null) {
             BlockPos pos = hit.getBlockPos();
-            IPartInfo part = getTile(world, pos).get().get(MCMultiPart.slotRegistry.getObjectById(hit.subHit)).get();
+            IPartInfo part = getTile(world, pos).get().get(MCMultiPart.slotRegistry.getValue(hit.subHit)).get();
             if (!part.getPart().addHitEffects(part, (RayTraceResult) hit.hitInfo, manager)) {
                 if (part.getPart().getRenderType(part) != EnumBlockRenderType.INVISIBLE) {
                     int x = pos.getX(), y = pos.getY(), z = pos.getZ();
@@ -381,7 +381,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     @Override
     public ItemStack getPickBlock(IBlockState state, RayTraceResult hit, World world, BlockPos pos, EntityPlayer player) {
         if (hit != null) {
-            return getTile(world, pos).map(t -> t.get(MCMultiPart.slotRegistry.getObjectById(hit.subHit)).get())
+            return getTile(world, pos).map(t -> t.get(MCMultiPart.slotRegistry.getValue(hit.subHit)).get())
                     .map(i -> i.getPart().getPickPart(i, (RayTraceResult) hit.hitInfo, player)).orElse(ItemStack.EMPTY);
         }
         return ItemStack.EMPTY;
@@ -392,7 +392,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
         Pair<Vec3d, Vec3d> vectors = RayTraceHelper.getRayTraceVectors(player);
         RayTraceResult hit = collisionRayTrace(getDefaultState(), world, pos, vectors.getLeft(), vectors.getRight());
         if (hit != null) {
-            return getTile(world, pos).map(t -> t.get(MCMultiPart.slotRegistry.getObjectById(hit.subHit)).get())
+            return getTile(world, pos).map(t -> t.get(MCMultiPart.slotRegistry.getValue(hit.subHit)).get())
                     .map(i -> i.getPart().getPlayerRelativePartHardness(i, (RayTraceResult) hit.hitInfo, player)).orElse(0F);
         }
         return 0;
@@ -510,7 +510,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
         Pair<Vec3d, Vec3d> vectors = RayTraceHelper.getRayTraceVectors(player);
         RayTraceResult hit = collisionRayTrace(getDefaultState(), world, pos, vectors.getLeft(), vectors.getRight());
         if (hit != null) {
-            return getTile(world, pos).map(t -> t.get(MCMultiPart.slotRegistry.getObjectById(hit.subHit)).get())
+            return getTile(world, pos).map(t -> t.get(MCMultiPart.slotRegistry.getValue(hit.subHit)).get())
                     .map(i -> i.getPart().onPartActivated(i, player, hand, ((RayTraceResult) hit.hitInfo))).orElse(false);
         }
         return false;
@@ -521,7 +521,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
         Pair<Vec3d, Vec3d> vectors = RayTraceHelper.getRayTraceVectors(player);
         RayTraceResult hit = collisionRayTrace(getDefaultState(), world, pos, vectors.getLeft(), vectors.getRight());
         if (hit != null) {
-            getTile(world, pos).map(t -> t.get(MCMultiPart.slotRegistry.getObjectById(hit.subHit)).get())
+            getTile(world, pos).map(t -> t.get(MCMultiPart.slotRegistry.getValue(hit.subHit)).get())
                     .ifPresent(i -> i.getPart().onPartClicked(i, player, ((RayTraceResult) hit.hitInfo)));
         }
     }

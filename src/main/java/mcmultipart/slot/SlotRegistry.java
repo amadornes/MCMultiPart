@@ -17,8 +17,8 @@ import mcmultipart.api.slot.EnumSlotAccess;
 import mcmultipart.api.slot.IPartSlot;
 import mcmultipart.api.slot.ISlottedContainer;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.fml.common.registry.FMLControlledNamespacedRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.registries.ForgeRegistry;
 
 public enum SlotRegistry {
 
@@ -28,7 +28,7 @@ public enum SlotRegistry {
     private final Map<EnumEdgeSlot, Map<EnumFacing, List<Entry<IPartSlot, EnumSlotAccess>>>> accessEdge = new IdentityHashMap<>();
     private final List<Entry<IPartSlot, EnumSlotAccess>> mergeAll = new ArrayList<>();
 
-    private FMLControlledNamespacedRegistry<IPartSlot> slotRegistry;
+    private ForgeRegistry<IPartSlot> slotRegistry;
     private List<IPartSlot> allSlots;
 
     public void computeAccess() {
@@ -76,7 +76,7 @@ public enum SlotRegistry {
 
     public List<IPartSlot> getSlots() {
         if (slotRegistry == null) {
-            slotRegistry = (FMLControlledNamespacedRegistry<IPartSlot>) GameRegistry.findRegistry(IPartSlot.class);
+            slotRegistry = (ForgeRegistry<IPartSlot>) GameRegistry.findRegistry(IPartSlot.class);
         }
         if (allSlots == null) {
             allSlots = Collections.unmodifiableList(slotRegistry.getValues());
@@ -86,16 +86,16 @@ public enum SlotRegistry {
 
     public int getSlotID(IPartSlot slot) {
         if (slotRegistry == null) {
-            slotRegistry = (FMLControlledNamespacedRegistry<IPartSlot>) GameRegistry.findRegistry(IPartSlot.class);
+            slotRegistry = (ForgeRegistry<IPartSlot>) GameRegistry.findRegistry(IPartSlot.class);
         }
-        return slotRegistry.getId(slot);
+        return slotRegistry.getID(slot);
     }
 
     public IPartSlot getSlotFromID(int slot) {
         if (slotRegistry == null) {
-            slotRegistry = (FMLControlledNamespacedRegistry<IPartSlot>) GameRegistry.findRegistry(IPartSlot.class);
+            slotRegistry = (ForgeRegistry<IPartSlot>) GameRegistry.findRegistry(IPartSlot.class);
         }
-        return slotRegistry.getObjectById(slot);
+        return slotRegistry.getValue(slot);
     }
 
     public <T, O> O viewContainer(ISlottedContainer<T> container, Function<T, O> converter, Function<List<O>, O> joiner, O startVal,
