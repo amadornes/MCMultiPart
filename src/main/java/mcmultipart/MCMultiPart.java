@@ -47,6 +47,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -78,6 +79,10 @@ public class MCMultiPart {
 	public static ObjectIntIdentityMap<IBlockState> stateMap;
 
 	private final List<IMCMPAddon> addons = new ArrayList<>();
+	
+	public MCMultiPart() {
+		MinecraftForge.EVENT_BUS.register(this);
+	}
 
 	@SubscribeEvent
 	public void onRegistrySetup(RegistryEvent.NewRegistry event) {
