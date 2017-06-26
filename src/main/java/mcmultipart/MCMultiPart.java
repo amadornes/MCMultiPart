@@ -118,6 +118,7 @@ public class MCMultiPart {
 		multipart = new BlockMultipartContainer();
 		event.getRegistry().register(multipart.setRegistryName("multipart"));
 		GameRegistry.registerTileEntity(TileMultipartContainer.class, MODID + ":multipart.nonticking");
+		GameRegistry.registerTileEntity(TileMultipartContainer.Ticking.class, MODID + ":multipart.ticking");
 	}
 
 	@EventHandler
