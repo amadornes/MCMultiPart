@@ -40,7 +40,7 @@ public final class PartInfo implements IPartInfo {
 
     private static final List<BlockRenderLayer> RENDER_LAYERS;
     static {
-        if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+        if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
             RENDER_LAYERS = Arrays.asList(BlockRenderLayer.values());
         } else {
             RENDER_LAYERS = new ArrayList<>();
@@ -194,8 +194,7 @@ public final class PartInfo implements IPartInfo {
         private final Set<BlockRenderLayer> renderLayers;
         private final IntUnaryOperator tintGetter;
 
-        private ClientInfo(IBlockState actualState, IBlockState extendedState, Set<BlockRenderLayer> renderLayers,
-                IntUnaryOperator tintGetter) {
+        private ClientInfo(IBlockState actualState, IBlockState extendedState, Set<BlockRenderLayer> renderLayers, IntUnaryOperator tintGetter) {
             this.actualState = actualState;
             this.extendedState = extendedState;
             this.renderLayers = renderLayers;
