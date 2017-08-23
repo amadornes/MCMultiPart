@@ -381,8 +381,11 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     @Override
     public ItemStack getPickBlock(IBlockState state, RayTraceResult hit, World world, BlockPos pos, EntityPlayer player) {
         if (hit != null) {
-            return getTile(world, pos).map(t -> t.get(MCMultiPart.slotRegistry.getValue(hit.subHit)).get())
-                    .map(i -> i.getPart().getPickPart(i, (RayTraceResult) hit.hitInfo, player)).orElse(ItemStack.EMPTY);
+            return getTile(world, pos)
+                    .map(t -> t.get(MCMultiPart.slotRegistry.getValue(hit.subHit)))
+                    .filter(Optional::isPresent)
+                    .map(o -> o.get().getPart().getPickPart(o.get(), (RayTraceResult) hit.hitInfo, player))
+                    .orElse(ItemStack.EMPTY);
         }
         return ItemStack.EMPTY;
     }
