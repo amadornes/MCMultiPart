@@ -554,6 +554,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     @Override
     public void onLanded(World world, Entity entity) {
+        super.onLanded(world, entity);
         // TODO: Maybe? We need to check collision with the individual parts
     }
 
