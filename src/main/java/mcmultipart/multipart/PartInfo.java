@@ -97,6 +97,7 @@ public final class PartInfo implements IPartInfo {
 
     public void setContainer(TileMultipartContainer container) {
         this.container = container;
+        refreshWorld();
     }
 
     public void setState(IBlockState state) {
