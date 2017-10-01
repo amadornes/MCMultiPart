@@ -14,7 +14,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-String modversion = "2.2.2"
+String modversion = "2.3.0"
 
 if (System.getenv("BUILD_NUMBER") != null && System.getenv("SHOW_BUILD_NUMBER") != null) {
 	version = modversion + "_" + System.getenv("BUILD_NUMBER")
@@ -25,10 +25,10 @@ group = "MCMultiPart2"
 archivesBaseName = "MCMultiPart"
 
 minecraft {
-    version = "1.12-14.21.0.2348"
+    version = "1.12.2-14.23.0.2494"
     runDir = "run"
     
-    mappings = "snapshot_20170620"
+    mappings = "snapshot_20171001"
 	replace "%VERSION%", project.version
 }
 
