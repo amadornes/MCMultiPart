@@ -13,4 +13,12 @@ public interface IMultipartRegistry {
 
     public IWrappedBlock registerStackWrapper(Item item, Predicate<ItemStack> predicate, Block block);
 
+    public default IWrappedBlock registerStackWrapper(Item item, Block block) {
+        return registerStackWrapper(item, s -> true, block);
+    }
+
+    public default IWrappedBlock registerStackWrapper(Block block) {
+        return registerStackWrapper(Item.getItemFromBlock(block), block);
+    }
+
 }
