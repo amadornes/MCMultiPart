@@ -137,7 +137,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
         TileMultipartContainer container = this;
         if (currentTicking == 0 && newTicking > 0) {
-            container = new TileMultipartContainer.Ticking();
+            container = new TileMultipartContainer.Ticking(getWorld(), getPos());
             transferTo(container);
         }
 
@@ -195,7 +195,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
         TileMultipartContainer container = this;
         if (currentTicking > 0 && newTicking == 0) {
-            container = new TileMultipartContainer();
+            container = new TileMultipartContainer(getWorld(), getPos());
             transferTo(container);
         }
 
