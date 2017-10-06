@@ -67,9 +67,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     @Override
     public TileEntity createNewTileEntity(World world, int meta) {
-        TileEntity tile = meta == 0 ? new TileMultipartContainer.Ticking() : new TileMultipartContainer();
-        tile.setWorld(world);
-        return tile;
+        return meta == 0 ? new TileMultipartContainer.Ticking() : new TileMultipartContainer();
     }
 
     public static Optional<TileMultipartContainer> getTile(IBlockAccess world, BlockPos pos) {
