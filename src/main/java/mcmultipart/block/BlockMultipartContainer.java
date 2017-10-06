@@ -66,8 +66,10 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     }
 
     @Override
-    public TileEntity createNewTileEntity(World worldIn, int meta) {
-        return meta == 0 ? new TileMultipartContainer.Ticking() : new TileMultipartContainer();
+    public TileEntity createNewTileEntity(World world, int meta) {
+        TileEntity tile = meta == 0 ? new TileMultipartContainer.Ticking() : new TileMultipartContainer();
+        tile.setWorld(world);
+        return tile;
     }
 
     public static Optional<TileMultipartContainer> getTile(IBlockAccess world, BlockPos pos) {
@@ -81,8 +83,8 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     }
 
     @Override
-    public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox,
-            List<AxisAlignedBB> collidingBoxes, Entity entity, boolean unknown) {
+    public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes,
+            Entity entity, boolean unknown) {
         forEach(world, pos, i -> i.getPart().addCollisionBoxToList(i, entityBox, collidingBoxes, entity, unknown));
     }
 
@@ -121,7 +123,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     public boolean isOpaqueCube(IBlockState state) {
         return false;
     }
-    
+
     @Override
     public boolean isTopSolid(IBlockState state) {
         return false;
@@ -201,8 +203,8 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
                             double xOff = (i + 0.5D) / 4.0D;
                             double yOff = (j + 0.5D) / 4.0D;
                             double zOff = (k + 0.5D) / 4.0D;
-                            manager.addEffect(new ParticleDigging(world, pos.getX() + xOff, pos.getY() + yOff, pos.getZ() + zOff,
-                                    xOff - 0.5D, yOff - 0.5D, zOff - 0.5D, state) {
+                            manager.addEffect(new ParticleDigging(world, pos.getX() + xOff, pos.getY() + yOff, pos.getZ() + zOff, xOff - 0.5D,
+                                    yOff - 0.5D, zOff - 0.5D, state) {
                             }.setBlockPos(pos));
                         }
                     }
@@ -227,29 +229,28 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
                     double pZ = z + world.rand.nextDouble() * (aabb.maxZ - aabb.minZ - 0.2) + 0.1 + aabb.minZ;
 
                     switch (hit.sideHit) {
-                    case DOWN:
-                        pY = y + aabb.minY - 0.1;
-                        break;
-                    case UP:
-                        pY = y + aabb.maxY + 0.1;
-                        break;
-                    case NORTH:
-                        pZ = z + aabb.minZ - 0.1;
-                        break;
-                    case SOUTH:
-                        pZ = z + aabb.maxZ + 0.1;
-                        break;
-                    case WEST:
-                        pX = x + aabb.minX - 0.1;
-                        break;
-                    case EAST:
-                        pX = x + aabb.maxX + 0.1;
-                        break;
+                        case DOWN:
+                            pY = y + aabb.minY - 0.1;
+                            break;
+                        case UP:
+                            pY = y + aabb.maxY + 0.1;
+                            break;
+                        case NORTH:
+                            pZ = z + aabb.minZ - 0.1;
+                            break;
+                        case SOUTH:
+                            pZ = z + aabb.maxZ + 0.1;
+                            break;
+                        case WEST:
+                            pX = x + aabb.minX - 0.1;
+                            break;
+                        case EAST:
+                            pX = x + aabb.maxX + 0.1;
+                            break;
                     }
 
-                    manager.addEffect(
-                            new ParticleDigging(world, pX, pY, pZ, 0.0D, 0.0D, 0.0D, part.getPart().getActualState(world, pos, part)) {
-                            }.setBlockPos(pos).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
+                    manager.addEffect(new ParticleDigging(world, pX, pY, pZ, 0.0D, 0.0D, 0.0D, part.getPart().getActualState(world, pos, part)) {
+                    }.setBlockPos(pos).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
                 }
             }
         }
@@ -277,10 +278,8 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     @Override
     public int getWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
-        return getTile(world, pos)
-                .map(t -> SlotUtil.viewContainer(t, i -> i.getPart().getWeakPower(((PartInfo) i).wrapAsNeeded(world), pos, i, side),
-                        l -> l.stream().max(Integer::compare).get(), 0, true, side.getOpposite()))
-                .orElse(0);
+        return getTile(world, pos).map(t -> SlotUtil.viewContainer(t, i -> i.getPart().getWeakPower(((PartInfo) i).wrapAsNeeded(world), pos, i, side),
+                l -> l.stream().max(Integer::compare).get(), 0, true, side.getOpposite())).orElse(0);
     }
 
     @Override
@@ -323,9 +322,8 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     @Override
     public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
-        return getTile(world, pos).map(t -> t.getParts().values().stream()
-                .map(i -> i.getPart().getDrops(i.wrapAsNeeded(world), pos, i, fortune)).flatMap(List::stream).collect(Collectors.toList()))
-                .orElse(Collections.emptyList());
+        return getTile(world, pos).map(t -> t.getParts().values().stream().map(i -> i.getPart().getDrops(i.wrapAsNeeded(world), pos, i, fortune))
+                .flatMap(List::stream).collect(Collectors.toList())).orElse(Collections.emptyList());
     }
 
     @Override
@@ -382,11 +380,8 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     @Override
     public ItemStack getPickBlock(IBlockState state, RayTraceResult hit, World world, BlockPos pos, EntityPlayer player) {
         if (hit != null) {
-            return getTile(world, pos)
-                    .map(t -> t.get(MCMultiPart.slotRegistry.getValue(hit.subHit)))
-                    .filter(Optional::isPresent)
-                    .map(o -> o.get().getPart().getPickPart(o.get(), (RayTraceResult) hit.hitInfo, player))
-                    .orElse(ItemStack.EMPTY);
+            return getTile(world, pos).map(t -> t.get(MCMultiPart.slotRegistry.getValue(hit.subHit))).filter(Optional::isPresent)
+                    .map(o -> o.get().getPart().getPickPart(o.get(), (RayTraceResult) hit.hitInfo, player)).orElse(ItemStack.EMPTY);
         }
         return ItemStack.EMPTY;
     }
@@ -429,9 +424,8 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     @Override
     public Boolean isAABBInsideMaterial(World world, BlockPos pos, AxisAlignedBB boundingBox, Material material) {
-        return getTile(world, pos).map(t -> t.getParts().values().stream()
-                .map(i -> i.getPart().isAABBInsideMaterial(i, boundingBox, material)).filter(is -> is != null).anyMatch(i -> i))
-                .orElse(false);
+        return getTile(world, pos).map(t -> t.getParts().values().stream().map(i -> i.getPart().isAABBInsideMaterial(i, boundingBox, material))
+                .filter(is -> is != null).anyMatch(i -> i)).orElse(false);
     }
 
     @Override
@@ -450,12 +444,11 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     }
 
     @Override
-    public Boolean isEntityInsideMaterial(IBlockAccess world, BlockPos pos, IBlockState state, Entity entity, double yToTest,
-            Material material, boolean testingHead) {
-        return getTile(world,
-                pos).map(t -> t.getParts().values().stream()
-                        .map(i -> i.getPart().isEntityInsideMaterial(i.wrapAsNeeded(world), pos, i, entity, yToTest, material, testingHead))
-                        .filter(is -> is != null).anyMatch(i -> i)).orElse(false);
+    public Boolean isEntityInsideMaterial(IBlockAccess world, BlockPos pos, IBlockState state, Entity entity, double yToTest, Material material,
+            boolean testingHead) {
+        return getTile(world, pos).map(t -> t.getParts().values().stream()
+                .map(i -> i.getPart().isEntityInsideMaterial(i.wrapAsNeeded(world), pos, i, entity, yToTest, material, testingHead))
+                .filter(is -> is != null).anyMatch(i -> i)).orElse(false);
     }
 
     @Override
@@ -509,8 +502,8 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     }
 
     @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing,
-            float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX,
+            float hitY, float hitZ) {
         Pair<Vec3d, Vec3d> vectors = RayTraceHelper.getRayTraceVectors(player);
         RayTraceResult hit = collisionRayTrace(getDefaultState(), world, pos, vectors.getLeft(), vectors.getRight());
         if (hit != null) {
@@ -599,8 +592,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     }
 
     private int add(IBlockAccess world, BlockPos pos, ToIntFunction<PartInfo> converter, int max) {
-        return Math.min(
-                getTile(world, pos).map(t -> t.getParts().values().stream().mapToInt(converter).reduce(0, (a, b) -> a + b)).orElse(0), max);
+        return Math.min(getTile(world, pos).map(t -> t.getParts().values().stream().mapToInt(converter).reduce(0, (a, b) -> a + b)).orElse(0), max);
     }
 
     private int max(IBlockAccess world, BlockPos pos, ToIntFunction<PartInfo> converter) {
@@ -608,8 +600,8 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
     }
 
     private float addF(IBlockAccess world, BlockPos pos, ToDoubleFunction<PartInfo> converter, double max) {
-        return (float) Math.min(getTile(world, pos)
-                .map(t -> t.getParts().values().stream().mapToDouble(converter).reduce(0D, (a, b) -> a + b)).orElse(0D).floatValue(), max);
+        return (float) Math.min(getTile(world, pos).map(t -> t.getParts().values().stream().mapToDouble(converter).reduce(0D, (a, b) -> a + b))
+                .orElse(0D).floatValue(), max);
     }
 
 }
