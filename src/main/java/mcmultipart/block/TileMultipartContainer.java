@@ -99,6 +99,9 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
     @Override
     public Optional<IPartInfo> get(IPartSlot slot) {
+        if (slot == null) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(parts.get(slot));
     }
 
