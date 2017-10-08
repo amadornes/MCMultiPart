@@ -574,7 +574,13 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     @Override
     public BlockFaceShape getBlockFaceShape(IBlockAccess world, IBlockState state, BlockPos pos, EnumFacing face) {
-        return BlockFaceShape.UNDEFINED;
+        if (face == null) {
+            return BlockFaceShape.UNDEFINED;
+        }
+        return getTile(world,
+                pos).map(t -> SlotUtil.viewContainer(t, i -> i.getPart().getPartFaceShape(i, face),
+                        l -> l.stream().filter(Predicate.isEqual(BlockFaceShape.UNDEFINED).negate()).findFirst().orElse(BlockFaceShape.UNDEFINED),
+                        BlockFaceShape.UNDEFINED, true, face)).orElse(BlockFaceShape.UNDEFINED);
     }
 
     private void forEach(IBlockAccess world, BlockPos pos, Consumer<PartInfo> consumer) {

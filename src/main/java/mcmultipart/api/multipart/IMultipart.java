@@ -11,6 +11,7 @@ import mcmultipart.api.slot.IPartSlot;
 import mcmultipart.api.world.IWorldView;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.entity.Entity;
@@ -268,6 +269,10 @@ public interface IMultipart {
 
     public default void randomTick(IPartInfo part, Random random) {
         part.getState().getBlock().randomTick(part.getPartWorld(), part.getPartPos(), part.getState(), random);
+    }
+
+    public default BlockFaceShape getPartFaceShape(IPartInfo part, EnumFacing face) {
+        return part.getState().getBlockFaceShape(part.getPartWorld(), part.getPartPos(), face);
     }
 
     public default void onAdded(IPartInfo part) {
