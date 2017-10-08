@@ -61,7 +61,7 @@ import net.minecraftforge.registries.ForgeRegistry;
 import net.minecraftforge.registries.GameData;
 import net.minecraftforge.registries.RegistryBuilder;
 
-@Mod(modid = MCMultiPart.MODID, name = MCMultiPart.NAME, version = MCMultiPart.VERSION)
+@Mod(modid = MCMultiPart.MODID, name = MCMultiPart.NAME, version = MCMultiPart.VERSION, acceptedMinecraftVersions = "[1.12,)")
 public class MCMultiPart {
 
 	public static final String MODID = "mcmultipart", NAME = "MCMultiPart", VERSION = "%VERSION%";
