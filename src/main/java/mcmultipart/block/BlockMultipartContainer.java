@@ -268,6 +268,9 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     @Override
     public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+        if (side == null) {
+            return false;
+        }
         return getTile(world, pos)
                 .map(t -> SlotUtil.viewContainer(t, i -> i.getPart().canConnectRedstone(((PartInfo) i).wrapAsNeeded(world), pos, i, side),
                         l -> l.stream().anyMatch(c -> c), false, true, side.getOpposite()))
@@ -276,12 +279,18 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     @Override
     public int getWeakPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+        if (side == null) {
+            return 0;
+        }
         return getTile(world, pos).map(t -> SlotUtil.viewContainer(t, i -> i.getPart().getWeakPower(((PartInfo) i).wrapAsNeeded(world), pos, i, side),
                 l -> l.stream().max(Integer::compare).get(), 0, true, side.getOpposite())).orElse(0);
     }
 
     @Override
     public int getStrongPower(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+        if (side == null) {
+            return 0;
+        }
         return getTile(world, pos)
                 .map(t -> SlotUtil.viewContainer(t, i -> i.getPart().getStrongPower(((PartInfo) i).wrapAsNeeded(world), pos, i, side),
                         l -> l.stream().max(Integer::compare).get(), 0, true, side.getOpposite()))
