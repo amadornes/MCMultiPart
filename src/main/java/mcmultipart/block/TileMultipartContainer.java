@@ -148,6 +148,8 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         Preconditions.checkState(part != null, "The blockstate " + state + " could not be converted to a multipart!");
         container.addPartDo(slot, state, part, tile);
 
+        IBlockState prevSt = getWorld().getBlockState(getPos());
+
         if (container != this) { // If we require ticking, place a ticking TE
             isInWorld = false;
             getWorld().setBlockState(getPos(), MCMultiPart.multipart.getDefaultState()//
@@ -160,7 +162,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         }
 
         IBlockState st = getWorld().getBlockState(getPos());
-        getWorld().notifyBlockUpdate(getPos(), st, st, 1); // Only cause a block update, clients are notified through a packet
+        getWorld().markAndNotifyBlock(getPos(), null, prevSt, st, 1); // Only cause a block update, clients are notified through a packet
         getWorld().checkLight(getPos());
     }
 
@@ -204,6 +206,8 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
         container.removePartDo(slot, info);
 
+        IBlockState prevSt = getWorld().getBlockState(getPos());
+
         if (container != this) { // If we don't require ticking, place a normal TE
             isInWorld = false;
             getWorld().setBlockState(getPos(), MCMultiPart.multipart.getDefaultState()//
@@ -212,7 +216,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         }
 
         IBlockState st = getWorld().getBlockState(getPos());
-        getWorld().notifyBlockUpdate(getPos(), st, st, 1); // Only cause a block update, clients are notified through a packet
+        getWorld().markAndNotifyBlock(getPos(), null, prevSt, st, 1); // Only cause a block update, clients are notified through a packet
         getWorld().checkLight(getPos());
     }
 
