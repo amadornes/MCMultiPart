@@ -97,7 +97,9 @@ public final class PartInfo implements IPartInfo {
 
     public void setContainer(TileMultipartContainer container) {
         this.container = container;
-        refreshWorld();
+        if (container != null && container.isInWorld()) {
+            refreshWorld();
+        }
     }
 
     public void setState(IBlockState state) {
@@ -127,6 +129,14 @@ public final class PartInfo implements IPartInfo {
             this.tile.setPartWorld(getPartWorld());
             this.tile.setPartPos(getPartPos());
             this.tile.setPartInfo(this);
+        }
+    }
+
+    public void setWorld(World world) {
+        this.view = null;
+        this.world = null;
+        if (this.tile != null) {
+            this.tile.setPartWorld(world);
         }
     }
 
