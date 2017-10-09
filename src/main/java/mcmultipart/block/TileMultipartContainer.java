@@ -87,6 +87,10 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         forEachTile(te -> te.setPartPos(pos));
     }
 
+    public boolean isInWorld() {
+        return isInWorld;
+    }
+
     @Override
     public World getPartWorld() {
         return getWorld();
@@ -110,24 +114,38 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         Preconditions.checkNotNull(slot);
         Preconditions.checkNotNull(state);
 
-        IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
-        Preconditions.checkState(part != null, "The blockstate " + state + " could not be converted to a multipart!");
-        PartInfo info = new PartInfo(this, slot, part, state, tile);
+        PartInfo otherInfo = null;
+        World otherWorld = null;
+        try {
+            if (!isInWorld) { // Simulate being a multipart if it's not one
+                otherInfo = getParts().values().iterator().next();;
+                otherWorld = otherInfo.getTile() != null ? otherInfo.getTile().getPartWorld() : null;
+                otherInfo.refreshWorld();
+            }
 
-        // If any of the slots required by this multipart aren't empty, fail.
-        Set<IPartSlot> partSlots = Sets.newIdentityHashSet();
-        partSlots.addAll(part.getGhostSlots(info));
-        partSlots.add(slot);
-        if (partSlots.stream().anyMatch(parts::containsKey)
-                || parts.values().stream().map(i -> i.getPart().getGhostSlots(i)).flatMap(Set::stream).anyMatch(partSlots::contains)) {
+            IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
+            Preconditions.checkState(part != null, "The blockstate " + state + " could not be converted to a multipart!");
+            PartInfo info = new PartInfo(this, slot, part, state, tile);
+
+            // If any of the slots required by this multipart aren't empty, fail.
+            Set<IPartSlot> partSlots = Sets.newIdentityHashSet();
+            partSlots.addAll(part.getGhostSlots(info));
+            partSlots.add(slot);
+            if (partSlots.stream().anyMatch(parts::containsKey)
+                    || parts.values().stream().map(i -> i.getPart().getGhostSlots(i)).flatMap(Set::stream).anyMatch(partSlots::contains)) {
+                partSlots.clear();
+                return false;
+            }
             partSlots.clear();
-            return false;
-        }
-        partSlots.clear();
 
-        // If the occlusion boxes of this part intersect with any other parts', fail.
-        if (MultipartOcclusionHelper.testContainerPartIntersection(this, info)) {
-            return false;
+            // If the occlusion boxes of this part intersect with any other parts', fail.
+            if (MultipartOcclusionHelper.testContainerPartIntersection(this, info)) {
+                return false;
+            }
+        } finally {
+            if (otherWorld != null) { // Return back to the old world if it's not a multipart
+                otherInfo.setWorld(otherWorld);
+            }
         }
 
         return true;
@@ -142,6 +160,14 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         if (currentTicking == 0 && newTicking > 0) {
             container = new TileMultipartContainer.Ticking(getWorld(), getPos());
             transferTo(container);
+        }
+
+        if (!isInWorld) {
+            PartInfo info = parts.values().iterator().next();
+            info.setContainer(container);
+            if (!container.isInWorld) {
+                info.refreshWorld();
+            }
         }
 
         IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
