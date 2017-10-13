@@ -143,7 +143,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
                 return false;
             }
         } finally {
-            if (otherWorld != null) { // Return back to the old world if it's not a multipart
+            if (otherWorld != null) { // Return to the old world if it's not a multipart
                 otherInfo.setWorld(otherWorld);
             }
         }
