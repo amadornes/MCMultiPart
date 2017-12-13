@@ -281,6 +281,14 @@ public interface IMultipart {
     public default void onRemoved(IPartInfo part) {
     }
 
+    public default boolean canPlacePartAt(IBlockAccess world, BlockPos pos) {
+        return true;
+    }
+
+    public default boolean canPlacePartOnSide(IBlockAccess world, BlockPos pos, EnumFacing side) {
+        return canPlacePartAt(world, pos);
+    }
+
     public default void onPartAdded(IPartInfo part, IPartInfo otherPart) {
         onPartChanged(part, otherPart);
     }
