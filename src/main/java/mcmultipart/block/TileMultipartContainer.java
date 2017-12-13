@@ -383,26 +383,31 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
                             if (tile == null) {
                                 tile = prevInfo.getPart().createMultipartTile(world, slot, state);
                             }
-                            tile.handlePartUpdateTag(tileTag);
                         } else {
                             tile = prevInfo.getPart().loadMultipartTile(world, tileTag);
                         }
                         prevInfo.setTile(tile);
+                        if (update) {
+                            tile.handlePartUpdateTag(tileTag);
+                        }
                     }
                 } else {
                     IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
                     if (part != null) {
                         IMultipartTile tile = null;
+                        NBTTagCompound tileTag = null;
                         if (t.hasKey("tile")) {
-                            NBTTagCompound tileTag = t.getCompoundTag("tile");
+                            tileTag = t.getCompoundTag("tile");
                             if (update) {
                                 tile = part.createMultipartTile(world, slot, state);
-                                tile.handlePartUpdateTag(tileTag);
                             } else {
                                 tile = part.loadMultipartTile(world, tileTag);
                             }
                         }
                         add(slot, new PartInfo(this, slot, part, state, tile));
+                        if (update && tileTag != null) {
+                            tile.handlePartUpdateTag(tileTag);
+                        }
                     } else if (!update) {
                         if (missingParts == null) {
                             missingParts = new HashMap<>();
