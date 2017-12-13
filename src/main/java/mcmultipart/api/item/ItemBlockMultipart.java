@@ -93,10 +93,10 @@ public class ItemBlockMultipart extends ItemBlock {
 
     public static boolean placePartAt(ItemStack stack, EntityPlayer player, EnumHand hand, World world, BlockPos pos, EnumFacing facing,
             float hitX, float hitY, float hitZ, IMultipart multipartBlock, IBlockState state) {
-        if (!multipartBlock.canPlacePartAt(world, pos) || !multipartBlock.canPlacePartOnSide(world, pos, facing))
+        IPartSlot slot = multipartBlock.getSlotForPlacement(world, pos, state, facing, hitX, hitY, hitZ, player);
+        if (!multipartBlock.canPlacePartAt(world, pos) || !multipartBlock.canPlacePartOnSide(world, pos, facing, slot))
             return false;
 
-        IPartSlot slot = multipartBlock.getSlotForPlacement(world, pos, state, facing, hitX, hitY, hitZ, player);
         if (MultipartHelper.addPart(world, pos, slot, state, false)) {
             if (!world.isRemote) {
                 IPartInfo info = MultipartHelper.getContainer(world, pos).flatMap(c -> c.get(slot)).orElse(null);
