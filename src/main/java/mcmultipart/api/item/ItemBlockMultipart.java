@@ -80,22 +80,23 @@ public class ItemBlockMultipart extends ItemBlock {
             return true;
         }
         bb = multipartBlock.getCollisionBoundingBox(world, pos, state);
-        if ((bb == null || world.checkNoEntityCollision(bb.offset(pos)))
-                && partLogic.placePart(stack, player, hand, world, pos, facing, hitX, hitY, hitZ, multipartBlock, state)) {
-            return true;
-        }
-        return false;
+        return (bb == null || world.checkNoEntityCollision(bb.offset(pos)))
+                && partLogic.placePart(stack, player, hand, world, pos, facing, hitX, hitY, hitZ, multipartBlock, state);
     }
 
     public boolean placeBlockAtTested(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing facing, float hitX,
             float hitY, float hitZ, IBlockState newState) {
         return player.canPlayerEdit(pos, facing, stack) && world.getBlockState(pos).getBlock().isReplaceable(world, pos)
-                && block.canPlaceBlockAt(world, pos) && super.placeBlockAt(stack, player, world, pos, facing, hitX, hitY, hitZ, newState);
+                && block.canPlaceBlockAt(world, pos) && block.canPlaceBlockOnSide(world, pos, facing)
+                && super.placeBlockAt(stack, player, world, pos, facing, hitX, hitY, hitZ, newState);
     }
 
     public static boolean placePartAt(ItemStack stack, EntityPlayer player, EnumHand hand, World world, BlockPos pos, EnumFacing facing,
             float hitX, float hitY, float hitZ, IMultipart multipartBlock, IBlockState state) {
         IPartSlot slot = multipartBlock.getSlotForPlacement(world, pos, state, facing, hitX, hitY, hitZ, player);
+        if (!multipartBlock.canPlacePartAt(world, pos) || !multipartBlock.canPlacePartOnSide(world, pos, facing, slot))
+            return false;
+
         if (MultipartHelper.addPart(world, pos, slot, state, false)) {
             if (!world.isRemote) {
                 IPartInfo info = MultipartHelper.getContainer(world, pos).flatMap(c -> c.get(slot)).orElse(null);
