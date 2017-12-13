@@ -118,7 +118,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         World otherWorld = null;
         try {
             if (!isInWorld) { // Simulate being a multipart if it's not one
-                otherInfo = getParts().values().iterator().next();;
+                otherInfo = getParts().values().iterator().next();
                 otherWorld = otherInfo.getTile() != null ? otherInfo.getTile().getPartWorld() : null;
                 otherInfo.refreshWorld();
             }
@@ -265,7 +265,9 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
             PartInfo part = parts.values().iterator().next();
             getWorld().setBlockState(getPos(), part.getState(), 0);
             if (part.getTile() != null) {
-                getWorld().setTileEntity(getPos(), part.getTile().getTileEntity());
+                TileEntity te = part.getTile().getTileEntity();
+                te.validate();
+                getWorld().setTileEntity(getPos(), te);
             }
         }
     }
