@@ -280,6 +280,14 @@ public interface IMultipart {
     public default void onRemoved(IPartInfo part) {
     }
 
+    public default boolean canPlacePartAt(World world, BlockPos pos) {
+        return getBlock().canPlaceBlockAt(world, pos);
+    }
+
+    public default boolean canPlacePartOnSide(World world, BlockPos pos, EnumFacing side, IPartSlot slot) {
+        return getBlock().canPlaceBlockOnSide(world, pos, side);
+    }
+
     public default void onPartAdded(IPartInfo part, IPartInfo otherPart) {
         onPartChanged(part, otherPart);
     }

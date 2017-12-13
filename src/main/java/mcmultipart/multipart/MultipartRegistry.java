@@ -49,7 +49,8 @@ public enum MultipartRegistry implements IMultipartRegistry {
         if (item instanceof ItemBlock) {
             wrappedBlock.setBlockPlacementLogic(
                     (stack, player, world, pos, facing, hitX, hitY, hitZ, newState) -> player.canPlayerEdit(pos, facing, stack)
-                            && world.getBlockState(pos).getBlock().isReplaceable(world, pos) && block.canPlaceBlockAt(world, pos)
+                            && world.getBlockState(pos).getBlock().isReplaceable(world, pos)
+                            && block.canPlaceBlockAt(world, pos) && block.canPlaceBlockOnSide(world, pos, facing)
                             && ((ItemBlock) item).placeBlockAt(stack, player, world, pos, facing, hitX, hitY, hitZ, newState));
         }
         STACK_WRAPPING_MAP.putIfAbsent(item, Pair.of(predicate, Pair.of(wrappedBlock, part)));
