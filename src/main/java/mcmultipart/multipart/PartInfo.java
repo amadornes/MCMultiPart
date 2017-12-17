@@ -144,7 +144,7 @@ public final class PartInfo implements IPartInfo {
         this.view = container != null && part.shouldWrapWorld() ? part.getWorldView(this) : null;
         this.world = this.view != null ? new MCMPWorldWrapper(this, this, this.view) : null;
         if (this.tile != null) {
-            this.tile.setPartWorld(world == null ? getActualWorld() : world);
+            setTile(this.tile); // Refreshes the world, position and PartInfo
         }
     }
 
