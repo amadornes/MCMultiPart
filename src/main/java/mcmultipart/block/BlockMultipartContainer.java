@@ -1,18 +1,5 @@
 package mcmultipart.block;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.tuple.Pair;
-
 import mcmultipart.MCMultiPart;
 import mcmultipart.RayTraceHelper;
 import mcmultipart.api.container.IMultipartContainerBlock;
@@ -52,6 +39,14 @@ import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("deprecation")
 public class BlockMultipartContainer extends Block implements ITileEntityProvider, IMultipartContainerBlock {
@@ -542,7 +537,16 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     @Override
     public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity) {
-        // TODO: Maybe? We need to check collision with the individual parts
+        forEach(world, pos, it -> {
+            List<AxisAlignedBB> boxes = new ArrayList<>();
+            AxisAlignedBB bb = entity.getCollisionBoundingBox();
+            if (bb != null)
+                it.getPart().addCollisionBoxToList(it, bb.grow(0.001), boxes, entity, false);
+            bb = entity.getEntityBoundingBox();
+            it.getPart().addCollisionBoxToList(it, bb.grow(0.001), boxes, entity, false);
+            if (!boxes.isEmpty())
+                it.getPart().onEntityCollidedWithPart(it, entity);
+        });
     }
 
     @Override

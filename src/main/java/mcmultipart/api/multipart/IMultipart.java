@@ -316,8 +316,11 @@ public interface IMultipart {
         return state.getCollisionBoundingBox(world, pos);
     }
 
+    public default void onEntityCollidedWithPart(IPartInfo part, Entity entity) {
+        part.getState().getBlock().onEntityCollidedWithBlock(part.getPartWorld(), part.getPartPos(), part.getState(), entity);
+    }
+
     public default void dropPartAsItem(IPartInfo part, int fortune) {
         part.getState().getBlock().dropBlockAsItem(part.getActualWorld(), part.getPartPos(), part.getState(), fortune);
     }
-
 }
