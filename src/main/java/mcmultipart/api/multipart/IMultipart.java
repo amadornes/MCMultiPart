@@ -263,6 +263,10 @@ public interface IMultipart {
         part.getState().getBlock().onPlantGrow(part.getState(), part.getPartWorld(), part.getPartPos(), source);
     }
 
+    public default boolean canPlayerDestroy(IPartInfo part, EntityPlayer player) {
+        return true;
+    }
+
     public default void onPartHarvested(IPartInfo part, EntityPlayer player) {
         part.getState().getBlock().onBlockHarvested(part.getPartWorld(), part.getPartPos(), part.getState(), player);
     }
