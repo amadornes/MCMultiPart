@@ -282,11 +282,11 @@ public interface IMultipart {
     }
 
     public default boolean canPlacePartAt(World world, BlockPos pos) {
-        return getBlock().canPlaceBlockAt(world, pos);
+        return true;
     }
 
     public default boolean canPlacePartOnSide(World world, BlockPos pos, EnumFacing side, IPartSlot slot) {
-        return getBlock().canPlaceBlockOnSide(world, pos, side);
+        return canPlacePartAt(world, pos);
     }
 
     public default void onPartAdded(IPartInfo part, IPartInfo otherPart) {
