@@ -113,7 +113,7 @@ public class MCMPClientProxy extends MCMPCommonProxy {
                     double x = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
                     double y = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
                     double z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
-                    RenderGlobal.drawSelectionBoundingBox(state.getSelectedBoundingBox(world, pos).grow(0.002).offset(-x, -y, -z),
+                    RenderGlobal.drawSelectionBoundingBox(info.getPart().getSelectedBoundingBox(info).grow(0.002).offset(-x, -y, -z),
                             0.0F, 0.0F, 0.0F, 0.4F);
                 }
 
