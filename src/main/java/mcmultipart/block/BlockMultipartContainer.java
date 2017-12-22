@@ -158,13 +158,19 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
         if (hit != null && tile.isPresent()) {
             if (!world.isRemote) {
                 IPartSlot slot = MCMultiPart.slotRegistry.getObjectById(hit.subHit);
-                tile.get().get(slot).ifPresent(i -> {
-                    i.getPart().onPartHarvested(i, player);
-                    if (player == null || !player.capabilities.isCreativeMode) {
-                        i.getPart().getDrops(world, pos, i, 0).forEach(s -> spawnAsEntity(world, pos, s));
+                boolean canRemove = tile.get().get(slot).map(i -> {
+                    if (i.getPart().canPlayerDestroy(i, player)) {
+                        i.getPart().onPartHarvested(i, player);
+                        if (player == null || !player.capabilities.isCreativeMode) {
+                            i.getPart().getDrops(world, pos, i, 0).forEach(s -> spawnAsEntity(world, pos, s));
+                        }
+                        return true;
+                    } else {
+                        return false;
                     }
-                });
-                tile.get().removePart(slot);
+                }).orElse(true);
+                if (canRemove)
+                    tile.get().removePart(slot);
             }
         }
         return false;
@@ -541,9 +547,9 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
             List<AxisAlignedBB> boxes = new ArrayList<>();
             AxisAlignedBB bb = entity.getCollisionBoundingBox();
             if (bb != null)
-                it.getPart().addCollisionBoxToList(it, bb.grow(0.001), boxes, entity, false);
+                it.getPart().addCollisionBoxToList(it, bb.expandXyz(0.001), boxes, entity, false);
             bb = entity.getEntityBoundingBox();
-            it.getPart().addCollisionBoxToList(it, bb.grow(0.001), boxes, entity, false);
+            it.getPart().addCollisionBoxToList(it, bb.expandXyz(0.001), boxes, entity, false);
             if (!boxes.isEmpty())
                 it.getPart().onEntityCollidedWithPart(it, entity);
         });
