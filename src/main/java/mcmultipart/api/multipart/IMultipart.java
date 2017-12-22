@@ -320,6 +320,10 @@ public interface IMultipart {
         return state.getCollisionBoundingBox(world, pos);
     }
 
+    public default AxisAlignedBB getSelectedBoundingBox(IPartInfo part) {
+        return part.getState().getSelectedBoundingBox(part.getPartWorld(), part.getPartPos());
+    }
+
     public default void onEntityCollidedWithPart(IPartInfo part, Entity entity) {
         part.getState().getBlock().onEntityCollidedWithBlock(part.getPartWorld(), part.getPartPos(), part.getState(), entity);
     }
