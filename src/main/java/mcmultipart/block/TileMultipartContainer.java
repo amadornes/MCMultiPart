@@ -1,18 +1,7 @@
 package mcmultipart.block;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-
 import mcmultipart.MCMultiPart;
 import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.container.IPartInfo;
@@ -27,20 +16,15 @@ import mcmultipart.capability.CapabilityJoiner;
 import mcmultipart.client.TESRMultipartContainer;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.PartInfo;
+import mcmultipart.network.MultipartAction;
 import mcmultipart.network.MultipartNetworkHandler;
-import mcmultipart.network.PacketMultipartAdd;
-import mcmultipart.network.PacketMultipartRemove;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.ObjectIntIdentityMap;
-import net.minecraft.util.Rotation;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -49,6 +33,10 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.GameData;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class TileMultipartContainer extends TileEntity implements IMultipartContainer {
 
@@ -212,7 +200,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
                 }
             });
 
-            MultipartNetworkHandler.sendToAllWatching(new PacketMultipartAdd(info), getWorld(), getPos());
+            MultipartNetworkHandler.queuePartChange(getWorld(), new MultipartAction.Add(info));
         }
     }
 
@@ -258,7 +246,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
             info.getPart().onRemoved(info);
             parts.values().forEach(i -> i.getPart().onPartRemoved(i, info));
 
-            MultipartNetworkHandler.sendToAllWatching(new PacketMultipartRemove(getPos(), slot), getWorld(), getPos());
+            MultipartNetworkHandler.queuePartChange(getWorld(), new MultipartAction.Remove(getPos(), slot));
         }
 
         if (parts.size() == 1) {

@@ -1,17 +1,11 @@
 package mcmultipart;
 
-import java.util.List;
-
-import javax.annotation.Nonnull;
-
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.google.common.collect.Lists;
-
 import mcmultipart.api.item.ItemBlockMultipart;
 import mcmultipart.api.multipart.IMultipart;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.MultipartRegistry.WrappedBlock;
+import mcmultipart.network.MultipartNetworkHandler;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBucket;
@@ -30,15 +24,18 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import org.apache.commons.lang3.tuple.Pair;
+
+import javax.annotation.Nonnull;
+import java.util.List;
 
 public class MCMPCommonProxy {
 
-    public void preInit() {
-    }
+    public void preInit() { }
 
-    public void init() {
-    }
+    public void init() { }
 
     public EntityPlayer getPlayer() {
         return null;
@@ -51,6 +48,13 @@ public class MCMPCommonProxy {
     public void scheduleTick(Runnable runnable, Side side) {
         if (side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(runnable);
+        }
+    }
+
+    @SubscribeEvent
+    public void onServerTick(TickEvent.ServerTickEvent e) {
+        if (e.phase == TickEvent.Phase.END) {
+            MultipartNetworkHandler.flushChanges();
         }
     }
 
@@ -74,7 +78,7 @@ public class MCMPCommonProxy {
     }
 
     private EnumActionResult placePart(@Nonnull ItemStack itemstack, @Nonnull EntityPlayer player, @Nonnull World world, @Nonnull BlockPos pos,
-            @Nonnull EnumFacing side, float hitX, float hitY, float hitZ, @Nonnull EnumHand hand, @Nonnull Pair<WrappedBlock, IMultipart> info) {
+                                       @Nonnull EnumFacing side, float hitX, float hitY, float hitZ, @Nonnull EnumHand hand, @Nonnull Pair<WrappedBlock, IMultipart> info) {
         int meta = itemstack.getItemDamage();
         int size = itemstack.getCount();
         NBTTagCompound nbt = null;
