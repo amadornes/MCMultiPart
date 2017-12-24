@@ -1,10 +1,6 @@
 package mcmultipart.api.container;
 
-import java.util.Map;
-import java.util.Optional;
-
 import com.google.common.base.Preconditions;
-
 import mcmultipart.api.multipart.IMultipart;
 import mcmultipart.api.multipart.IMultipartTile;
 import mcmultipart.api.slot.IPartSlot;
@@ -13,6 +9,11 @@ import mcmultipart.multipart.MultipartRegistry;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public interface IMultipartContainer extends ISlottedContainer<IPartInfo> {
 
@@ -36,6 +37,13 @@ public interface IMultipartContainer extends ISlottedContainer<IPartInfo> {
     }
 
     public Map<IPartSlot, ? extends IPartInfo> getParts();
+
+    // TODO: better name, maybe optimize this?
+    public default Map<IPartSlot, ? extends IPartInfo> getUnreplaceableParts() {
+        return Collections.unmodifiableMap(getParts().entrySet().stream()
+                .filter(it -> !it.getValue().getPart().isReplaceable(it.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    }
 
     public default boolean canAddPart(IPartSlot slot, IBlockState state) {
         IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());

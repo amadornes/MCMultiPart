@@ -1,10 +1,5 @@
 package mcmultipart.api.multipart;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.ref.MCMPCapabilities;
 import mcmultipart.api.slot.IPartSlot;
@@ -33,6 +28,11 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 @SuppressWarnings("deprecation")
 public interface IMultipart {
@@ -239,6 +239,11 @@ public interface IMultipart {
 
     public default boolean isWood(IBlockAccess world, BlockPos pos, IPartInfo part) {
         return part.getState().getBlock().isWood(world, pos);
+    }
+
+    public default boolean isReplaceable(IPartInfo part) {
+//        return part.getState().getBlock().isReplaceable(part.getPartWorld(), part.getPartPos());
+        return true;
     }
 
     public default void onPartClicked(IPartInfo part, EntityPlayer player, RayTraceResult hit) {

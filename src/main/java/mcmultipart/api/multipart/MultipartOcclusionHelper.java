@@ -1,16 +1,17 @@
 package mcmultipart.api.multipart;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.slot.IPartSlot;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class MultipartOcclusionHelper {
 
@@ -29,7 +30,7 @@ public class MultipartOcclusionHelper {
     }
 
     public static boolean testContainerBoxIntersection(IBlockAccess world, BlockPos pos, Collection<AxisAlignedBB> boxes,
-            Predicate<IPartSlot> ignore) {
+                                                       Predicate<IPartSlot> ignore) {
         return MultipartHelper.getContainer(world, pos).map(c -> testContainerBoxIntersection(c, boxes, ignore)).orElse(false);
     }
 
@@ -38,7 +39,7 @@ public class MultipartOcclusionHelper {
     }
 
     public static boolean testContainerBoxIntersection(IMultipartContainer container, Collection<AxisAlignedBB> boxes,
-            Predicate<IPartSlot> ignore) {
+                                                       Predicate<IPartSlot> ignore) {
         return testBoxIntersection(container.getParts().values().stream().filter(i -> !ignore.test(i.getSlot()))
                 .map(i -> i.getPart().getOcclusionBoxes(i)).flatMap(List::stream).collect(Collectors.toList()), boxes);
     }
@@ -57,6 +58,18 @@ public class MultipartOcclusionHelper {
 
     public static boolean testContainerPartIntersection(IMultipartContainer container, IPartInfo part, Predicate<IPartSlot> ignore) {
         return container.getParts().values().stream().filter(i -> !ignore.test(i.getSlot())).anyMatch(i -> testPartIntersection(part, i));
+    }
+
+    public static Set<IPartSlot> getCollidingParts(IMultipartContainer container, IPartInfo part) {
+        return getCollidingParts(container, part, NEVER);
+    }
+
+    public static Set<IPartSlot> getCollidingParts(IMultipartContainer container, IPartInfo part, Predicate<IPartSlot> ignore) {
+        return container.getParts().values().stream()
+                .filter(i -> !ignore.test(i.getSlot()))
+                .filter(i -> testPartIntersection(part, i))
+                .map(IPartInfo::getSlot)
+                .collect(Collectors.toSet());
     }
 
 }
