@@ -38,14 +38,14 @@ public class ItemBlockMultipart extends ItemBlock {
 
     @Override
     public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX,
-            float hitY, float hitZ) {
+                                      float hitY, float hitZ) {
         return place(player, world, pos, hand, facing, hitX, hitY, hitZ, this, this.block::getStateForPlacement, multipartBlock,
                 this::placeBlockAtTested, ItemBlockMultipart::placePartAt);
     }
 
     public static EnumActionResult place(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX,
-            float hitY, float hitZ, Item item, IBlockPlacementInfo stateProvider, IMultipart multipartBlock,
-            IBlockPlacementLogic blockLogic, IPartPlacementLogic partLogic) {
+                                         float hitY, float hitZ, Item item, IBlockPlacementInfo stateProvider, IMultipart multipartBlock,
+                                         IBlockPlacementLogic blockLogic, IPartPlacementLogic partLogic) {
         ItemStack stack = player.getHeldItem(hand);
 
         if (!stack.isEmpty()) {
@@ -65,14 +65,15 @@ public class ItemBlockMultipart extends ItemBlock {
             if (!player.capabilities.isCreativeMode) {
                 stack.shrink(1);
             }
+
             return EnumActionResult.SUCCESS;
         }
         return EnumActionResult.FAIL;
     }
 
     public static boolean placeAt(ItemStack stack, EntityPlayer player, EnumHand hand, World world, BlockPos pos, EnumFacing facing,
-            float hitX, float hitY, float hitZ, IBlockPlacementInfo stateProvider, int meta, IMultipart multipartBlock,
-            IBlockPlacementLogic blockLogic, IPartPlacementLogic partLogic) {
+                                  float hitX, float hitY, float hitZ, IBlockPlacementInfo stateProvider, int meta, IMultipart multipartBlock,
+                                  IBlockPlacementLogic blockLogic, IPartPlacementLogic partLogic) {
         IBlockState state = stateProvider.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, player, hand);
         AxisAlignedBB bb = state.getCollisionBoundingBox(world, pos);
         if ((bb == null || world.checkNoEntityCollision(bb.offset(pos)))
@@ -85,14 +86,14 @@ public class ItemBlockMultipart extends ItemBlock {
     }
 
     public boolean placeBlockAtTested(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing facing, float hitX,
-            float hitY, float hitZ, IBlockState newState) {
+                                      float hitY, float hitZ, IBlockState newState) {
         return player.canPlayerEdit(pos, facing, stack) && world.getBlockState(pos).getBlock().isReplaceable(world, pos)
                 && block.canPlaceBlockAt(world, pos) && block.canPlaceBlockOnSide(world, pos, facing)
                 && super.placeBlockAt(stack, player, world, pos, facing, hitX, hitY, hitZ, newState);
     }
 
     public static boolean placePartAt(ItemStack stack, EntityPlayer player, EnumHand hand, World world, BlockPos pos, EnumFacing facing,
-            float hitX, float hitY, float hitZ, IMultipart multipartBlock, IBlockState state) {
+                                      float hitX, float hitY, float hitZ, IMultipart multipartBlock, IBlockState state) {
         IPartSlot slot = multipartBlock.getSlotForPlacement(world, pos, state, facing, hitX, hitY, hitZ, player);
         if (!multipartBlock.canPlacePartAt(world, pos) || !multipartBlock.canPlacePartOnSide(world, pos, facing, slot))
             return false;
@@ -156,28 +157,28 @@ public class ItemBlockMultipart extends ItemBlock {
     public static interface IPartPlacementLogic {
 
         public boolean placePart(ItemStack stack, EntityPlayer player, EnumHand hand, World world, BlockPos pos, EnumFacing facing,
-                float hitX, float hitY, float hitZ, IMultipart multipartBlock, IBlockState state);
+                                 float hitX, float hitY, float hitZ, IMultipart multipartBlock, IBlockState state);
 
     }
 
     public static interface IBlockPlacementLogic {
 
         public boolean place(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing facing, float hitX, float hitY,
-                float hitZ, IBlockState newState);
+                             float hitZ, IBlockState newState);
 
     }
 
     public static interface IBlockPlacementInfo {
 
         public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta,
-                EntityLivingBase placer, EnumHand hand);
+                                                EntityLivingBase placer, EnumHand hand);
 
     }
 
     public static interface IExtendedBlockPlacementInfo {
 
         public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta,
-                EntityLivingBase placer, EnumHand hand, IBlockState state);
+                                                EntityLivingBase placer, EnumHand hand, IBlockState state);
 
     }
 
