@@ -27,7 +27,6 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -197,49 +196,23 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     }
 
     protected void updateWorldState() {
-        System.out.println((world.isRemote ? "CLIENT" : "SERVER") + " updating world: " + parts.size() + " parts");
-
         IBlockState prevSt = getWorld().getBlockState(getPos());
 
         if (parts.size() == 1) {
             PartInfo part = parts.values().iterator().next();
-            System.out.println("Unwrapped part " + part.getState());
-
-            Runnable r = () -> {
-                getWorld().setBlockState(getPos(), part.getState(), 0);
-                if (part.getTile() != null) {
-                    TileEntity te = part.getTile().getTileEntity();
-                    te.validate();
-                    getWorld().setTileEntity(getPos(), te);
-                }
-            };
-
-            // Minecraft fucks up the unwrapping process because it sends block update packet regardless of
-            // the flags because it automatically does after breaking a block, so we delay the setting of the new state
-            // on the server so it still sends the old multipart state to the client, which can then handle the
-            // unwrapping correctly.
-
-            if (world.isRemote) {
-                r.run();
-            } else {
-                new Thread(() -> ((WorldServer) world).addScheduledTask(r)).start();
-            }
-
-            // FIXME: This is the better option, but less reliable :(
-
-            // getWorld().setBlockState(getPos(), part.getState(), 0);
-            // if (part.getTile() != null) {
-            //     TileEntity te = part.getTile().getTileEntity();
-            //     te.validate();
-            //     getWorld().setTileEntity(getPos(), te);
-            // }
 
             // Minecraft fucks up the unwrapping process because it sends block update packet regardless of
             // the flags because it automatically does after breaking a block, so we flush the changes right now
             // to set the state because then it will update the TE on the client before Minecraft can reset the
             // state, and therefore losing the TE data.
+            MultipartNetworkHandler.flushChanges(getWorld(), getPos());
 
-            // MultipartNetworkHandler.flushChanges(getWorld(), getPos());
+            getWorld().setBlockState(getPos(), part.getState(), 0);
+            if (part.getTile() != null) {
+                TileEntity te = part.getTile().getTileEntity();
+                te.validate();
+                getWorld().setTileEntity(getPos(), te);
+            }
 
             this.isInWorld = false;
         } else {
