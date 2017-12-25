@@ -39,7 +39,7 @@ public class PacketMultipartAction extends Packet<PacketMultipartAction> {
      *   [slotid: var int] if there's a new slot id
      *   [
      *     stateid: var int
-     *     [data: NBT?]
+     *     data: NBT?
      *   ] if type is ADD or CHANGE
      * }
      */
