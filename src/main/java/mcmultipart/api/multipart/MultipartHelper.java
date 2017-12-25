@@ -8,6 +8,7 @@ import mcmultipart.api.container.IMultipartContainerBlock;
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.ref.MCMPCapabilities;
 import mcmultipart.api.slot.IPartSlot;
+import mcmultipart.network.MultipartNetworkHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
@@ -42,8 +43,9 @@ public final class MultipartHelper {
         IMultipartContainer container = containerOpt.orElseGet(() -> createTile.apply(world, pos));
 
         if (container.canAddPart(slot, state, tile)) {
-            if (!simulated /* && !world.isRemote */) {
+            if (!simulated && !world.isRemote) {
                 container.addPart(slot, state, tile);
+                MultipartNetworkHandler.flushChanges(world, pos);
             }
             return true;
         }
