@@ -46,7 +46,7 @@ public class PacketMultipartAction extends Packet<PacketMultipartAction> {
 
     @Override
     public void toBytes(PacketBuffer buf) {
-//        changes.sort();
+        changes.sort();
         List<MultipartAction> l = changes.getChanges();
         buf.writeShort(l.size());
         boolean prevHasSameCoords = false;
