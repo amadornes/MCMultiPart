@@ -17,6 +17,7 @@ import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.PartInfo;
 import mcmultipart.network.MultipartAction;
 import mcmultipart.network.MultipartNetworkHandler;
+import mcmultipart.util.WorldExt;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.nbt.NBTTagCompound;
@@ -238,7 +239,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
             if (needsBlockUpdate) {
                 if (container != this) transferTo(container);
 
-                getWorld().setBlockState(getPos(), MCMultiPart.multipart.getDefaultState()
+                WorldExt.setBlockStateHack(getWorld(), getPos(), MCMultiPart.multipart.getDefaultState()
                         .withProperty(BlockMultipartContainer.PROPERTY_TICKING, container instanceof ITickable), 0);
                 getWorld().setTileEntity(getPos(), container);
 
