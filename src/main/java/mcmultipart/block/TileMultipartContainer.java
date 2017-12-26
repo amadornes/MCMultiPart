@@ -1,18 +1,7 @@
 package mcmultipart.block;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
-
 import mcmultipart.MCMultiPart;
 import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.container.IPartInfo;
@@ -30,17 +19,14 @@ import mcmultipart.multipart.PartInfo;
 import mcmultipart.network.MultipartNetworkHandler;
 import mcmultipart.network.PacketMultipartAdd;
 import mcmultipart.network.PacketMultipartRemove;
+import mcmultipart.util.WorldExt;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.ObjectIntIdentityMap;
-import net.minecraft.util.Rotation;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -49,6 +35,10 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.GameData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class TileMultipartContainer extends TileEntity implements IMultipartContainer {
 
@@ -178,11 +168,11 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
         if (container != this) { // If we require ticking, place a ticking TE
             isInWorld = false;
-            getWorld().setBlockState(getPos(), MCMultiPart.multipart.getDefaultState()//
+            WorldExt.setBlockStateHack(getWorld(), getPos(), MCMultiPart.multipart.getDefaultState()//
                     .withProperty(BlockMultipartContainer.PROPERTY_TICKING, true), 0);
             getWorld().setTileEntity(getPos(), container);
         } else if (!isInWorld) { // If we aren't in the world, place the TE
-            getWorld().setBlockState(getPos(), MCMultiPart.multipart.getDefaultState()//
+            WorldExt.setBlockStateHack(getWorld(), getPos(), MCMultiPart.multipart.getDefaultState()//
                     .withProperty(BlockMultipartContainer.PROPERTY_TICKING, this instanceof Ticking), 0);
             getWorld().setTileEntity(getPos(), this);
         }
