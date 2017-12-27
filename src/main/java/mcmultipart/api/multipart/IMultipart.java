@@ -242,8 +242,7 @@ public interface IMultipart {
     }
 
     public default boolean isReplaceable(IPartInfo part) {
-//        return part.getState().getBlock().isReplaceable(part.getPartWorld(), part.getPartPos());
-        return true;
+        return part.getState().getBlock().isReplaceable(part.getPartWorld(), part.getPartPos());
     }
 
     public default void onPartClicked(IPartInfo part, EntityPlayer player, RayTraceResult hit) {
