@@ -202,10 +202,10 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         if (parts.size() == 1) {
             PartInfo part = parts.values().iterator().next();
 
-            // Minecraft fucks up the unwrapping process because it sends block update packet regardless of
-            // the flags because it automatically does after breaking a block, so we flush the changes right now
-            // to set the state because then it will update the TE on the client before Minecraft can reset the
-            // state, and therefore losing the TE data.
+            // After breaking a block, Minecraft automatically sends an update packet to update the block the player
+            // destroyed. This causes the TE to get lost, since setting a new block state removes the old TE.
+            // We don't want this to happen, so we flush the part changes before Minecraft sends the update packet so
+            // the block replacing can be handled by MCMultiPart and therefore the TE is kept.
             MultipartNetworkHandler.flushChanges(getWorld(), getPos());
 
             getWorld().setBlockState(getPos(), part.getState(), 0);
