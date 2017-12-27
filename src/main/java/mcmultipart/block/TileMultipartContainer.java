@@ -7,7 +7,6 @@ import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.multipart.IMultipart;
 import mcmultipart.api.multipart.IMultipartTile;
-import mcmultipart.api.multipart.MultipartHelper;
 import mcmultipart.api.multipart.MultipartOcclusionHelper;
 import mcmultipart.api.ref.MCMPCapabilities;
 import mcmultipart.api.slot.IPartSlot;
@@ -18,6 +17,7 @@ import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.PartInfo;
 import mcmultipart.network.MultipartAction;
 import mcmultipart.network.MultipartNetworkHandler;
+import mcmultipart.util.WorldExt;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.nbt.NBTTagCompound;
@@ -209,17 +209,26 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         }
     }
 
-    private void updateWorldState() {
+    protected void updateWorldState() {
         IBlockState prevSt = getWorld().getBlockState(getPos());
 
         if (parts.size() == 1) {
             PartInfo part = parts.values().iterator().next();
+
+            // After breaking a block, Minecraft automatically sends an update packet to update the block the player
+            // destroyed. This causes the TE to get lost, since setting a new block state removes the old TE.
+            // We don't want this to happen, so we flush the part changes before Minecraft sends the update packet so
+            // the block replacing can be handled by MCMultiPart and therefore the TE is kept.
+            MultipartNetworkHandler.flushChanges(getWorld(), getPos());
+
             getWorld().setBlockState(getPos(), part.getState(), 0);
             if (part.getTile() != null) {
                 TileEntity te = part.getTile().getTileEntity();
                 te.validate();
                 getWorld().setTileEntity(getPos(), te);
             }
+
+            this.isInWorld = false;
         } else {
             int currentTicking = countTickingParts();
             boolean isTETicking = this instanceof ITickable;
@@ -243,7 +252,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
             if (needsBlockUpdate) {
                 if (container != this) transferTo(container);
 
-                getWorld().setBlockState(getPos(), MCMultiPart.multipart.getDefaultState()
+                WorldExt.setBlockStateHack(getWorld(), getPos(), MCMultiPart.multipart.getDefaultState()
                         .withProperty(BlockMultipartContainer.PROPERTY_TICKING, container instanceof ITickable), 0);
                 getWorld().setTileEntity(getPos(), container);
 
@@ -275,7 +284,6 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     }
 
     protected void transferTo(TileMultipartContainer container) {
-        // container.isInWorld = isInWorld; TODO
         parts.forEach(container::add); // Doing it like this to add them to the ticking list if needed
         if (missingParts != null) {
             container.missingParts = missingParts;
@@ -457,13 +465,13 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
     @Override
     public double getMaxRenderDistanceSquared() {
-        return parts.values().stream().map(IPartInfo::getTile).filter(t -> t != null).mapToDouble(IMultipartTile::getMaxPartRenderDistanceSquared)
+        return parts.values().stream().map(IPartInfo::getTile).filter(Objects::nonNull).mapToDouble(IMultipartTile::getMaxPartRenderDistanceSquared)
                 .max().orElse(super.getMaxRenderDistanceSquared());
     }
 
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
-        return parts.values().stream().map(IPartInfo::getTile).filter(t -> t != null)//
+        return parts.values().stream().map(IPartInfo::getTile).filter(Objects::nonNull)//
                 .reduce(super.getRenderBoundingBox(), (a, b) -> a.union(b.getPartRenderBoundingBox()), (a, b) -> b);
     }
 
@@ -474,10 +482,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
     @Override
     public boolean hasFastRenderer() {
-        if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
-            return hasFastRendererC();
-        }
-        return true;
+        return !FMLCommonHandler.instance().getEffectiveSide().isClient() || hasFastRendererC();
     }
 
     @SideOnly(Side.CLIENT)
@@ -561,14 +566,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         @Override
         public void update() {
             if (tickingParts.isEmpty()) {
-                IBlockState state = MCMultiPart.multipart.getDefaultState().withProperty(BlockMultipartContainer.PROPERTY_TICKING, false);
-                getPartWorld().setBlockState(getPartPos(), state, 0);
-                TileMultipartContainer container = (TileMultipartContainer) MultipartHelper.getContainer(getWorld(), getPos()).get();
-                transferTo(container);
-
-                getWorld().notifyBlockUpdate(getPos(), state, state, 3);
-                getWorld().checkLight(getPos());
-                return;
+                updateWorldState();
             }
             tickingParts.forEach(ITickable::update);
         }

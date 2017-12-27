@@ -1,7 +1,6 @@
 package mcmultipart.network;
 
 import com.google.common.base.Throwables;
-
 import io.netty.buffer.ByteBuf;
 import mcmultipart.MCMultiPart;
 import net.minecraft.entity.player.EntityPlayer;
