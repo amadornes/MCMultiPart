@@ -1,26 +1,26 @@
 package mcmultipart.api.multipart;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-
 import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.container.IMultipartContainerBlock;
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.ref.MCMPCapabilities;
 import mcmultipart.api.slot.IPartSlot;
+import mcmultipart.network.MultipartNetworkHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public final class MultipartHelper {
 
@@ -45,6 +45,7 @@ public final class MultipartHelper {
         if (container.canAddPart(slot, state, tile)) {
             if (!simulated && !world.isRemote) {
                 container.addPart(slot, state, tile);
+                MultipartNetworkHandler.flushChanges(world, pos);
             }
             return true;
         }
