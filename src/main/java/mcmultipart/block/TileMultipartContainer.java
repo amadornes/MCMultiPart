@@ -7,7 +7,6 @@ import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.multipart.IMultipart;
 import mcmultipart.api.multipart.IMultipartTile;
-import mcmultipart.api.multipart.MultipartHelper;
 import mcmultipart.api.multipart.MultipartOcclusionHelper;
 import mcmultipart.api.ref.MCMPCapabilities;
 import mcmultipart.api.slot.IPartSlot;
@@ -16,9 +15,8 @@ import mcmultipart.capability.CapabilityJoiner;
 import mcmultipart.client.TESRMultipartContainer;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.PartInfo;
+import mcmultipart.network.MultipartAction;
 import mcmultipart.network.MultipartNetworkHandler;
-import mcmultipart.network.PacketMultipartAdd;
-import mcmultipart.network.PacketMultipartRemove;
 import mcmultipart.util.WorldExt;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
@@ -143,43 +141,12 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
     @Override
     public void addPart(IPartSlot slot, IBlockState state, IMultipartTile tile) {
-        int currentTicking = countTickingParts();
-        int newTicking = currentTicking + (tile != null && tile.isTickable() ? 1 : 0);
-
-        TileMultipartContainer container = this;
-        if (currentTicking == 0 && newTicking > 0) {
-            container = new TileMultipartContainer.Ticking(getWorld(), getPos());
-            transferTo(container);
-        }
-
-        if (!isInWorld) {
-            PartInfo info = parts.values().iterator().next();
-            info.setContainer(container);
-            if (!container.isInWorld) {
-                info.refreshWorld();
-            }
-        }
-
         IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
         Preconditions.checkState(part != null, "The blockstate " + state + " could not be converted to a multipart!");
-        container.addPartDo(slot, state, part, tile);
 
-        IBlockState prevSt = getWorld().getBlockState(getPos());
+        addPartDo(slot, state, part, tile);
 
-        if (container != this) { // If we require ticking, place a ticking TE
-            isInWorld = false;
-            WorldExt.setBlockStateHack(getWorld(), getPos(), MCMultiPart.multipart.getDefaultState()//
-                    .withProperty(BlockMultipartContainer.PROPERTY_TICKING, true), 0);
-            getWorld().setTileEntity(getPos(), container);
-        } else if (!isInWorld) { // If we aren't in the world, place the TE
-            WorldExt.setBlockStateHack(getWorld(), getPos(), MCMultiPart.multipart.getDefaultState()//
-                    .withProperty(BlockMultipartContainer.PROPERTY_TICKING, this instanceof Ticking), 0);
-            getWorld().setTileEntity(getPos(), this);
-        }
-
-        IBlockState st = getWorld().getBlockState(getPos());
-        getWorld().markAndNotifyBlock(getPos(), null, prevSt, st, 1); // Only cause a block update, clients are notified through a packet
-        getWorld().checkLight(getPos());
+        updateWorldState();
     }
 
     private void addPartDo(IPartSlot slot, IBlockState state, IMultipart part, IMultipartTile tile) {
@@ -202,38 +169,15 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
                 }
             });
 
-            MultipartNetworkHandler.sendToAllWatching(new PacketMultipartAdd(info), getWorld(), getPos());
+            MultipartNetworkHandler.queuePartChange(getWorld(), new MultipartAction.Add(info));
         }
     }
 
     @Override
     public void removePart(IPartSlot slot) {
         PartInfo info = parts.get(slot);
-        IMultipartTile tile = info.getTile();
-
-        int currentTicking = countTickingParts();
-        int newTicking = currentTicking - (tile != null && tile.isTickable() ? 1 : 0);
-
-        TileMultipartContainer container = this;
-        if (currentTicking > 0 && newTicking == 0) {
-            container = new TileMultipartContainer(getWorld(), getPos());
-            transferTo(container);
-        }
-
-        container.removePartDo(slot, info);
-
-        IBlockState prevSt = getWorld().getBlockState(getPos());
-
-        if (container != this) { // If we don't require ticking, place a normal TE
-            isInWorld = false;
-            getWorld().setBlockState(getPos(), MCMultiPart.multipart.getDefaultState()//
-                    .withProperty(BlockMultipartContainer.PROPERTY_TICKING, false), 0);
-            getWorld().setTileEntity(getPos(), container);
-        }
-
-        IBlockState st = getWorld().getBlockState(getPos());
-        getWorld().markAndNotifyBlock(getPos(), null, prevSt, st, 1); // Only cause a block update, clients are notified through a packet
-        getWorld().checkLight(getPos());
+        removePartDo(slot, info);
+        updateWorldState();
     }
 
     private void removePartDo(IPartSlot slot, PartInfo info) {
@@ -248,18 +192,65 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
             info.getPart().onRemoved(info);
             parts.values().forEach(i -> i.getPart().onPartRemoved(i, info));
 
-            MultipartNetworkHandler.sendToAllWatching(new PacketMultipartRemove(getPos(), slot), getWorld(), getPos());
+            MultipartNetworkHandler.queuePartChange(getWorld(), new MultipartAction.Remove(getPos(), slot));
         }
+    }
+
+    protected void updateWorldState() {
+        IBlockState prevSt = getWorld().getBlockState(getPos());
 
         if (parts.size() == 1) {
             PartInfo part = parts.values().iterator().next();
+
+            // After breaking a block, Minecraft automatically sends an update packet to update the block the player
+            // destroyed. This causes the TE to get lost, since setting a new block state removes the old TE.
+            // We don't want this to happen, so we flush the part changes before Minecraft sends the update packet so
+            // the block replacing can be handled by MCMultiPart and therefore the TE is kept.
+            MultipartNetworkHandler.flushChanges(getWorld(), getPos());
+
             getWorld().setBlockState(getPos(), part.getState(), 0);
             if (part.getTile() != null) {
                 TileEntity te = part.getTile().getTileEntity();
                 te.validate();
                 getWorld().setTileEntity(getPos(), te);
             }
+
+            this.isInWorld = false;
+        } else {
+            int currentTicking = countTickingParts();
+            boolean isTETicking = this instanceof ITickable;
+            TileMultipartContainer container = this;
+            boolean needsBlockUpdate = false;
+
+            if (currentTicking == 0 && isTETicking) {
+                needsBlockUpdate = true;
+                container = new TileMultipartContainer(getWorld(), getPos());
+            } else if (currentTicking > 0 && !isTETicking) {
+                needsBlockUpdate = true;
+                container = new TileMultipartContainer.Ticking(getWorld(), getPos());
+            } else if (prevSt.getBlock() != MCMultiPart.multipart) {
+                needsBlockUpdate = true;
+                parts.values().forEach(it -> {
+                    it.setContainer(this);
+                    it.refreshWorld();
+                });
+            }
+
+            if (needsBlockUpdate) {
+                if (container != this) transferTo(container);
+
+                WorldExt.setBlockStateHack(getWorld(), getPos(), MCMultiPart.multipart.getDefaultState()
+                        .withProperty(BlockMultipartContainer.PROPERTY_TICKING, container instanceof ITickable), 0);
+                getWorld().setTileEntity(getPos(), container);
+
+                this.isInWorld = false;
+                container.isInWorld = true;
+            }
         }
+
+        IBlockState st = getWorld().getBlockState(getPos());
+        getWorld().markAndNotifyBlock(getPos(), null, prevSt, st, 1); // Only cause a block update, clients are notified through a packet
+        getWorld().checkLight(getPos());
     }
 
     private int countTickingParts() {
@@ -280,7 +271,6 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     }
 
     protected void transferTo(TileMultipartContainer container) {
-        container.isInWorld = isInWorld;
         parts.forEach(container::add); // Doing it like this to add them to the ticking list if needed
         if (missingParts != null) {
             container.missingParts = missingParts;
@@ -462,13 +452,13 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
     @Override
     public double getMaxRenderDistanceSquared() {
-        return parts.values().stream().map(IPartInfo::getTile).filter(t -> t != null).mapToDouble(IMultipartTile::getMaxPartRenderDistanceSquared)
+        return parts.values().stream().map(IPartInfo::getTile).filter(Objects::nonNull).mapToDouble(IMultipartTile::getMaxPartRenderDistanceSquared)
                 .max().orElse(super.getMaxRenderDistanceSquared());
     }
 
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
-        return parts.values().stream().map(IPartInfo::getTile).filter(t -> t != null)//
+        return parts.values().stream().map(IPartInfo::getTile).filter(Objects::nonNull)//
                 .reduce(super.getRenderBoundingBox(), (a, b) -> a.union(b.getPartRenderBoundingBox()), (a, b) -> b);
     }
 
@@ -479,10 +469,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
     @Override
     public boolean hasFastRenderer() {
-        if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
-            return hasFastRendererC();
-        }
-        return true;
+        return !FMLCommonHandler.instance().getEffectiveSide().isClient() || hasFastRendererC();
     }
 
     @SideOnly(Side.CLIENT)
@@ -566,14 +553,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         @Override
         public void update() {
             if (tickingParts.isEmpty()) {
-                IBlockState state = MCMultiPart.multipart.getDefaultState().withProperty(BlockMultipartContainer.PROPERTY_TICKING, false);
-                getPartWorld().setBlockState(getPartPos(), state, 0);
-                TileMultipartContainer container = (TileMultipartContainer) MultipartHelper.getContainer(getWorld(), getPos()).get();
-                transferTo(container);
-
-                getWorld().notifyBlockUpdate(getPos(), state, state, 3);
-                getWorld().checkLight(getPos());
-                return;
+                updateWorldState();
             }
             tickingParts.forEach(ITickable::update);
         }
