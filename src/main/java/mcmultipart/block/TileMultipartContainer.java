@@ -148,15 +148,6 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
         Preconditions.checkState(part != null, "The blockstate " + state + " could not be converted to a multipart!");
 
-        PartInfo info = new PartInfo(this, slot, part, state, tile);
-        HashSet<IPartSlot> collidingParts = new HashSet<>();
-        if (parts.containsKey(slot)) {
-            collidingParts.add(slot);
-        }
-        collidingParts.addAll(MultipartOcclusionHelper.getCollidingParts(this, info,
-                it -> get(it).map(it1 -> !it1.getPart().isReplaceable(it1)).orElse(true)));
-        collidingParts.forEach(it -> removePartDo(it, parts.get(it)));
-
         addPartDo(slot, state, part, tile);
 
         updateWorldState();
