@@ -45,6 +45,13 @@ public interface IMultipartContainer extends ISlottedContainer<IPartInfo> {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
 
+    // TODO: better name, maybe optimize this?
+    public default Map<IPartSlot, ? extends IPartInfo> getReplaceableParts() {
+        return Collections.unmodifiableMap(getParts().entrySet().stream()
+                .filter(it -> it.getValue().getPart().isReplaceable(it.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    }
+
     public default boolean canAddPart(IPartSlot slot, IBlockState state) {
         IMultipart part = MultipartRegistry.INSTANCE.getPart(state.getBlock());
         Preconditions.checkState(part != null, "The blockstate " + state + " could not be converted to a multipart!");

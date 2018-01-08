@@ -122,16 +122,14 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
             Map<IPartSlot, ? extends IPartInfo> uparts = getUnreplaceableParts();
             if (partSlots.stream().anyMatch(uparts::containsKey)
                     || uparts.values().stream().map(i -> i.getPart().getGhostSlots(i)).flatMap(Set::stream).anyMatch(partSlots::contains)) {
-                partSlots.clear();
                 return false;
             }
             partSlots.clear();
 
             // If the occlusion boxes of this part intersect with any other parts', fail.
-            if (MultipartOcclusionHelper.testContainerPartIntersection(this, info, it -> {
-                PartInfo partInfo = parts.get(it);
-                return partInfo.getPart().isReplaceable(partInfo);
-            })) {
+            // Only check for replaceable parts, though!
+            Map<IPartSlot, ? extends IPartInfo> s = getReplaceableParts();
+            if (MultipartOcclusionHelper.testContainerPartIntersection(this, info, s::containsKey)) {
                 return false;
             }
         } finally {
@@ -159,6 +157,9 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
         }
 
         PartInfo info = new PartInfo(this, slot, part, state, tile);
+
+        MultipartOcclusionHelper.getCollidingParts(this, info).forEach(this::removePartNoUpdate);
+
         add(slot, info);
 
         if (tile != null) {
@@ -179,9 +180,13 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
 
     @Override
     public void removePart(IPartSlot slot) {
+        removePartNoUpdate(slot);
+        updateWorldState();
+    }
+
+    private void removePartNoUpdate(IPartSlot slot) {
         PartInfo info = parts.get(slot);
         removePartDo(slot, info);
-        updateWorldState();
     }
 
     private void removePartDo(IPartSlot slot, PartInfo info) {
