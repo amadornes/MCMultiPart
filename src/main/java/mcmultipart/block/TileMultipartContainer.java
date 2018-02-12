@@ -176,6 +176,7 @@ public class TileMultipartContainer extends TileEntity implements IMultipartCont
     @Override
     public void removePart(IPartSlot slot) {
         PartInfo info = parts.get(slot);
+        if (info == null) return;
         removePartDo(slot, info);
         updateWorldState();
     }

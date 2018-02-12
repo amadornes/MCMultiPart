@@ -40,7 +40,7 @@ public final class PartInfo implements IPartInfo {
 
     private static final List<BlockRenderLayer> RENDER_LAYERS;
     static {
-        if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+        if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
             RENDER_LAYERS = Arrays.asList(BlockRenderLayer.values());
         } else {
             RENDER_LAYERS = new ArrayList<>();

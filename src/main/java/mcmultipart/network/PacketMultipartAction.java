@@ -53,20 +53,20 @@ public class PacketMultipartAction extends Packet<PacketMultipartAction> {
         boolean prevHasSameSlot = false;
         for (int i = 0; i < l.size(); i++) {
             MultipartAction entry = l.get(i);
-            int entrySlot = MCMultiPart.slotRegistry.getID(entry.slot);
+            int entrySlot = MCMultiPart.slotRegistry.getId(entry.slot);
 
             boolean nextHasSameCoords = false;
             boolean nextHasSameSlot = false;
             if (i + 1 < l.size()) {
                 MultipartAction next = l.get(i + 1);
-                int nextSlot = MCMultiPart.slotRegistry.getID(next.slot);
+                int nextSlot = MCMultiPart.slotRegistry.getId(next.slot);
                 nextHasSameCoords = next.pos.equals(entry.pos);
                 nextHasSameSlot = nextSlot == entrySlot;
             }
 
             buf.writeByte(entry.type |
-                    (prevHasSameCoords ? 128 : 0) |
-                    (prevHasSameSlot ? 64 : 0));
+                (prevHasSameCoords ? 128 : 0) |
+                (prevHasSameSlot ? 64 : 0));
 
             if (!prevHasSameCoords)
                 buf.writeBlockPos(entry.pos);
@@ -101,7 +101,7 @@ public class PacketMultipartAction extends Packet<PacketMultipartAction> {
             if (!prevHasSameCoords) coords = buf.readBlockPos();
             if (!prevHasSameSlotId) slotId = buf.readVarInt();
 
-            IPartSlot slot = MCMultiPart.slotRegistry.getValue(slotId);
+            IPartSlot slot = MCMultiPart.slotRegistry.getObjectById(slotId);
 
             IBlockState state = null;
             NBTTagCompound nbt = null;
