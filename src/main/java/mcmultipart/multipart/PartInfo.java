@@ -40,7 +40,7 @@ public final class PartInfo implements IPartInfo {
 
     private static final List<BlockRenderLayer> RENDER_LAYERS;
     static {
-        if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+        if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
             RENDER_LAYERS = Arrays.asList(BlockRenderLayer.values());
         } else {
             RENDER_LAYERS = new ArrayList<>();
@@ -97,6 +97,9 @@ public final class PartInfo implements IPartInfo {
 
     public void setContainer(TileMultipartContainer container) {
         this.container = container;
+        if (container != null && container.isInWorld()) {
+            refreshWorld();
+        }
     }
 
     public void setState(IBlockState state) {
@@ -129,11 +132,19 @@ public final class PartInfo implements IPartInfo {
         }
     }
 
+    public void setWorld(World world) {
+        this.view = null;
+        this.world = null;
+        if (this.tile != null) {
+            this.tile.setPartWorld(world);
+        }
+    }
+
     public void refreshWorld() {
         this.view = container != null && part.shouldWrapWorld() ? part.getWorldView(this) : null;
         this.world = this.view != null ? new MCMPWorldWrapper(this, this, this.view) : null;
         if (this.tile != null) {
-            this.tile.setPartWorld(world);
+            setTile(this.tile); // Refreshes the world, position and PartInfo
         }
     }
 

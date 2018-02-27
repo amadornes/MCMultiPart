@@ -266,6 +266,10 @@ public interface IMultipart {
         part.getState().getBlock().onPlantGrow(part.getState(), part.getPartWorld(), part.getPartPos(), source);
     }
 
+    public default boolean canPlayerDestroy(IPartInfo part, EntityPlayer player) {
+        return true;
+    }
+
     public default void onPartHarvested(IPartInfo part, EntityPlayer player) {
         part.getState().getBlock().onBlockHarvested(part.getPartWorld(), part.getPartPos(), part.getState(), player);
     }
@@ -278,6 +282,14 @@ public interface IMultipart {
     }
 
     public default void onRemoved(IPartInfo part) {
+    }
+
+    public default boolean canPlacePartAt(World world, BlockPos pos) {
+        return true;
+    }
+
+    public default boolean canPlacePartOnSide(World world, BlockPos pos, EnumFacing side, IPartSlot slot) {
+        return canPlacePartAt(world, pos);
     }
 
     public default void onPartAdded(IPartInfo part, IPartInfo otherPart) {
@@ -308,8 +320,15 @@ public interface IMultipart {
         return state.getCollisionBoundingBox(world, pos);
     }
 
+    public default AxisAlignedBB getSelectedBoundingBox(IPartInfo part) {
+        return part.getState().getSelectedBoundingBox(part.getPartWorld(), part.getPartPos());
+    }
+
+    public default void onEntityCollidedWithPart(IPartInfo part, Entity entity) {
+        part.getState().getBlock().onEntityCollidedWithBlock(part.getPartWorld(), part.getPartPos(), part.getState(), entity);
+    }
+
     public default void dropPartAsItem(IPartInfo part, int fortune) {
         part.getState().getBlock().dropBlockAsItem(part.getActualWorld(), part.getPartPos(), part.getState(), fortune);
     }
-
 }
