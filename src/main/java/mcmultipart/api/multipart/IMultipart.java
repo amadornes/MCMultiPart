@@ -229,6 +229,10 @@ public interface IMultipart {
         return part.getState().getBlock().isFoliage(world, pos);
     }
 
+    public default boolean isLadder(IBlockAccess world, BlockPos pos, IPartInfo part, EntityLivingBase entity) {
+        return part.getState().getBlock().isLadder(part.getState(), world, pos, entity);
+    }
+
     public default boolean isLeaves(IBlockAccess world, BlockPos pos, IPartInfo part) {
         return part.getState().getBlock().isLeaves(part.getState(), world, pos);
     }

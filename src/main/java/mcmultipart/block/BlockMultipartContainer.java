@@ -481,7 +481,12 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     @Override
     public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity) {
-        return super.isLadder(state, world, pos, entity);// TODO: Maybe?
+        return anyMatch(world, pos, i -> {
+            if (!(world instanceof World)) return false;
+            return i.getPart().getCollisionBoundingBox(i.getPartWorld(), pos, i.getState()).offset(pos)
+                    .intersects(entity.getEntityBoundingBox().grow(0.01 / 16F)) &&
+                    i.getPart().isLadder(i.wrapAsNeeded(world), pos, i, entity);
+        });
     }
 
     @Override
