@@ -71,8 +71,10 @@ public class MCMPCommonProxy {
             if (info != null && info.getKey().getBlockPlacementLogic() != null) {
                 EnumActionResult result = placePart(stack, player, event.getWorld(), event.getPos(), event.getFace(), (float) event.getHitVec().x,
                         (float) event.getHitVec().y, (float) event.getHitVec().z, event.getHand(), info);
-                event.setCancellationResult(result);
-                event.setCanceled(true);
+                if (result != EnumActionResult.PASS) {
+                    event.setCancellationResult(result);
+                    event.setCanceled(true);
+                }
             }
         }
     }
