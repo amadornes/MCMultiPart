@@ -121,19 +121,19 @@ public final class MultipartHelper {
         return Optional.empty();
     }
     
-	public static World unwrapWorld(World world) {
-		if (world instanceof IMultipartWorld) {
-			return ((IMultipartWorld) world).getActualWorld();
-		}
-		return world;
-	}
+    public static World unwrapWorld(World world) {
+        if (world instanceof IMultipartWorld) {
+           return ((IMultipartWorld) world).getActualWorld();
+        }
+        return world;
+    }
 
-	public static IBlockAccess unwrapBlockAccess(IBlockAccess world) {
-		if (world instanceof IMultipartBlockAccess) {
-			return ((IMultipartBlockAccess) world).getActualWorld();
-		}
-		return world;
-	}
+    public static IBlockAccess unwrapBlockAccess(IBlockAccess world) {
+        if (world instanceof IMultipartBlockAccess) {
+           return ((IMultipartBlockAccess) world).getActualWorld();
+        }
+        return world;
+    }
 
     private static final class DummyPartInfo implements IPartInfo, IMultipartContainer {
 
