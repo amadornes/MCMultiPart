@@ -42,12 +42,12 @@ public abstract class MultipartAction {
         }
 
         public Change(IPartInfo info) {
-            this(info.getPartPos(), info.getSlot(), info.getState(), getUpdateTag.apply(info.getTile().getPartUpdatePacket()));
+            this(info.getPartPos(), info.getSlot(), info.getState(), info.getTile() != null ? getUpdateTag.apply(info.getTile().getPartUpdatePacket()) : null);
         }
 
         @Override
         public void handlePacket(EntityPlayer player) {
-            PartInfo.handleUpdatePacket(player.world, pos, slot, state, new SPacketUpdateTileEntity(pos, 0, data));
+            PartInfo.handleUpdatePacket(player.world, pos, slot, state, data != null ? new SPacketUpdateTileEntity(pos, 0, data) : null);
         }
 
         private static final MethodHandle SPacketUpdateTileEntity$nbt;
