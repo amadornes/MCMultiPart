@@ -163,7 +163,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
                     if (i.getPart().canPlayerDestroy(i, player)) {
                         i.getPart().onPartHarvested(i, player);
                         if (player == null || !player.capabilities.isCreativeMode) {
-                            i.getPart().getDrops(world, pos, i, 0).forEach(s -> spawnAsEntity(world, pos, s));
+                            i.getPart().getDrops(i.getPartWorld(), pos, i, 0).forEach(s -> spawnAsEntity(world, pos, s));
                         }
                         return true;
                     } else {
