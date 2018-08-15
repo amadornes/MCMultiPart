@@ -195,7 +195,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
         if (hit != null) {
             IPartInfo part = getTile(world, pos).get().get(MCMultiPart.slotRegistry.getValue(hit.subHit)).get();
             if (!part.getPart().addDestroyEffects(part, manager)) {
-                IBlockState state = part.getPart().getActualState(world, pos, part);
+                IBlockState state = part.getPart().getActualState(part.getPartWorld(), pos, part);
                 for (int i = 0; i < 4; ++i) {
                     for (int j = 0; j < 4; ++j) {
                         for (int k = 0; k < 4; ++k) {
@@ -248,7 +248,7 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
                             break;
                     }
 
-                    manager.addEffect(new ParticleDigging(world, pX, pY, pZ, 0.0D, 0.0D, 0.0D, part.getPart().getActualState(world, pos, part)) {
+                    manager.addEffect(new ParticleDigging(world, pX, pY, pZ, 0.0D, 0.0D, 0.0D, part.getPart().getActualState(part.getPartWorld(), pos, part)) {
                     }.setBlockPos(pos).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
                 }
             }
