@@ -1,16 +1,8 @@
 package mcmultipart.util;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
-
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSetMultimap;
-
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.multipart.IMultipart;
 import mcmultipart.api.ref.MCMPCapabilities;
@@ -38,23 +30,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.village.VillageCollection;
-import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.EnumDifficulty;
-import net.minecraft.world.EnumSkyBlock;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.IWorldEventListener;
-import net.minecraft.world.MinecraftException;
-import net.minecraft.world.NextTickListEntry;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldSettings;
-import net.minecraft.world.WorldType;
+import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.border.WorldBorder;
@@ -68,6 +46,8 @@ import net.minecraft.world.storage.WorldSavedData;
 import net.minecraft.world.storage.loot.LootTableManager;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.common.capabilities.Capability;
+
+import java.util.*;
 
 public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
@@ -232,6 +212,22 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public void markAndNotifyBlock(BlockPos pos, Chunk chunk, IBlockState iblockstate, IBlockState newState, int flags) {
+        if (part.getPartPos().equals(pos)) {
+            if ((flags & 2) != 0 && (!this.isRemote || (flags & 4) == 0) && (chunk == null || chunk.isPopulated())) {
+                notifyBlockUpdate(pos, iblockstate, newState, flags);
+            }
+            if ((flags & 0b00001) != 0) {
+                notifyNeighborsOfStateChange(pos, newState.getBlock(), true);
+                part.getContainer().getParts().values().forEach(i -> {
+                    if (i != part) {
+                        i.getPart().onPartChanged(i, part);
+                    }
+                });
+            }
+            if ((flags & 0b10000) != 0) {
+                updateObservingBlocksAt(pos, newState.getBlock());
+            }
+        }
         getActualWorld().markAndNotifyBlock(pos, chunk, iblockstate, newState, flags);
     }
 
@@ -255,22 +251,11 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
     @Override
     public void notifyBlockUpdate(BlockPos pos, IBlockState oldState, IBlockState newState, int flags) {
         if (part.getPartPos().equals(pos)) {
-            if ((flags & 0b00001) != 0) {
-                notifyNeighborsOfStateChange(pos, newState.getBlock(), true);
-                part.getContainer().getParts().values().forEach(i -> {
-                    if (i != part) {
-                        i.getPart().onPartChanged(i, part);
-                    }
-                });
-            }
             if ((flags & 0b00010) != 0) {
                 MultipartNetworkHandler.queuePartChange(part.getActualWorld(), new MultipartAction.Change(part));
             }
             if ((flags & 0b00100) == 0) {
                 markBlockRangeForRenderUpdate(pos, pos);
-            }
-            if ((flags & 0b10000) != 0) {
-                updateObservingBlocksAt(pos, newState.getBlock());
             }
             return;
         }
@@ -433,7 +418,7 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public RayTraceResult rayTraceBlocks(Vec3d vec31, Vec3d vec32, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox,
-            boolean returnLastUncollidableBlock) {
+                                         boolean returnLastUncollidableBlock) {
         return getActualWorld().rayTraceBlocks(vec31, vec32, stopOnLiquid, ignoreBlockWithoutBoundingBox, returnLastUncollidableBlock);
     }
 
@@ -444,13 +429,13 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public void playSound(EntityPlayer player, double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume,
-            float pitch) {
+                          float pitch) {
         getActualWorld().playSound(player, x, y, z, soundIn, category, volume, pitch);
     }
 
     @Override
     public void playSound(double x, double y, double z, SoundEvent soundIn, SoundCategory category, float volume, float pitch,
-            boolean distanceDelay) {
+                          boolean distanceDelay) {
         getActualWorld().playSound(x, y, z, soundIn, category, volume, pitch, distanceDelay);
     }
 
@@ -461,20 +446,20 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public void spawnParticle(EnumParticleTypes particleType, double xCoord, double yCoord, double zCoord, double xSpeed, double ySpeed,
-            double zSpeed, int... parameters) {
+                              double zSpeed, int... parameters) {
         getActualWorld().spawnParticle(particleType, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed, parameters);
     }
 
     @Override
     public void spawnAlwaysVisibleParticle(int p_190523_1_, double p_190523_2_, double p_190523_4_, double p_190523_6_, double p_190523_8_,
-            double p_190523_10_, double p_190523_12_, int... p_190523_14_) {
+                                           double p_190523_10_, double p_190523_12_, int... p_190523_14_) {
         getActualWorld().spawnAlwaysVisibleParticle(p_190523_1_, p_190523_2_, p_190523_4_, p_190523_6_, p_190523_8_, p_190523_10_,
                 p_190523_12_, p_190523_14_);
     }
 
     @Override
     public void spawnParticle(EnumParticleTypes particleType, boolean ignoreRange, double xCoord, double yCoord, double zCoord,
-            double xSpeed, double ySpeed, double zSpeed, int... parameters) {
+                              double xSpeed, double ySpeed, double zSpeed, int... parameters) {
         getActualWorld().spawnParticle(particleType, ignoreRange, xCoord, yCoord, zCoord, xSpeed, ySpeed, zSpeed, parameters);
     }
 
@@ -1011,7 +996,7 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public EntityPlayer getClosestPlayer(double p_190525_1_, double p_190525_3_, double p_190525_5_, double p_190525_7_,
-            Predicate<Entity> p_190525_9_) {
+                                         Predicate<Entity> p_190525_9_) {
         return getActualWorld().getClosestPlayer(p_190525_1_, p_190525_3_, p_190525_5_, p_190525_7_, p_190525_9_);
     }
 
@@ -1032,7 +1017,7 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public EntityPlayer getNearestAttackablePlayer(double posX, double posY, double posZ, double maxXZDistance, double maxYDistance,
-            Function<EntityPlayer, Double> playerToDouble, Predicate<EntityPlayer> p_184150_12_) {
+                                                   Function<EntityPlayer, Double> playerToDouble, Predicate<EntityPlayer> p_184150_12_) {
         return getActualWorld().getNearestAttackablePlayer(posX, posY, posZ, maxXZDistance, maxYDistance, playerToDouble, p_184150_12_);
     }
 
