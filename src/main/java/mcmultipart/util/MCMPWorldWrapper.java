@@ -223,8 +223,7 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
                         i.getPart().onPartChanged(i, part);
                     }
                 });
-            }
-            if ((flags & 0b10000) != 0) {
+            } else if ((flags & 0b10000) == 0) {
                 updateObservingBlocksAt(pos, newState.getBlock());
             }
         }
