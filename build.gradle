@@ -14,7 +14,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-String modversion = "2.5.1"
+String modversion = "2.5.2"
 
 if (System.getenv("BUILD_NUMBER") != null && System.getenv("SHOW_BUILD_NUMBER") != null) {
 	version = modversion + "_" + System.getenv("BUILD_NUMBER")
