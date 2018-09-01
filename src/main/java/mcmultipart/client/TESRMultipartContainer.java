@@ -38,6 +38,8 @@ public class TESRMultipartContainer extends TileEntitySpecialRenderer<TileMultip
     		int destroyStage, float alpha) {
         if (destroyStage >= 0) {
             RayTraceResult hit = Minecraft.getMinecraft().objectMouseOver;
+            if (hit.typeOfHit != RayTraceResult.Type.BLOCK) return;
+
             if (hit.getBlockPos().equals(te.getPartPos())) {
                 IPartSlot slotHit = MCMultiPart.slotRegistry.getValue(hit.subHit);
                 Optional<IPartInfo> infoOpt = te.get(slotHit);
