@@ -217,7 +217,7 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
                 notifyBlockUpdate(pos, iblockstate, newState, flags);
             }
             if ((flags & 0b00001) != 0) {
-                notifyNeighborsOfStateChange(pos, newState.getBlock(), true);
+                notifyNeighborsRespectDebug(pos, newState.getBlock(), true);
                 part.getContainer().getParts().values().forEach(i -> {
                     if (i != part) {
                         i.getPart().onPartChanged(i, part);
@@ -268,6 +268,11 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public void notifyNeighborsRespectDebug(BlockPos pos, Block blockType, boolean notifyObservers) {
+        part.getContainer().getParts().values().forEach(i -> {
+            if (i != part) {
+                i.getPart().onPartChanged(i, part);
+            }
+        });
         getActualWorld().notifyNeighborsRespectDebug(pos, blockType, notifyObservers);
     }
 
