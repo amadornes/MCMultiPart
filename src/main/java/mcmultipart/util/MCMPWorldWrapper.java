@@ -268,11 +268,13 @@ public class MCMPWorldWrapper extends World implements IMultipartWorld {
 
     @Override
     public void notifyNeighborsRespectDebug(BlockPos pos, Block blockType, boolean notifyObservers) {
-        part.getContainer().getParts().values().forEach(i -> {
-            if (i != part) {
-                i.getPart().onPartChanged(i, part);
-            }
-        });
+        if (this.worldInfo.getTerrainType() != WorldType.DEBUG_ALL_BLOCK_STATES) {
+            part.getContainer().getParts().values().forEach(i -> {
+                if (i != part) {
+                    i.getPart().onPartChanged(i, part);
+                }
+            });
+        }
         getActualWorld().notifyNeighborsRespectDebug(pos, blockType, notifyObservers);
     }
 
