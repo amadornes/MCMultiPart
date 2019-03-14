@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.IntUnaryOperator;
 
 import com.google.common.base.Preconditions;
-
+import it.unimi.dsi.fastutil.longs.LongAVLTreeSet;
+import it.unimi.dsi.fastutil.longs.LongSortedSet;
 import mcmultipart.MCMultiPart;
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.multipart.IMultipart;
@@ -56,7 +56,7 @@ public final class PartInfo implements IPartInfo {
     private IWorldView view;
     private MCMPWorldWrapper world;
 
-    private Set<Long> scheduledTicks;
+    private LongSortedSet scheduledTicks;
 
     public PartInfo(TileMultipartContainer container, IPartSlot slot, IMultipart part, IBlockState state, IMultipartTile tile) {
         this.container = container;
@@ -165,14 +165,22 @@ public final class PartInfo implements IPartInfo {
 
     public void scheduleTick(int delay) {
         if (scheduledTicks == null) {
-            scheduledTicks = new HashSet<>();
+            scheduledTicks = new LongAVLTreeSet();
         }
         scheduledTicks.add(delay + getContainer().getPartWorld().getTotalWorldTime());
         getContainer().getPartWorld().scheduleUpdate(getContainer().getPartPos(), MCMultiPart.multipart, delay);
     }
 
     public boolean checkAndRemoveTick() {
-        return scheduledTicks != null && scheduledTicks.remove(getContainer().getPartWorld().getTotalWorldTime());
+        if (scheduledTicks == null) return false;
+
+        boolean shouldTick = false;
+        long worldTime = getContainer().getPartWorld().getTotalWorldTime(), time;
+        while (!scheduledTicks.isEmpty() && (time = scheduledTicks.firstLong()) <= worldTime) {
+            scheduledTicks.remove(time);
+            shouldTick = true;
+        }
+        return shouldTick;
     }
 
     public boolean hasPendingTicks() {
