@@ -1,0 +1,25 @@
+modLoader="javafml"
+loaderVersion="[28,)"
+issueTrackerURL="http://my.issue.tracker/"
+[[mods]]
+modId="mcmultipart"
+version="${file.jarVersion}"
+displayName="MCMultiPart"
+displayURL="https://github.com/amadornes/MCMultiPart"
+authors="amadornes"
+description='''
+A universal multipart API for modern Minecraft.
+'''
+
+[[dependencies.mcmultipart]]
+    modId="forge"
+    mandatory=true
+    versionRange="[28,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.mcmultipart]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.14.4]"
+    ordering="NONE"
+    side="BOTH"
