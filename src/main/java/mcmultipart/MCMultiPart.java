@@ -33,6 +33,7 @@ import mcmultipart.capability.CapabilityJoiner;
 import mcmultipart.capability.CapabilityJoiner.JoinedItemHandler;
 import mcmultipart.capability.CapabilityMultipartContainer;
 import mcmultipart.capability.CapabilityMultipartTile;
+import mcmultipart.capability.CapabilityTileMultipartContainerProvider;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.network.MultipartNetworkHandler;
 import mcmultipart.slot.SlotRegistry;
@@ -136,6 +137,7 @@ public class MCMultiPart {
 
 		CapabilityMultipartContainer.register();
 		CapabilityMultipartTile.register();
+		CapabilityTileMultipartContainerProvider.register();
 
 		MultipartCapabilityHelper.registerCapabilityJoiner(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY,
 				JoinedItemHandler::join);

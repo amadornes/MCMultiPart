@@ -4,6 +4,7 @@ import mcmultipart.MCMultiPart;
 import mcmultipart.RayTraceHelper;
 import mcmultipart.api.container.IMultipartContainerBlock;
 import mcmultipart.api.container.IPartInfo;
+import mcmultipart.api.ref.MCMPCapabilities;
 import mcmultipart.api.slot.IPartSlot;
 import mcmultipart.api.slot.SlotUtil;
 import mcmultipart.multipart.PartInfo;
@@ -67,7 +68,11 @@ public class BlockMultipartContainer extends Block implements ITileEntityProvide
 
     public static Optional<TileMultipartContainer> getTile(IBlockAccess world, BlockPos pos) {
         TileEntity te = world.getTileEntity(pos);
-        return te != null && te instanceof TileMultipartContainer ? Optional.of((TileMultipartContainer) te) : Optional.empty();
+        if (te == null) return Optional.empty();
+        if (te.hasCapability(MCMPCapabilities.TILE_MULTIPART_CONTAINER_PROVIDER_CAPABILITY, null)) {
+            return Optional.of(te.getCapability(MCMPCapabilities.TILE_MULTIPART_CONTAINER_PROVIDER_CAPABILITY, null).getTileMultipartContainer());
+        }
+        return te instanceof TileMultipartContainer ? Optional.of((TileMultipartContainer) te) : Optional.empty();
     }
 
     @Override
